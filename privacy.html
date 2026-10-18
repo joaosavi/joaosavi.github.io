@@ -1,33 +1,27 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Privacy policy</title>
+<title>Privacy</title>
+<script>
+  try { var t = localStorage.getItem("theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&family=Atkinson+Hyperlegible+Next:wght@400;600&display=swap" rel="stylesheet">
-<style>
-  :root { --fog: #e9eef5; --ink: #13203a; --slate: #52627e; --signal: #e3a21a; color-scheme: light; }
-  @media (prefers-color-scheme: dark) {
-    :root { --fog: #0f1830; --ink: #e6ecf7; --slate: #9aa9c4; --signal: #f2b53a; color-scheme: dark; }
-  }
-  body { margin: 0; background: var(--fog); color: var(--ink); font: 1.0625rem/1.65 "Atkinson Hyperlegible Next", system-ui, sans-serif; }
-  main { max-width: 38rem; margin: 0 auto; padding: clamp(3rem, 10vh, 6rem) 1rem 4rem; }
-  h1 { font-family: "Bricolage Grotesque", sans-serif; font-size: clamp(2.2rem, 7vw, 3.2rem); line-height: 1; letter-spacing: -.03em; margin: 0 0 1.5rem; }
-  p { margin: 0 0 1rem; }
-  a { color: inherit; text-underline-offset: .2em; }
-  a:focus-visible { outline: 3px solid var(--signal); outline-offset: 4px; }
-  .back { display: inline-block; margin-top: 2rem; color: var(--slate); }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
 </head>
 <body>
-<main>
-  <h1>Privacy policy</h1>
-  <p>This site hosts the privacy policy of gmail-agent, a private command-line tool for personal automation.</p>
-  <p>gmail-agent accesses only its operator's own mailbox, through the Gmail API, on demand. It does not store, sell or share mail data with third parties. The OAuth token is kept in a private vault.</p>
-  <p>Access can be revoked at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.</p>
-  <a class="back" href="./">Back to the projects</a>
-</main>
+<div class="page">
+  <nav class="top"><a class="mark" href="./" aria-label="Home">js</a></nav>
+  <main class="doc">
+    <h1>Privacy</h1>
+    <p>This page is the privacy policy of gmail-agent, a private command-line tool for personal automation.</p>
+    <p>gmail-agent accesses only its operator's own mailbox, through the Gmail API, on demand. It does not store, sell or share mail data with third parties. The OAuth token is kept in a private vault.</p>
+    <p>Access can be revoked at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.</p>
+  </main>
+  <footer><span>joaosavi, 2026</span><a href="./">Projects</a></footer>
+</div>
 </body>
 </html>
