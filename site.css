@@ -51,15 +51,20 @@ svg { display: block; }
   padding: 1.5rem 0;
 }
 .mark {
-  font-weight: 600;
-  font-size: 1.05rem;
-  letter-spacing: -.03em;
-  text-decoration: none;
   width: 2.25rem; height: 2.25rem;
   display: grid; place-items: center;
+  padding-bottom: .2rem;
+  font-size: 1.35rem;
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -.03em;
+  text-decoration: none;
+  color: var(--text);
   border: 1px solid var(--line);
   border-radius: 10px;
+  transition: color .2s ease, border-color .2s ease;
 }
+.mark:hover { color: var(--accent); border-color: var(--muted); }
 .theme {
   width: 2.25rem; height: 2.25rem;
   display: grid; place-items: center;
@@ -89,12 +94,6 @@ svg { display: block; }
   line-height: 1.5;
   font-weight: 350;
   color: var(--muted);
-}
-.lede em {
-  font-family: "Newsreader", Georgia, serif;
-  font-style: italic;
-  font-size: 1.08em;
-  color: var(--text);
 }
 .profile {
   display: inline-flex;
