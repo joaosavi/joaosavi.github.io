@@ -118,6 +118,7 @@ main { flex: 1; }
   color: var(--muted);
 }
 
+.repos + .section { margin-top: 3rem; }
 .repos {
   list-style: none;
   margin: 0;
