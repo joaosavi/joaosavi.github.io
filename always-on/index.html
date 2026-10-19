@@ -161,6 +161,7 @@ tr:last-child td { border-bottom: 0; }
 th[scope="row"] { text-transform: none; font: 600 14px/1.4 var(--f-body); letter-spacing: 0; color: var(--ink); background: var(--surface); white-space: normal; }
 tr:last-child th[scope="row"] { border-bottom: 0; }
 td code { overflow-wrap: anywhere; }
+td:first-child code, th code { white-space: nowrap; overflow-wrap: normal; }
 tr.rec td:first-child { box-shadow: inset 3px 0 0 var(--led); }
 .pill { display: inline-block; font: 600 11.5px/1 var(--f-body); padding: 4px 8px; border-radius: 999px; white-space: nowrap; }
 .pill.ok { background: var(--ok-soft); color: var(--ok); }
@@ -543,6 +544,13 @@ a.chip::after { content: "›"; position: absolute; right: 8px; top: 6px; color:
 .mb-legend li::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; background: var(--c); vertical-align: -1px; }
 td code.cp { cursor: copy; }
 td code.cp.ok { background: var(--ok-soft); }
+.mods { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin: 14px 0 26px; }
+.mod { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 14px 16px; }
+.mod-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.mod-h code { font-weight: 600; font-size: 14px; white-space: nowrap; background: none; padding: 0; }
+.mod-cmd { font: 500 12.5px/1 var(--f-mono); color: var(--muted); border: 1px solid var(--line-strong); border-radius: 6px; padding: 4px 7px; white-space: nowrap; }
+.mod p { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--ink); }
+.mod p code { overflow-wrap: normal; }
 </style>
 <style>[hidden]:not([hidden=until-found i]) { display: none !important; }</style>
 </head>
@@ -777,7 +785,7 @@ Tudo aqui é instalado. O que precisa de uma conta minha fica instalado e espera
    B. Quais contas do Telegram falam com o bot: a minha (recomendado), a minha e de outras pessoas, ou não sei.
    C. O número do WhatsApp do agente: um número de ativação do 5sim, que você me guia a comprar (recomendado), um chip meu, depois, ou não sei. Explique que o número fica como segunda conta no app do WhatsApp do meu celular.
    D. Quais números de WhatsApp mandam arquivo para a máquina: o meu (recomendado), o meu e outros, ou não sei.
-   E. O cofre de senhas: Bitwarden na nuvem, de graça (recomendado), um Vaultwarden meu, ou não sei.
+   E. O cofre de senhas: Bitwarden na nuvem, de graça (recomendado), ou um Vaultwarden na própria VPS, sem domínio, aberto por túnel SSH (txt/cofre.txt mostra como), ou não sei.
    F. O navegador: o meu Chrome pela extensão Claude in Chrome e também o navegador sem tela da VPS (recomendado), só um deles, ou não sei.
 3. Monte na ordem: Telegram, WhatsApp, cofre, navegador, conectores do claude.ai. Para cada um, prove que funciona: o bot me manda uma mensagem e só a minha conta passa; um arquivo que eu encaminho aparece na pasta; o agente usa um segredo do cofre sem mostrar o valor; o agente abre uma página e me diz o título.
 
@@ -868,6 +876,43 @@ Comece pela etapa 1.</pre><button type="button" class="unfold" id="unfold">Ver o
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>vault names                                  # lista os nomes, sem valor
 vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do comando</pre></div>
   <p>O valor fica só no ambiente do comando. O <a href="#mods">Cockpit</a> é um pacote de mods para o Claude Code, e o <code>secret-guard</code> dele lê os valores do cofre e mascara o segredo que aparecer numa saída. O usuário que roda as sessões ainda consegue destravar o cofre. Por isso o cofre evita vazamento por acidente, mas não impede um agente que queira ler a senha.</p>
+  
+  <h2>Bitwarden ou Vaultwarden</h2>
+  <div class="table-wrap stack"><table>
+    <tr><th>Cofre</th><th>Onde as senhas ficam</th><th>Quem mantém</th></tr>
+    <tr><td data-label="Cofre">Bitwarden</td><td data-label="Onde as senhas ficam">Na nuvem do Bitwarden, de graça para uma pessoa</td><td data-label="Quem mantém">O Bitwarden</td></tr>
+    <tr><td data-label="Cofre">Vaultwarden</td><td data-label="Onde as senhas ficam">Na sua VPS, num container Docker</td><td data-label="Quem mantém">Você: atualizar a imagem e guardar cópia da pasta de dados</td></tr>
+  </table></div>
+  <p>O Vaultwarden é um servidor compatível com o Bitwarden: os mesmos apps, a mesma extensão e o mesmo comando <code>bw</code> funcionam com ele. Para quem começa, o Bitwarden na nuvem dá menos trabalho.</p>
+
+  <h2>Como subir o Vaultwarden na VPS sem domínio</h2>
+  <p>O cofre web só abre em página segura, com HTTPS ou no endereço <code>localhost</code>. Ligado só no <code>127.0.0.1</code> da VPS e aberto por um túnel SSH, o seu navegador vê <code>localhost</code> e aceita. Não precisa de domínio nem de certificado, e o cofre não fica exposto na internet.</p>
+  <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>sudo mkdir -p /srv/vaultwarden
+docker run -d --name vaultwarden \
+  --restart unless-stopped \
+  -e SIGNUPS_ALLOWED=true \
+  -e DOMAIN=http://localhost:8222 \
+  -v /srv/vaultwarden:/data \
+  -p 127.0.0.1:8222:80 \
+  vaultwarden/server:1.34.3</pre></div>
+  <p>No seu computador, abra o túnel e acesse <code>http://localhost:8222</code>:</p>
+  <div class="code"><div class="code-head"><span>bash, no seu computador</span><button class="copy">Copiar</button></div><pre>ssh -N -L 8222:127.0.0.1:8222 &lt;usuario&gt;@&lt;ip&gt;</pre></div>
+  <ol class="steps">
+    <li>Crie a sua conta e a conta do agente, com outro e-mail.</li>
+    <li>Na sua conta, crie uma organização e compartilhe com a conta do agente só os itens que ele vai usar.</li>
+    <li>Feche o cadastro: recrie o container com <code>SIGNUPS_ALLOWED=false</code>. A pasta <code>/srv/vaultwarden</code> guarda tudo, então nada se perde.</li>
+    <li>Na VPS, aponte o <code>bw</code> para o cofre com <code>bw config server http://127.0.0.1:8222</code>. O agente fala com ele direto, sem túnel.</li>
+  </ol>
+  <p>O cofre inteiro mora em <code>/srv/vaultwarden</code>. Copie essa pasta para fora da VPS de vez em quando, porque sem ela as senhas se perdem.</p>
+
+  <h2>Como usar o Vaultwarden no celular</h2>
+  <p>O app do Bitwarden no celular só aceita servidor com HTTPS. Há dois caminhos:</p>
+  <div class="table-wrap stack"><table>
+    <tr><th>Caminho</th><th>Como fica</th><th>Custo</th></tr>
+    <tr><td data-label="Caminho">Tailscale (recomendado)</td><td data-label="Como fica">Uma rede privada entre os seus aparelhos. <code>sudo tailscale serve --bg 8222</code> publica o cofre com HTTPS em <code>https://&lt;maquina&gt;.&lt;rede&gt;.ts.net</code>, visível só para aparelhos da sua rede</td><td data-label="Custo">Grátis para uso pessoal</td></tr>
+    <tr><td data-label="Caminho">Domínio próprio</td><td data-label="Como fica">Um subdomínio apontando para a VPS e o Caddy na frente, que tira o certificado sozinho. O cofre fica aberto na internet, protegido só pela senha mestra</td><td data-label="Custo">O domínio: um .com.br sai a R$ 40 por ano</td></tr>
+  </table></div>
+  <p>O endereço do GitHub Pages não serve: ele só entrega arquivos estáticos e não repassa tráfego para a VPS.</p>
   <button type="button" class="done-btn" data-done="cofre">Marquei como feito</button>
 </article>
 
@@ -2008,18 +2053,44 @@ agent stop teste</pre></div>
   <div class="crumb">Montar a máquina</div>
   <h1>Como instalar o Cockpit e o que ele faz</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="mods">Copiar para o agente</button><a href="txt/mods.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">O Cockpit é um pacote de mods, extensões que mudam o comportamento do Claude Code. Os guardas barram erros comuns de um agente, a sessão que trabalha sozinha numa tarefa, e os instrumentos mostram em que ponto cada sessão está. Instale o pacote inteiro.</p>
+  <p class="lead">O Cockpit é um pacote de 11 mods, extensões que mudam o comportamento do Claude Code. Os guardas barram os erros comuns de um agente, a sessão que trabalha sozinha numa tarefa. Os instrumentos mostram em que ponto cada sessão está. Instale o pacote inteiro.</p>
+
+  <h2>Instalar</h2>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>claude plugin marketplace add joaosavi/cockpit
 claude plugin install cockpit@cockpit</pre></div>
-  <p>Reinicie o Claude Code e rode <code>/cockpit:setup</code> numa sessão de terminal. Ele faz quatro perguntas, com prévia, e grava a status line, a linha do spinner e o momento de compactar a conversa. Para as sessões que já rodam pegarem os mods, rode <code>/reload-plugins</code> nelas. O orquestrador, a sessão que distribui as tarefas, e o recover, a sessão de socorro, pegam com <code>sudo systemctl restart &lt;orquestrador&gt; recover-rc</code>.</p>
-  <p>O que cada mod faz, as opções e os limites estão no <a href="https://github.com/joaosavi/cockpit">guia do Cockpit</a>. Os três que mais importam numa máquina que roda sozinha:</p>
-  <div class="table-wrap"><table>
-    <tr><th>Mod</th><th>O que segura</th></tr>
-    <tr><td><code>secret-guard</code></td><td>Troca o valor de todo segredo por <code>&lt;hidden:NOME&gt;</code> na saída das ferramentas, antes de o agente ler</td></tr>
-    <tr><td><code>memory-guard</code></td><td>Confere a folga do teto antes de typecheck, build, teste e Playwright, roda com um processo só ou espera, e repete com um processo o que morreu com exit 137, o código de saída de um processo morto por falta de memória</td></tr>
-    <tr><td><code>usage-limit</code></td><td>Segura subagente em paralelo perto do limite de uso do plano, pausa antes de estourar, e retoma a sessão quando a janela de uso volta</td></tr>
-  </table></div>
-  <p>Com os mods instalados, siga para <a href="#provar">Como provar que tudo funciona</a>.</p>
+  <p>Reinicie o Claude Code e rode <code>/cockpit:setup</code> numa sessão de terminal. Ele faz quatro perguntas, com prévia, e grava a status line, a linha do spinner e o momento de compactar a conversa. As sessões que já rodam pegam os mods com <code>/reload-plugins</code>. O orquestrador, a sessão que distribui as tarefas, e o recover, a sessão de socorro, pegam com <code>sudo systemctl restart &lt;orquestrador&gt; recover-rc</code>.</p>
+
+  <h2>Guardas</h2>
+  <p>Barram o erro antes de ele acontecer.</p>
+    <div class="mods">
+      <div class="mod"><div class="mod-h"><code>secret-guard</code></div><p>Troca o valor de todo segredo por <code>&lt;hidden:NOME&gt;</code> na saída das ferramentas, antes de o agente ler. Quando o agente escreve o marcador num <code>.env</code> ou num comando, o mod põe o valor real no lugar.</p></div>
+      <div class="mod"><div class="mod-h"><code>collision-guard</code></div><p>Avisa quando duas sessões editam o mesmo arquivo, e segura uma vez o comando git que levaria junto a edição ainda não commitada de outra sessão.</p></div>
+      <div class="mod"><div class="mod-h"><code>pipefail</code></div><p>Liga o <code>set -o pipefail</code> quando o agente passa um teste ou typecheck por <code>tail</code>, <code>head</code> ou <code>grep</code>. Sem ele, um teste que falha sai com código 0 e parece aprovado.</p></div>
+      <div class="mod"><div class="mod-h"><code>memory-guard</code> <span class="mod-cmd">/ram</span></div><p>Antes de typecheck, build, teste e Playwright, confere a folga do teto de memória: roda com um processo só, espera ou recusa. Repete com um processo o comando morto por falta de memória (exit 137).</p></div>
+      <div class="mod"><div class="mod-h"><code>loop-breaker</code></div><p>Percebe quando o agente anda em círculo, com a mesma correção no mesmo arquivo ou o mesmo erro voltando, e manda ele parar e mudar de abordagem.</p></div>
+      <div class="mod"><div class="mod-h"><code>usage-limit</code> <span class="mod-cmd">/limit</span></div><p>Protege o limite de uso do plano: um subagente por vez a partir de 90%, commit do trabalho em 97%, pausa que guarda os últimos 2% para você, e retomada sozinha quando a janela reinicia.</p></div>
+    </div>
+
+  <h2>Instrumentos</h2>
+  <p>Mostram em que ponto a sessão está.</p>
+    <div class="mods">
+      <div class="mod"><div class="mod-h"><code>hud</code> <span class="mod-cmd">/hud</span></div><p>Uma linha embaixo do prompt com modelo, branch, contexto usado, limite do plano e folga de memória.</p></div>
+      <div class="mod"><div class="mod-h"><code>spinner-status</code></div><p>Troca a dica embaixo do spinner por uma linha curta, escrita pelo Haiku, com o ponto em que a sessão está.</p></div>
+      <div class="mod"><div class="mod-h"><code>panel</code> <span class="mod-cmd">/panel</span></div><p>Uma página local com um cartão por sessão da máquina: se ela espera você, o que precisa e o que está fazendo, com resumo a cada poucos minutos.</p></div>
+      <div class="mod"><div class="mod-h"><code>skill-loader</code></div><p>Carrega a skill certa na hora certa, como a de escrita técnica num commit ou a de diagnóstico quando você cola um erro, sem regra no <code>CLAUDE.md</code>.</p></div>
+    </div>
+
+  <h2>Memória</h2>
+    <div class="mods">
+      <div class="mod"><div class="mod-h"><code>global-memory</code></div><p>Cria uma pasta de memória da máquina, ao lado da memória de cada projeto. O que o agente aprende sobre a VPS chega a toda sessão, de qualquer pasta.</p></div>
+    </div>
+
+  <p>Todo comando do Cockpit também responde em texto, então funciona pelo Remote Control, no app do celular.</p>
+
+  <h2>Abrir o painel no seu computador</h2>
+  <p>O <code>panel</code> escuta só no <code>127.0.0.1</code> da VPS. Para abrir no navegador do seu computador, ligue um túnel SSH e acesse <code>http://localhost:7777</code>:</p>
+  <div class="code"><div class="code-head"><span>bash, no seu computador</span><button class="copy">Copiar</button></div><pre>ssh -N -L 7777:127.0.0.1:7777 &lt;usuario&gt;@&lt;ip&gt;</pre></div>
+  <p>As opções e os limites de cada mod estão no <a href="https://github.com/joaosavi/cockpit">repositório do Cockpit</a>. Com os mods instalados, siga para <a href="#provar">Como provar que tudo funciona</a>.</p>
   <button type="button" class="done-btn" data-done="mods">Marquei como feito</button>
 </article>
 

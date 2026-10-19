@@ -10,4 +10,49 @@ vault names                                  # lista os nomes, sem valor
 vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do comando
 ```
 
-O valor fica só no ambiente do comando. O Cockpit (txt/mods.txt) é um pacote de mods para o Claude Code, e o `secret-guard` dele lê os valores do cofre e mascara o segredo que aparecer numa saída. O usuário que roda as sessões ainda consegue destravar o cofre. Por isso o cofre evita vazamento por acidente, mas não impede um agente que queira ler a senha.
+O valor fica só no ambiente do comando. O Cockpit (txt/mods.txt) é um pacote de mods para o Claude Code, e o `secret-guard` dele lê os valores do cofre e mascara o segredo que aparecer numa saída. O usuário que roda as sessões ainda consegue destravar o cofre. Por isso o cofre evita vazamento por acidente, mas não impede um agente que queira ler a senha. 
+
+## Bitwarden ou Vaultwarden 
+
+| Cofre | Onde as senhas ficam | Quem mantém |
+| --- | --- | --- | 
+| Bitwarden | Na nuvem do Bitwarden, de graça para uma pessoa | O Bitwarden | 
+| Vaultwarden | Na sua VPS, num container Docker | Você: atualizar a imagem e guardar cópia da pasta de dados |  
+O Vaultwarden é um servidor compatível com o Bitwarden: os mesmos apps, a mesma extensão e o mesmo comando `bw` funcionam com ele. Para quem começa, o Bitwarden na nuvem dá menos trabalho. 
+
+## Como subir o Vaultwarden na VPS sem domínio 
+O cofre web só abre em página segura, com HTTPS ou no endereço `localhost`. Ligado só no `127.0.0.1` da VPS e aberto por um túnel SSH, o seu navegador vê `localhost` e aceita. Não precisa de domínio nem de certificado, e o cofre não fica exposto na internet. 
+
+bash, na máquina
+```
+sudo mkdir -p /srv/vaultwarden
+docker run -d --name vaultwarden \
+  --restart unless-stopped \
+  -e SIGNUPS_ALLOWED=true \
+  -e DOMAIN=http://localhost:8222 \
+  -v /srv/vaultwarden:/data \
+  -p 127.0.0.1:8222:80 \
+  vaultwarden/server:1.34.3
+```
+
+No seu computador, abra o túnel e acesse `http://localhost:8222`: 
+
+bash, no seu computador
+```
+ssh -N -L 8222:127.0.0.1:8222 <usuario>@<ip>
+```
+
+- Crie a sua conta e a conta do agente, com outro e-mail. 
+- Na sua conta, crie uma organização e compartilhe com a conta do agente só os itens que ele vai usar. 
+- Feche o cadastro: recrie o container com `SIGNUPS_ALLOWED=false`. A pasta `/srv/vaultwarden` guarda tudo, então nada se perde. 
+- Na VPS, aponte o `bw` para o cofre com `bw config server http://127.0.0.1:8222`. O agente fala com ele direto, sem túnel.  
+O cofre inteiro mora em `/srv/vaultwarden`. Copie essa pasta para fora da VPS de vez em quando, porque sem ela as senhas se perdem. 
+
+## Como usar o Vaultwarden no celular 
+O app do Bitwarden no celular só aceita servidor com HTTPS. Há dois caminhos: 
+
+| Caminho | Como fica | Custo |
+| --- | --- | --- | 
+| Tailscale (recomendado) | Uma rede privada entre os seus aparelhos. `sudo tailscale serve --bg 8222` publica o cofre com HTTPS em `https://<maquina>.<rede>.ts.net`, visível só para aparelhos da sua rede | Grátis para uso pessoal | 
+| Domínio próprio | Um subdomínio apontando para a VPS e o Caddy na frente, que tira o certificado sozinho. O cofre fica aberto na internet, protegido só pela senha mestra | O domínio: um .com.br sai a R$ 40 por ano |  
+O endereço do GitHub Pages não serve: ele só entrega arquivos estáticos e não repassa tráfego para a VPS.
