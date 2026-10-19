@@ -1,0 +1,86 @@
+# Quickstart 
+Este guia põe o Claude Code numa VPS, um servidor virtual alugado que fica ligado 24 horas. Nela roda o orquestrador, uma sessão do Claude Code que recebe os seus pedidos e abre um agente por tarefa. O agente é outra sessão do Claude Code, que trabalha sozinha na pasta do projeto. Você fala com o orquestrador pelo terminal, pelo VS Code e pelo app do Claude, no celular ou no navegador. O app chega à VPS pelo Remote Control, o recurso do Claude Code que liga uma sessão ao app. 
+
+- 1
+Consiga a VPS. 
+A Oracle dá de graça uma VM ARM, uma máquina virtual com 2 núcleos e 12 GB de memória. O cadastro leva uns 30 minutos, e o cartão só é pré-autorizado, sem cobrança. O pedido do passo 2 faz o cadastro com você, no seu Chrome.Como conseguir a VPS grátis na Oracle (txt/oracle.txt) 
+- 2
+Cole o pedido no Claude Code. 
+No Claude Code do seu computador, cole o pedido. Ele faz as perguntas da montagem e monta a VPS passo a passo, e só para nos passos que precisam de você. Ver o pedido e o que ele pergunta (txt/setup.txt) 
+- 3
+Peça uma tarefa pelo celular. 
+Abra o claude.ai/code (https://claude.ai/code) ou a aba Code do app, escolha a sessão do orquestrador e escreva a tarefa. Ele abre um agente na pasta do projeto e avisa você quando o agente termina.  
+Para montar à mão, siga Montar a máquina (txt/preparar.txt), do passo 1 ao 10. Se a Oracle não servir, veja Quando usar outra máquina (txt/caminhos.txt). 
+
+## Como fica no fim 
+
+Você Celular e navegador, app do Claude (txt/orquestrador.txt) Terminal e VS Code, SSH (txt/acesso.txt) Telegram e WhatsApp, aviso e arquivo (txt/canais-ligar.txt)   
+claude.ai. Remote Control
+, a VPS liga para fora, nenhuma porta aberta  
+A sua VPS, ligada 24 horas 
+
+Espaço dos agentes, com limite de memória (txt/memoria.txt) 
+Orquestrador, recebe o pedido, abre e encerra agentes (txt/orquestrador.txt) 
+Agente do site, trabalha num projeto 
+Agente da API, trabalha em outro   
+Recover, sessão que responde se a máquina travar (txt/memoria.txt) Travas de segurança, o Cockpit, pacote de mods (txt/mods.txt) Cofre, gerenciador de senhas, usadas pelo nome (txt/cofre.txt) Navegador, o seu Chrome ou o da VPS (txt/navegador.txt)    
+
+## O que muda para você 
+
+|  | Chat do claude.aiChat | Claude Code no PCPC | Claude Code na VPSVPS |
+| --- | --- | --- | --- | 
+| Mexe nos seus repos e roda comandos |  |  |  | 
+| Continua com o seu PC desligado |  |  |  | 
+| Você pede e acompanha pelo celular |  |  |  | 
+| Várias tarefas ao mesmo tempo, cada uma com teto de memória |  |  |  | 
+| Trabalha sem pedir permissão a cada passo |  |  |  | 
+| Avisa e manda arquivo pelo Telegram |  |  |  | 
+| Usa senha sem o valor passar pela conversa |  |  |  |  
+em parte: o PC precisa estar ligado e você por perto. 
+A montagem leva de 1 a 2 horas e é feita uma vez. Depois, cuidar da máquina fica com você, e a manutenção automática faz quase tudo. 
+
+## O que você precisa ter 
+
+- Plano Pro, Max, Team ou Enterprise do Claude. O Remote Control não funciona com chave de API, e no Team e no Enterprise um Owner precisa ligar o Remote Control nas configurações de admin do Claude Code. 
+- O Claude Code instalado na máquina que você usa hoje. 
+- Uma chave SSH, o par de arquivos que faz o login no servidor sem senha, e o seu código num repositório git, de preferência no GitHub. 
+- Para a Oracle, um cartão no seu nome com US$ 100 de limite. A Oracle pré-autoriza esse valor quando a conta passa para Pay As You Go, o plano pago que mantém a cota grátis sem cobrança. Cartão virtual temporário serve.  
+Para conferir se a conta pode usar o Remote Control, rode `claude remote-control --help`. O comando lista as opções quando pode e responde com erro quando não pode. 
+
+## Todos os mini-guias 
+
+### Canais e ferramentas 
+
+- Como conseguir o bot do Telegram e o número do WhatsApp (txt/canais-conseguir.txt)
+- Como ligar o Telegram e o WhatsApp à máquina (txt/canais-ligar.txt)
+- Como dar senhas ao agente sem ele ver o valor (txt/cofre.txt)
+- Como deixar o agente usar um navegador (txt/navegador.txt)
+- Como dar ao agente e-mail, conectores e ferramentas (txt/ferramentas.txt) 
+
+### Conseguir a máquina 
+
+- Como conseguir a VPS grátis na Oracle (txt/oracle.txt)
+- Quando usar outra máquina (txt/caminhos.txt)
+- Como contratar uma VPS paga (txt/vps.txt)
+- Como rodar num container de uma VPS sua (txt/container.txt) 
+
+### Montar a máquina 
+
+- Como fazer a config inicial da VPS (txt/preparar.txt)
+- Como acessar a VPS por SSH e VS Code (txt/acesso.txt)
+- Como instalar as ferramentas e levar suas configs (txt/ambiente.txt)
+- Como fazer login no Claude e no GitHub (txt/logins.txt)
+- Como organizar pastas, repos e segredos (txt/codigo.txt)
+- Como pôr teto de memória e o agente de recover (txt/memoria.txt)
+- Como montar o orquestrador e os agentes (txt/orquestrador.txt)
+- Como instalar o Cockpit e o que ele faz (txt/mods.txt)
+- Como deixar a máquina se cuidar sozinha (txt/manter.txt)
+- Como provar que tudo funciona (txt/provar.txt) 
+
+### Consultar 
+
+- Como personalizar e guardar a configuração (txt/personalizar.txt)
+- Como baixar um arquivo da máquina (txt/baixar.txt)
+- Comandos do dia a dia (txt/dia.txt)
+- O que fazer quando algo quebra (txt/problemas.txt)
+- O que custa e o que proteger (txt/seguranca.txt)

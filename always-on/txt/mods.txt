@@ -1,0 +1,18 @@
+# Como instalar o Cockpit e o que ele faz  
+O Cockpit é um pacote de mods, extensões que mudam o comportamento do Claude Code. Os guardas barram erros comuns de um agente, a sessão que trabalha sozinha numa tarefa, e os instrumentos mostram em que ponto cada sessão está. Instale o pacote inteiro. 
+
+bash, na máquina
+```
+claude plugin marketplace add joaosavi/cockpit
+claude plugin install cockpit@cockpit
+```
+
+Reinicie o Claude Code e rode `/cockpit:setup` numa sessão de terminal. Ele faz quatro perguntas, com prévia, e grava a status line, a linha do spinner e o momento de compactar a conversa. Para as sessões que já rodam pegarem os mods, rode `/reload-plugins` nelas. O orquestrador, a sessão que distribui as tarefas, e o recover, a sessão de socorro, pegam com `sudo systemctl restart <orquestrador> recover-rc`. 
+O que cada mod faz, as opções e os limites estão no guia do Cockpit (https://github.com/joaosavi/cockpit). Os três que mais importam numa máquina que roda sozinha: 
+
+| Mod | O que segura |
+| --- | --- | 
+| `secret-guard` | Troca o valor de todo segredo por `<hidden:NOME>` na saída das ferramentas, antes de o agente ler | 
+| `memory-guard` | Confere a folga do teto antes de typecheck, build, teste e Playwright, roda com um processo só ou espera, e repete com um processo o que morreu com exit 137, o código de saída de um processo morto por falta de memória | 
+| `usage-limit` | Segura subagente em paralelo perto do limite de uso do plano, pausa antes de estourar, e retoma a sessão quando a janela de uso volta |  
+Com os mods instalados, siga para Como provar que tudo funciona (txt/provar.txt).

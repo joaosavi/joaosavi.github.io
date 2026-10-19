@@ -1,0 +1,35 @@
+# Como fazer login no Claude e no GitHub  
+Cada máquina faz o próprio login no Claude e no GitHub. Os dois logins mostram um link ou um código e esperam você. Rode cada um dentro de um tmux, um terminal que continua rodando se o SSH cair, para a espera não morrer junto. 
+
+Não copie as credenciais
+Não copie o `~/.claude/.credentials.json` do seu computador. O token de renovação, a credencial que mantém o login vivo, muda a cada renovação, e a primeira máquina que renovar derruba a outra. 
+
+## Claude 
+
+bash, na máquina
+```
+tmux new -s login 'claude auth login'
+```
+
+Abra o link em qualquer aparelho e entre na conta. Se a página mostrar um código, cole no terminal, em "Paste code here if prompted". O tmux fecha quando o login termina. 
+O login vence. Três dias antes, uma sessão aberta no terminal avisa, mas as sessões do app não mostram o aviso. Uma sessão que dura mais que o login para de andar. Para renovar, rode o mesmo comando e reinicie o orquestrador e o recover com `sudo systemctl restart <orquestrador> recover-rc`. O orquestrador é a sessão que distribui as tarefas, e o recover é a sessão de socorro, que responde quando a máquina trava. 
+
+## GitHub 
+A máquina ganha uma chave SSH própria, que você revoga sem afetar a sua. 
+
+bash, na máquina
+```
+ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519 -C agente
+gh auth login -h github.com -p ssh -w
+```
+
+O login do `gh` dá acesso a todos os repos da conta. Se o agente, a sessão do Claude Code que trabalha na máquina, usa poucos repos, crie no lugar um token fine-grained, uma credencial que só abre os repos escolhidos, em github.com/settings/personal-access-tokens (https://github.com/settings/personal-access-tokens), e use `gh auth login --with-token`. No login completo, quando ele oferecer subir uma chave, escolha a da máquina. Ele mostra um código de 8 caracteres. Abra github.com/login/device (https://github.com/login/device) e digite o código em até 15 minutos. Ignore o aviso de que ele não achou navegador. 
+Escolha com qual identidade os commits do agente saem. O e-mail `noreply` do GitHub, em github.com/settings/emails (https://github.com/settings/emails), liga o commit à sua conta sem expor o seu e-mail. Um e-mail de trabalho faz o commit aparecer como da empresa. 
+
+bash, na máquina
+```
+git config --global user.name "Seu Nome"
+git config --global user.email 12345678+voce@users.noreply.github.com
+```
+
+Servidores MCP com OAuth pedem login de novo nesta máquina. Compare a saída de `claude mcp list` no seu computador e na máquina, e autentique com `/mcp` numa sessão.

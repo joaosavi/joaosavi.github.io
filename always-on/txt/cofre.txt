@@ -1,0 +1,13 @@
+# Como dar senhas ao agente sem ele ver o valor  
+Um cofre é um gerenciador de senhas. Aqui ele ganha uma conta só do agente, a sessão do Claude Code que trabalha na máquina. O agente usa cada senha pelo nome, e o valor não passa pela conversa. 
+
+## Como funciona 
+O cofre pode ser o Bitwarden ou um Vaultwarden seu. A conta do agente enxerga só uma organização, com os itens que você compartilhar com ela. Um comando pequeno destrava o cofre, entrega o valor ao processo e trava de novo: 
+
+bash, na máquina
+```
+vault names                                  # lista os nomes, sem valor
+vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do comando
+```
+
+O valor fica só no ambiente do comando. O Cockpit (txt/mods.txt) é um pacote de mods para o Claude Code, e o `secret-guard` dele lê os valores do cofre e mascara o segredo que aparecer numa saída. O usuário que roda as sessões ainda consegue destravar o cofre. Por isso o cofre evita vazamento por acidente, mas não impede um agente que queira ler a senha.

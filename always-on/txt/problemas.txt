@@ -1,0 +1,33 @@
+# O que fazer quando algo quebra  
+Procure pelo sintoma na primeira coluna. Quase todos estes problemas aconteceram na nossa montagem. Na tabela, o orquestrador é a sessão do Claude Code que distribui as tarefas, o agente é a sessão que trabalha numa tarefa, o recover é a sessão de socorro, e o Cockpit é o pacote de mods que barra erros comuns. 
+
+| Sintoma | Causa | Conserto |
+| --- | --- | --- | 
+| A sessão aberta pelo app pede permissão para tudo | O Claude Code ignora `defaultMode: "bypassPermissions"` vindo das configurações do projeto | `--permission-mode bypassPermissions` na linha do `claude`, depois de `remote-control` no modo servidor | 
+| Serviço ativo e nenhuma sessão no app | A sessão está parada numa pergunta de primeira vez | `tmux -L <nome> attach` mostra qual. Rode o comando à mão uma vez | 
+| O app não abre sessão nova | A ponte do modo servidor caiu, ou o app recusou a sessão | Pelo SSH, num tmux: `claude --remote-control <nome>` na pasta. A sessão aparece pronta no app | 
+| Um tmux aberto pelo SSH some quando o serviço reinicia | O serviço usa o socket padrão do tmux | Socket próprio, com `tmux -L <nome>`, no serviço | 
+| O segundo agente herda o teto do primeiro | Os dois nasceram no mesmo servidor tmux | Um servidor tmux por agente, como no comando `agent` | 
+| O orquestrador não acha o agente no `ListAgents` | O agente subiu sem `XDG_RUNTIME_DIR`, e o socket dele caiu em `/tmp` | `XDG_RUNTIME_DIR=/run/user/$(id -u)` no `claude`, nunca no tmux | 
+| O agente trava em "trust this folder" | A pasta-mãe confiável não cobre um repo com `.claude` próprio | Marcar a pasta do projeto como confiável antes de abrir, como o `agent start` faz | 
+| A RAM continua ocupada depois de arquivar a sessão no app | Arquivar não encerra o processo | `agent stop <nome>` | 
+| A sessão nova está em outro branch e sem os `.env` | `--spawn worktree` abre a sessão num worktree, uma cópia de trabalho separada do repo, que nasce do branch padrão do remoto, só com arquivos versionados | `--spawn same-dir`, ou `.worktreeinclude` mais `worktree.baseRef: "head"` | 
+| O servidor sumiu e não voltou | Ele sai depois de uns 10 minutos sem rede | O laço do script do serviço | 
+| O app parou de abrir sessão, e o painel mostra `Login expired` | O login do Claude na máquina venceu. Sessão que dura mais que o login para de andar até um login novo | `claude auth login` num tmux, e depois `sudo systemctl restart <orquestrador> recover-rc` | 
+| A sessão de uma máquina cai quando a outra renova o login | As duas dividem o mesmo `.credentials.json` | Login próprio em cada máquina | 
+| Um MCP de banco não conecta | O banco de desenvolvimento ficou parado depois do reboot | `docker update --restart unless-stopped` no container do banco | 
+| Um teste que sobe banco estoura 5s | Máquina de 2 núcleos com a suíte inteira em paralelo | Limite de 30s nos testes que sobem container | 
+| O SSH leva de 20 a 77 segundos para entrar, e as sessões do app param de responder | A máquina chegou ao limite de memória sem swap. O kernel descarta o cache de disco, e todo processo espera o disco | Swap e o teto das sessões, em Como pôr teto de memória e o agente de recover (txt/memoria.txt). Na hora, abra a sessão `recover` e mate o comando pesado | 
+| Um build ou uma suíte de testes morre com `Killed` ou exit 137 | O grupo das sessões bateu no teto, e o kernel matou o maior processo | Menos paralelismo, ou um teto maior para o projeto no `projects.json`. O `memory-guard` do Cockpit faz isso sozinho | 
+| Todas as sessões caem juntas quando um comando morre por falta de memória | Sem `OOMPolicy=continue`, o systemd para o serviço inteiro quando o kernel mata um processo dele | `OOMPolicy=continue` na unit, e `sudo systemctl daemon-reload` | 
+| A sessão parou com `You've hit your session limit` e continua parada depois do horário de volta | Ninguém escreveu nela depois que o limite voltou | O `usage-limit` do Cockpit retoma sozinho. Sem ele, mande uma mensagem pela sessão no app | 
+| Um binário falha com `exec format error` | Binário x86 numa máquina ARM | Baixar a versão arm64 e conferir com `file` | 
+| A extensão Remote-SSH não aparece no VS Code | O `code` chamado do WSL instalou do lado WSL | Instalar pelo VS Code do Windows | 
+| `gh auth login` reclama que não achou navegador | A máquina não tem interface gráfica | Ignorar e digitar o código em github.com/login/device | 
+| O container do LXD não recebe IP nem sai para a internet | O Docker põe o FORWARD em DROP, e a imagem da nuvem fecha o INPUT em REJECT | O serviço `lxd-firewall`, com as regras na ordem da página do container | 
+| Uma ferramenta do projeto some nas sessões do app | O serviço não carregou o `.bashrc` ou o `.zshrc`, onde nvm e afins põem o PATH | `bash -lic` ou `zsh -lic` no `ExecStart` | 
+| O VS Code do Windows recusa a chave | A chave do Windows não está no `authorized_keys` da máquina | Autorizar a chave pública do Windows, como em Acesso por SSH e VS Code | 
+| As regras do firewall somem ou duplicam no reboot | `netfilter-persistent save` grava as regras do Docker junto | Regras num serviço `oneshot` que confere antes de inserir | 
+| Um `lxc list` instalou o LXD | No Ubuntu 24.04, o `lxc` sem o snap é um instalador | Saber antes de rodar num host que importa | 
+| A Oracle recusa criar a VM com "Out of host capacity" | Conta só Always Free, ou falta máquina ARM livre naquele availability domain | O upgrade para Pay As You Go. Com ele aprovado, outro availability domain ou mais tarde | 
+| A VM grátis da Oracle aparece parada | Em conta só gratuita, a Oracle para a VM que passa 7 dias ociosa | Ligar de novo em Compute, Instances, Start, e fazer o upgrade para Pay As You Go |

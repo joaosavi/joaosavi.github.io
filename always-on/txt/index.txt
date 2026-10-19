@@ -1,0 +1,31 @@
+# Claude Code Always-On: mini-guias em texto
+
+Cada linha é um mini-guia. Baixe com: curl -s https://joaosavi.github.io/always-on/txt/<id>.txt
+
+- inicio: Quickstart
+- setup: Como deixar o Claude Code montar tudo
+- canais-conseguir: Como conseguir o bot do Telegram e o número do WhatsApp
+- canais-ligar: Como ligar o Telegram e o WhatsApp à máquina
+- cofre: Como dar senhas ao agente sem ele ver o valor
+- navegador: Como deixar o agente usar um navegador
+- ferramentas: Como dar ao agente e-mail, conectores e ferramentas
+- oracle: Como conseguir a VPS grátis na Oracle
+- caminhos: Quando usar outra máquina
+- vps: Como contratar uma VPS paga
+- container: Como rodar num container de uma VPS sua
+- preparar: Como fazer a config inicial da VPS
+- acesso: Como acessar a VPS por SSH e VS Code
+- ambiente: Como instalar as ferramentas e levar suas configs
+- logins: Como fazer login no Claude e no GitHub
+- codigo: Como organizar pastas, repos e segredos
+- memoria: Como pôr teto de memória e o agente de recover
+- orquestrador: Como montar o orquestrador e os agentes
+- mods: Como instalar o Cockpit e o que ele faz
+- manter: Como deixar a máquina se cuidar sozinha
+- provar: Como provar que tudo funciona
+- personalizar: Como personalizar e guardar a configuração
+- baixar: Como baixar um arquivo da máquina
+- dia: Comandos do dia a dia
+- problemas: O que fazer quando algo quebra
+- seguranca: O que custa e o que proteger
+- fontes: Fontes

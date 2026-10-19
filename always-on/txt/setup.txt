@@ -1,0 +1,115 @@
+# Como deixar o Claude Code montar tudo  
+Abra o Claude Code no seu computador, cole o pedido abaixo e responda às perguntas. O Claude Code monta com você, do começo ao fim, a VPS, o servidor virtual alugado que fica ligado 24 horas. Antes de cada parte da montagem, ele baixa o mini-guia dela neste site. 
+
+pedido para o Claude Code
+```
+Você vai montar comigo, do começo ao fim, o Claude Code Always-On: uma VPS que fica ligada 24 horas com o Claude Code rodando, um orquestrador que abre um agente por tarefa, e canais para eu falar com ele pelo celular. Pense nisso como um produto pronto, igual a um assistente que já vem configurado: existe um padrão, e o padrão entra inteiro, a não ser que eu diga que não quero alguma parte. Eu posso nunca ter feito nada parecido, então explique tudo em português simples. A sessão pode ser longa, e tudo bem.
+
+O passo a passo de cada parte está nos mini-guias de https://joaosavi.github.io/always-on/. A versão em texto de cada um sai com:
+curl -s https://joaosavi.github.io/always-on/txt/<id>.txt
+O índice dos ids está em https://joaosavi.github.io/always-on/txt/index.txt. Antes de cada parte da montagem, baixe o mini-guia dela e siga os comandos de lá, trocando os valores entre <> pelos meus.
+
+## COMO FALAR COMIGO
+
+- Antes de perguntar ou instalar qualquer coisa, diga em uma frase o que ela é e para que serve. Exemplo: "Slice é um grupo de memória do Linux: tudo que roda dentro dele divide um teto, e um agente pesado não trava os outros."
+- Faça as perguntas em blocos, numa lista que eu leio de uma vez. Cada item tem uma letra, uma frase do que é, as opções numeradas com a recomendada marcada, e sempre uma última opção "não sei, me ajuda a escolher". Exemplo:
+
+  A. Como o agente entra no seu GitHub, para clonar os seus repos e mandar commits.
+     A1. Login completo pelo GitHub CLI: ele vê todos os seus repos. É o mais rápido. (recomendado)
+     A2. Token só dos repos que você escolher: mais seguro, e cada repo novo pede um token.
+     A3. Não sei, me ajuda a escolher.
+  B. ...
+  Responda item por item, como "A3, B1", ou só "pode ser o recomendado".
+
+- Eu respondo em texto livre, item por item. O item que eu não comentar fica no recomendado.
+- Pergunta que depende da resposta de outra vai no bloco seguinte, nunca no mesmo.
+- Uma pergunta sozinha e simples pode vir com duas ou três opções diretas, sem bloco.
+- Quando eu disser "não sei" ou "me explica", faça uma a três perguntas curtas sobre o meu caso, de sim ou não, e diga qual opção serve e por quê.
+- Não pergunte o que o padrão já resolve. Não me peça print nem confirmação de passo que você mesmo consegue conferir.
+- Mostre o progresso no início de cada etapa, numa linha: "Etapa 3 de 6: montar a máquina".
+- Se eu mostrar que já entendo do assunto, encurte as explicações para meia linha e mantenha as opções.
+
+## REGRAS DO TRABALHO
+
+- O padrão entra inteiro. Tirar um item só quando eu pedir com todas as letras.
+- O que você descobrir no meu computador serve para somar ao padrão (um repo para levar, um servidor MCP para copiar), nunca para tirar item dele. Não ter Telegram ou WhatsApp no meu computador não é motivo para não instalar.
+- Não instale nada além do roteiro e do que os meus repos pedem. Banco, Postgres, Redis ou serviço de exemplo só entram se um repo meu usa. Docker faz parte do roteiro e entra sempre.
+- Não ofereça importar dotfiles, shell ou configuração do terminal. A máquina nasce com o Ubuntu padrão e as ferramentas do roteiro.
+- Teste cada passo antes de seguir, com a prova que o mini-guia traz, e me mostre o resultado em uma linha. Passo que falhou: investigue, conserte, teste de novo. Só depois siga.
+- Comando que pede resposta no terminal (login, senha, a primeira subida de uma sessão) eu rodo. Me dê a linha pronta, diga em qual terminal e o que vai aparecer, e espere.
+- O que acontece num site, ofereça fazer comigo no meu Chrome, pela extensão Claude in Chrome (https://claude.com/chrome). Sem a extensão, me guie tela por tela.
+- Nunca mostre senha, token ou chave privada na tela, nem grave em log ou commit. Para ler um .env, use só os nomes das variáveis.
+- Não copie ~/.claude/.credentials.json nem ~/.claude.json entre máquinas. Cada máquina faz o próprio login.
+- Não abra porta para a internet além da 22.
+- Antes de apagar, reiniciar ou rodar algo destrutivo, peça a minha confirmação na hora.
+- Guarde o progresso em ~/claude-always-on/progresso.md no meu computador, sem segredo nenhum. Se a conversa recomeçar, leia esse arquivo antes de tudo e retome do próximo passo.
+
+## O ROTEIRO
+
+ETAPA 1 DE 6: APRESENTAR
+1. Sem mudar nada, olhe o meu computador: o sistema, as chaves em ~/.ssh, os repos git na pasta atual e um nível abaixo, claude --version, claude auth status, claude mcp list e gh auth status. Rode claude remote-control --help: se der erro, a conta não tem Remote Control, e aí me explique o que falta (plano Pro, Max, Team ou Enterprise; no Team, um Owner liga nas configurações de admin) e pare.
+2. Me explique em até quatro linhas o que vou ter no fim: uma VPS ligada 24 horas, um orquestrador no app do Claude que recebe os meus pedidos e abre um agente por tarefa, os agentes trabalhando sozinhos com o meu computador desligado, e avisos pelo Telegram.
+3. Mostre o padrão como lista numerada, cada item com uma frase do que é, e peça "ok" ou comentários por item:
+   1. VPS grátis na Oracle: 2 núcleos ARM e 12 GB de memória, sem mensalidade.
+   2. Orquestrador: a sessão que eu vejo no app. Ele recebe os pedidos e abre um agente por tarefa.
+   3. Teto de memória e recover: cada agente tem um limite, para um projeto pesado não travar os outros, e o recover é uma sessão reserva que responde mesmo com a máquina cheia.
+   4. Cockpit: um pacote de travas que esconde senha que aparece na tela, segura comando que vai estourar a memória e pausa antes do limite de uso do plano.
+   5. Manutenção automática: a máquina volta sozinha depois de atualizar o sistema e encerra agente esquecido.
+   6. Telegram: o orquestrador me avisa e me manda arquivo. Não é chat.
+   7. WhatsApp: eu encaminho PDF e áudio para um número do agente, e eles chegam na máquina. Não é chat.
+   8. Cofre de senhas: o agente usa as minhas senhas pelo nome, sem o valor aparecer na conversa.
+   9. Navegador: o agente usa o meu Chrome, ou um navegador sem tela na própria VPS.
+   10. Sessões em bypass: os agentes trabalham sem pedir permissão a cada passo. É o que deixa eles trabalharem comigo longe.
+
+ETAPA 2 DE 6: CONFIGURAÇÃO GERAL
+Um bloco só, no formato acima:
+A. O nome do agente. Ele vira o nome do orquestrador no app, o usuário Linux da VPS e o nome da máquina. Sugira três nomes curtos e minúsculos, e diga que dá para trocar cada um depois, no plano. As configs levadas do meu computador que apontam para /home/<meu-usuário-local> você reescreve para o usuário novo e testa, sem me perguntar.
+B. Como o agente entra no meu GitHub: login completo pelo gh com chave SSH da máquina (recomendado), token só de alguns repos, ou não sei.
+C. Com qual nome e e-mail os commits do agente saem: o meu nome com o e-mail noreply do GitHub (recomendado, porque liga o commit à minha conta sem expor o e-mail), o meu e-mail, ou não sei.
+D. Quais repos vão para a VPS. Liste os que achou no meu computador, um por linha, com a data do último commit, e junte os worktrees de um mesmo repo numa linha só. Recomende os que tiveram commit nos últimos 30 dias, e deixe eu acrescentar ou tirar.
+E. Como separar as pastas na VPS: ~/repos para código, uma pasta por empresa para o trabalho dela que não é código, e ~/pessoal (recomendado), tudo numa pasta só, ou do meu jeito.
+Depois das respostas, mostre o plano em uma tela: os nomes, o que vai ser instalado e a ordem das etapas. Espere o meu ok.
+
+ETAPA 3 DE 6: CONSEGUIR A VPS
+Baixe txt/oracle.txt. Me explique em duas linhas por que a Oracle: grátis para sempre dentro da cota, e a conta Pay As You Go é o que faz a VM ser criada sem "Out of host capacity", sem cobrança dentro do limite. Explique o cartão antes: o nome da conta tem que ser igual ao do cartão, pode ser cartão virtual de 24 horas com US$ 100 de limite, e as pré-autorizações de US$ 1 e US$ 100 são estornadas.
+Pergunte, como pergunta única, se faço no meu Chrome com você (recomendado) ou com você me guiando tela por tela. Siga o mini-guia: conta, upgrade, espera da aprovação, chave SSH, VM, IP público e regra da porta 22. Confira você mesmo o que der: o IP pelo ssh, a VM pelo console no Chrome. Se a Oracle não der certo depois de um dia de tentativas, baixe txt/caminhos.txt e me ofereça as alternativas.
+
+ETAPA 4 DE 6: MONTAR A MÁQUINA
+Siga estes mini-guias, nesta ordem, um por vez. Antes de cada um, diga em uma ou duas linhas o que ele monta e por quê. Depois de cada um, rode a prova dele.
+- preparar: o meu usuário com sudo, login só por chave, atualização automática.
+- acesso: o atalho no meu ~/.ssh/config e o VS Code. Ofereça o VS Code com Remote-SSH se eu uso VS Code.
+- ambiente: só as ferramentas do roteiro. Leve do meu computador só o que somar ao trabalho: as skills e os agents de ~/.claude, os plugins e os servidores MCP que não estão no .mcp.json dos repos. Mostre a lista do que achou e leve o que eu não recusar.
+- logins: o Claude e o GitHub, com as respostas de B e C.
+- codigo: as pastas de E, cada uma com um CLAUDE.md curto do contexto dela, os repos de D e os arquivos ignorados que cada repo precisa, um por um, com a minha confirmação de cada arquivo.
+- memoria: swap, o slice dos agentes e o recover. O teto do slice é a memória total menos 512 MB do recover e 1 GB do sistema e do Docker. Numa VPS de 12 GB, isso dá uns 10,5 GB. Só desconte mais se um repo meu sobe container pesado. O teto de cada projeto é o comando mais pesado dele mais uns 500 MB.
+- orquestrador: o projects.json com os repos, o CLAUDE.md, o comando agent, o serviço. O nome dele é o de A.
+- mods: o pacote do Cockpit. Explique em uma linha cada um dos três que mais pesam: secret-guard, memory-guard e usage-limit.
+- manter: a volta depois da atualização e o encerramento de agente esquecido. É infra, entra sem pergunta.
+- provar: a lista inteira de provas, com o reboot depois da minha confirmação.
+
+ETAPA 5 DE 6: CANAIS E FERRAMENTAS
+Tudo aqui é instalado. O que precisa de uma conta minha fica instalado e esperando até eu entregar a conta. Baixe txt/canais-conseguir.txt, txt/canais-ligar.txt, txt/cofre.txt, txt/navegador.txt e txt/ferramentas.txt.
+1. Explique em três linhas o que Telegram e WhatsApp fazem aqui: trocar aviso e arquivo com a máquina, não conversar. A conversa é pelo app do Claude, que é mais seguro: um número ou um bot de mensagem é uma porta de entrada para ataque. Cada canal só aceita as contas de uma lista.
+2. Um bloco com:
+   A. O bot do Telegram: eu crio agora com o BotFather (recomendado, leva dois minutos e você me guia), depois, ou não sei.
+   B. Quais contas do Telegram falam com o bot: a minha (recomendado), a minha e de outras pessoas, ou não sei.
+   C. O número do WhatsApp do agente: um número de ativação do 5sim, que você me guia a comprar (recomendado), um chip meu, depois, ou não sei. Explique que o número fica como segunda conta no app do WhatsApp do meu celular.
+   D. Quais números de WhatsApp mandam arquivo para a máquina: o meu (recomendado), o meu e outros, ou não sei.
+   E. O cofre de senhas: Bitwarden na nuvem, de graça (recomendado), um Vaultwarden meu, ou não sei.
+   F. O navegador: o meu Chrome pela extensão Claude in Chrome e também o navegador sem tela da VPS (recomendado), só um deles, ou não sei.
+3. Monte na ordem: Telegram, WhatsApp, cofre, navegador, conectores do claude.ai. Para cada um, prove que funciona: o bot me manda uma mensagem e só a minha conta passa; um arquivo que eu encaminho aparece na pasta; o agente usa um segredo do cofre sem mostrar o valor; o agente abre uma página e me diz o título.
+
+ETAPA 6 DE 6: ENTREGAR
+1. Peça que eu abra o app do Claude, escolha o orquestrador e mande uma tarefa de teste num repo meu. Acompanhe até ele abrir o agente, o agente responder, o aviso chegar no Telegram e o agente ser encerrado.
+2. Feche com um resumo curto: como pedir uma tarefa, como ver os agentes (agent list), como abrir o recover quando a máquina travar, como baixar um arquivo da VPS, como renovar o login quando ele vencer, e o que ficou pendente, como uma conta que eu disse que entrego depois.
+
+Comece pela etapa 1.
+```
+
+## Se a conversa cair 
+O Claude Code grava o progresso em `~/claude-always-on/progresso.md`, no seu computador. Para retomar, abra o Claude Code de novo, cole o pedido outra vez e acrescente: 
+
+retomar
+```
+Já começamos. Leia ~/claude-always-on/progresso.md e retome do próximo passo.
+```

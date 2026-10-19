@@ -1,0 +1,16 @@
+# Como deixar a máquina se cuidar sozinha  
+Três timers do systemd, tarefas que rodam sozinhas em horário marcado, mantêm a máquina funcionando sem você olhar. Um reinicia as sessões depois da atualização do sistema, outro encerra o agente esquecido, e o terceiro dispara as tarefas agendadas. O agente é a sessão do Claude Code aberta para uma tarefa. 
+
+## Voltar depois da atualização do sistema 
+O `unattended-upgrades` atualiza bibliotecas do sistema de madrugada, e um serviço que segue rodando com a biblioteca antiga apagada pode quebrar dias depois. Um timer diário, rodando logo depois do upgrade, confere com `needrestart` ou pelos arquivos apagados em `/proc/<pid>/maps` se o orquestrador, a sessão que distribui as tarefas, ou o recover, a sessão de socorro, estão nessa situação, e reinicia os dois. O orquestrador volta na mesma conversa pelo `--continue`, e cada agente vivo volta pelo id com `--resume`. Para o `needrestart` não derrubar as sessões no meio de um turno, tire esses serviços do reinício automático dele. 
+
+## Encerrar o que ficou esquecido 
+Arquivar um agente no app não libera a RAM dele. Um timer de hora em hora pode encerrar com `agent stop` o agente sem atividade no transcript há mais de 48 horas e avisar o orquestrador. O id fica no `stopped.jsonl`, e a conversa volta com `--resume`. 
+
+## Tarefas agendadas 
+Quem agenda é o orquestrador. Um timer do systemd manda a ele, por `SendMessage`, o pedido do dia, e ele abre o agente no projeto certo. Exemplos de tarefa agendada: 
+
+- Rodar a suíte de testes toda noite e abrir uma issue com o que quebrou. 
+- Atualizar dependências uma vez por semana, num branch, com os testes rodados. 
+- Resumir de manhã o que os agentes entregaram no dia anterior. 
+- Conferir se um site ou uma API seus respondem, e avisar se não.

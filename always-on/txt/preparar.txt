@@ -1,0 +1,33 @@
+# Como fazer a config inicial da VPS  
+Na VPS, o servidor virtual alugado onde o Claude Code vai rodar, crie o seu usuário, feche o login por senha e confira as atualizações automáticas. Esta página vale para a Oracle e para a VPS dedicada. No container, pule esta página. 
+Se o seu computador usa Linux ou WSL, crie na VPS o mesmo nome de usuário. Assim os caminhos absolutos das suas configurações, como `/home/voce/...`, valem lá sem mudança. Se você vem do macOS, troque `/Users/voce` por `/home/voce` nas configurações que você levar. 
+
+## Usuário com sudo 
+Entre com o usuário que o provedor criou, como `ubuntu`, e rode: 
+
+bash
+```
+sudo adduser --disabled-password --gecos '' voce
+echo 'voce ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/90-voce && sudo chmod 440 /etc/sudoers.d/90-voce
+sudo install -d -m 700 -o voce -g voce /home/voce/.ssh
+sudo install -m 600 -o voce -g voce ~/.ssh/authorized_keys /home/voce/.ssh/authorized_keys
+sudo hostnamectl set-hostname agente
+```
+
+## Login só por chave 
+Antes de fechar a primeira conexão, abra uma segunda com `ssh voce@<ip>` e confira que ela entra. 
+
+bash
+```
+echo 'PasswordAuthentication no' | sudo tee /etc/ssh/sshd_config.d/10-sem-senha.conf
+sudo systemctl reload ssh
+```
+
+## Atualizações e firewall 
+
+- `systemctl is-active unattended-upgrades` deve responder `active`. No Ubuntu Server ele já vem ligado. 
+- Numa VPS comum, feche a entrada a tudo menos o SSH com `sudo ufw allow OpenSSH && sudo ufw --force enable`. 
+- Na Oracle, não ligue o ufw. A imagem e a security list da VCN, a rede virtual da Oracle, já fecham a entrada.  
+
+O Docker passa por cima do ufw
+Porta publicada por container entra por regra própria de iptables, mesmo com o ufw fechado. Publique porta só no loopback, o endereço que só a própria máquina alcança, como `127.0.0.1:5432:5432`.

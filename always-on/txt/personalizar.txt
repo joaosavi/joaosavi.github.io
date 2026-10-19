@@ -1,0 +1,15 @@
+# Como personalizar e guardar a configuração  
+As instruções que valem em toda sessão, um repo com a configuração da máquina e os outros serviços que podem rodar nela. 
+
+## Instruções para toda sessão 
+O `~/.claude/CLAUDE.md` da máquina é o arquivo de instruções que toda sessão, de todo projeto, lê ao começar. Ele já traz a seção de memória. Ponha ali o que deve valer sempre: como o agente, a sessão que faz as tarefas, deve responder, o tom, o que nunca fazer e as preferências de escrita. O setup guiado (txt/setup.txt) pergunta essas preferências e escreve só o que você disser. 
+
+## Um repo com a configuração 
+Um repo privado no GitHub pode guardar a configuração da máquina: as units do systemd, os scripts de `~/.local/bin`, o `~/.claude/CLAUDE.md`, o `settings.json` e as skills. O repo serve de backup e de receita para montar outra máquina. Os arquivos instalados viram links para o repo, e uma mudança na máquina aparece no `git status`. Credencial, `.env` e o `~/.claude/.credentials.json` ficam fora. Você escolhe o que entra. 
+
+## Outros serviços na mesma máquina 
+Tudo que roda na máquina divide a memória com as sessões do Claude Code. Se sobrar folga, um Coolify (https://coolify.io) sobe serviços pequenos em Docker com HTTPS. Dois serviços ajudam a cuidar da própria máquina: 
+
+- Uptime Kuma (https://github.com/louislam/uptime-kuma), que confere se seus sites e serviços respondem e avisa quando caem. 
+- Beszel (https://beszel.dev), que mostra CPU, memória, disco e rede de cada máquina ao longo do tempo.  
+Ponha o teto desses containers abaixo da folga que sobrou fora do slice dos agentes, o grupo do systemd com teto de memória para as sessões. Publique as portas só no loopback, o endereço que só a própria máquina alcança, atrás do proxy do Coolify.

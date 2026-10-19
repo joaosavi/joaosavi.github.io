@@ -1,0 +1,13 @@
+# Como baixar um arquivo da máquina  
+Pelo terminal, com `scp`. Pelo celular, numa página privada do claude.ai. 
+
+## Pelo terminal 
+No terminal do seu computador, com o bloco do `~/.ssh/config` já gravado, rode: 
+
+bash, na sua máquina
+```
+scp <maquina>:~/caminho/relatorio.pdf .
+```
+
+## Pelo celular 
+Sem terminal à mão, como no celular, peça à sessão do Claude Code para publicar o arquivo numa página privada do claude.ai, com botão de download.

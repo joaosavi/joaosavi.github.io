@@ -1,0 +1,8 @@
+# Como deixar o agente usar um navegador  
+O agente, a sessão do Claude Code que trabalha na máquina, usa um navegador de dois jeitos: o Chrome do seu computador ou um navegador sem tela na própria máquina. 
+
+## Chrome do seu computador 
+Use o seu Chrome na maioria dos casos. Com a extensão Claude in Chrome instalada nele, uma sessão da máquina aberta com `--chrome` usa o seu navegador pela ponte do claude.ai, com os seus logins, e você acompanha ao vivo o que ela clica. O computador precisa estar ligado, com o Chrome aberto. 
+
+## Navegador na máquina 
+O `@playwright/mcp` roda na máquina um Chromium headless, um navegador sem tela, para o agente navegar sozinho, sem supervisão. Ligado ao cofre, o gerenciador de senhas do agente, ele digita a senha pelo nome do segredo, e o Playwright mascara o valor em tudo que devolve. Muitos sites, como o Google, barram o login de um navegador headless que vem de um IP de nuvem.

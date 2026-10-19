@@ -1,0 +1,31 @@
+# Comandos do dia a dia  
+Os comandos de uso diário, com a máquina já montada. O orquestrador é a sessão do Claude Code que distribui as tarefas, e cada agente é uma sessão aberta só para uma tarefa. 
+
+| Quero | Faço |
+| --- | --- | 
+| Falar com o agente pelo celular ou navegador | Abro o claude.ai/code ou a aba Code do app e escolho a sessão do orquestrador | 
+| Uma tarefa nova num projeto | Peço ao orquestrador, que abre um agente na pasta do projeto | 
+| Ver os agentes vivos | `agent list`, com a RAM de cada um contra o teto | 
+| Encerrar um agente esquecido | `agent stop <nome>`. Arquivar a sessão no app não libera a RAM | 
+| Um terminal na máquina | `ssh agente` | 
+| Sessão pelo terminal que sobreviva ao SSH | `tmux new -s trabalho`, abro o Claude, saio com Ctrl+b e depois d, volto com `tmux attach -t trabalho` | 
+| Ver pelo celular uma sessão do terminal | `/remote-control` dentro dela, ou abro com `claude --rc` | 
+| Deixar trabalhando e desligar o meu PC | `/bg`, a seta ← no prompt vazio, ou `claude --bg "pedido"` | 
+| Ver as sessões em segundo plano | `claude agents` lista, `claude attach <id>` entra, `claude logs <id>` mostra sem entrar | 
+| Ver a tela do orquestrador | `tmux -L <orquestrador> attach`, e saio com Ctrl+b e depois d | 
+| Ver quanto as sessões usam de memória | `memoria` | 
+| Abrir uma sessão com os agentes no teto | Abro no app a sessão `recover`, a sessão de socorro, que roda com 256 MB reservados fora do teto | 
+| Atualizar o Claude Code | Ele baixa a versão nova sozinho, mas cada sessão roda a versão em que nasceu. `sudo systemctl restart <orquestrador> recover-rc` aplica, e o orquestrador volta na mesma conversa | 
+| Renovar o login do Claude | Quando o app parar de abrir sessão, entro com `ssh agente`, rodo `tmux new -s login 'claude auth login'` e depois `sudo systemctl restart <orquestrador> recover-rc`. Três dias antes de vencer, uma sessão aberta no terminal avisa | 
+| Mudar um servidor MCP | Abro uma sessão nova, que lê a configuração ao começar. Numa sessão antiga, `/mcp` reconecta | 
+| Abrir o app no navegador | `ssh -L 3000:localhost:3000 agente` e `http://localhost:3000` |  
+
+## Segundo plano e bypass 
+Bypass é o modo em que a sessão roda comandos sem pedir permissão. Sem flag, uma sessão de `claude --bg` nasce no modo padrão das suas configurações: Auto quando a conta e o modelo permitem, Manual nos outros casos. Para rodar em segundo plano com bypass, rode antes `claude --dangerously-skip-permissions` uma vez no terminal e aceite o aviso. Sem esse aceite, o `--bg` em bypass é recusado. Depois rode: 
+
+bash
+```
+claude --bg --dangerously-skip-permissions "pedido"
+```
+
+Todas as sessões dividem as portas da máquina. Duas sessões subindo o servidor de desenvolvimento ao mesmo tempo disputam a mesma porta.

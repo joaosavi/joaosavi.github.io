@@ -1,0 +1,46 @@
+# Como organizar pastas, repos e segredos  
+Clone os repos e leve à mão só os arquivos fora do git que o agente usa. O agente é a sessão do Claude Code que trabalha na máquina. 
+
+## Separar os ambientes 
+Antes de clonar, decida como as pastas se dividem. A divisão sugerida separa pelo que cada pasta guarda: 
+
+| Pasta | O que guarda |
+| --- | --- | 
+| `~/repos` | Um repo de código por pasta, de qualquer escopo | 
+| `~/<empresa>` | Trabalho de uma empresa que não é código: documentos, análises, anotações e o `.env` das ferramentas dela | 
+| `~/pessoal` | Projetos pessoais e de estudo |  
+Cada pasta de ambiente ganha um `CLAUDE.md`, o arquivo de instruções que a sessão lê ao começar, com o contexto dela: o que a empresa faz, onde ficam as credenciais e o que o agente não pode tocar. O agente aberto ali carrega esse arquivo, e o contexto de uma empresa não vaza para outra. Os segredos ficam num `.env` por ambiente, com uma seção por serviço. 
+
+## Clonar 
+
+bash, na máquina
+```
+GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=accept-new' git clone git@github.com:<dono>/<repo>.git ~/repos/<repo>
+```
+
+Cada repo clonado entra no `projects.json` do orquestrador, a sessão que abre os agentes, com o teto de RAM do projeto. O passo está em Como montar o orquestrador e os agentes (txt/orquestrador.txt). 
+
+## O que o git ignora 
+No seu computador, liste o que ficou de fora do clone e separe o que é gerado, como `node_modules` e `.next`, do que precisa ir junto: 
+
+bash, na sua máquina
+```
+git status --ignored --porcelain | grep '^!!'
+```
+
+Leve o que precisa num `tar` pelo SSH, que preserva caminho e permissão. Rode o comando na pasta do repo, no seu computador, e troque a lista pelos arquivos que você separou. O exemplo leva só o `.env` da raiz. 
+
+bash, na sua máquina, na pasta do repo
+```
+tar czf - .env | ssh agente 'tar xzf - -C ~/projeto && chmod 600 ~/projeto/.env'
+```
+
+## Dependências e serviços 
+Na máquina, dentro de `~/projeto`, instale o que o projeto pede pelo lockfile, como `npm ci` ou `uv sync`. Se o projeto usa Playwright, rode em seguida `npx playwright install --with-deps chromium`, que tem versão para Linux ARM. Depois suba os serviços com `docker compose up -d`. Os testes de Como provar que tudo funciona (txt/provar.txt) dependem dos dois. 
+
+## Cuidados 
+
+- Leve só o segredo que o agente usa. Uma chave root de nuvem não precisa estar numa máquina que roda sozinha 24 horas. 
+- Se o agente precisa alcançar outra máquina, por exemplo para abrir um túnel até um banco, gere uma chave só dele e autorize lá. 
+- Depois do primeiro `docker compose up -d`, ligue o reinício automático do banco de desenvolvimento com `docker update --restart unless-stopped <container>`. Sem isso, ele fica parado depois de um reboot, e um MCP que aponta para ele não conecta. 
+- Pastas fora de qualquer repo git, como relatórios e anotações, também não chegam sozinhas.

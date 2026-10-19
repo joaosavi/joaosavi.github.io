@@ -1,0 +1,124 @@
+# Como conseguir a VPS grátis na Oracle  
+Uma VPS é um servidor virtual alugado, ligado 24 horas. A Oracle dá uma de graça, sem prazo: uma VM ARM com 2 núcleos e 12 GB de memória, até 200 GB de disco e 10 TB de tráfego de saída por mês. Com a conta Pay As You Go, você continua sem pagar nada dentro desses limites, consegue criar a VM, e ela não é recolhida por ociosidade. 
+
+## O vídeo 
+
+Vídeo: https://www.youtube-nocookie.com/embed/bk5sWon4tnE
+
+Como ter um servidor VPS grátis pra sempre sem gambiarra (https://www.youtube.com/watch?v=bk5sWon4tnE), de Tiago Matos (https://www.youtube.com/channel/UCXUWGUoYNwtRxaRPoB4KocA). Se você travar em alguma tela, assista ao vídeo. Ele faz o cadastro, o upgrade e a VM inteira no console em português. OCPU é a unidade em que a Oracle conta os núcleos de processador. O vídeo usa a cota antiga de 4 OCPU e 24 GB, e a cota atual é de 2 OCPU e 12 GB.  
+
+## O que vem de graça 
+
+| Recurso | Limite |
+| --- | --- | 
+| VM ARM, `VM.Standard.A1.Flex` | 1.500 OCPU-hora e 9.000 GB-hora por mês, o que dá 2 OCPU e 12 GB ligados o mês inteiro | 
+| VM AMD, `VM.Standard.E2.1.Micro` | Até duas, com 1/8 de OCPU e 1 GB cada. Pequenas demais para o Claude Code | 
+| Disco | 200 GB somando todos os volumes de boot e de bloco, com mínimo de 47 GB por VM, e 5 backups de volume | 
+| Tráfego de saída | 10 TB por mês | 
+| IP público | O efêmero, um por VM |  
+
+Tutoriais antigos mostram outra cota
+Até 15/06/2026 a cota ARM era de 4 OCPU e 24 GB, e muitos tutoriais, inclusive vídeos, ainda mostram esse número. Hoje são 2 OCPU e 12 GB. Passar disso numa conta Pay As You Go é cobrado. 
+
+## Por que Pay As You Go 
+
+- Na conta só Always Free, a gratuita, criar a VM ARM quase sempre volta com "Out of host capacity" (capacidade insuficiente), por semanas. A conta Pay As You Go cria na primeira tentativa, com a mesma shape, o tipo de máquina, e o mesmo tamanho. 
+- A Oracle não cobra o que cabe no Always Free depois do upgrade. Ela só cobra o que passa dos limites da tabela acima. 
+- Em conta só gratuita, a Oracle pode recolher a VM que passa 7 dias com o percentil 95 de CPU abaixo de 20%, e com rede e memória abaixo de 20%. Uma máquina que passa a semana quase toda esperando pedido cai nessa regra. Na Pay As You Go essa regra não se aplica.  
+
+## O cartão 
+
+| Momento | Pré-autorização | Cobrança |
+| --- | --- | --- | 
+| Cadastro da conta grátis | US$ 1, cerca de R$ 5, para testar o cartão | Nenhuma. A pré-autorização é estornada | 
+| Upgrade para Pay As You Go | US$ 100, cerca de R$ 500, para provar que o cartão é real e tem limite | Nenhuma enquanto a VM ficar na cota grátis. A pré-autorização é estornada |  
+
+- O nome da conta tem que ser igual ao nome impresso no cartão, e o cartão tem que ser seu. Com nome diferente, ou com cartão de outra pessoa, o antifraude da Oracle recusa o cadastro. 
+- Um cartão virtual temporário, de 24 horas, serve. Se a Oracle mudar a regra da cota grátis um dia, ela não tem como cobrar dele. O cartão precisa ter os US$ 100 de limite na hora do upgrade.  
+
+## Criar a conta 
+
+- Cadastro. Em oracle.com/cloud/free (https://www.oracle.com/cloud/free/), clique em Start for free. . Escolha conta individual, preencha com os dados do titular do cartão e confirme o e-mail. 
+- Região. A região que você escolhe no cadastro é a região principal da conta. Ela não muda depois, e as VMs grátis só nascem nela. Escolha a mais perto de você, como `Brazil East (Sao Paulo)`. 
+- Cartão. A Oracle pede o cartão e pré-autoriza US$ 1. 
+- Upgrade para Pay As You Go. No console, clique no link Upgrade.  do banner no topo. Se ele não aparecer, abra Billing & Cost Management, Upgrade and Manage Payment. . Escolha Pay As You Go e confirme o cartão. A Oracle pré-autoriza US$ 100. 
+- Esperar a aprovação. O upgrade leva de minutos a algumas horas, e chega um e-mail quando a conta vira Pay As You Go. Antes do e-mail, criar a VM ainda volta com "Out of host capacity". 
+- Orçamento com alerta. Em Billing & Cost Management, Budgets, crie um orçamento de US$ 1 com alerta por e-mail. Se algo sair da cota grátis, você fica sabendo no mesmo dia.   
+
+## A chave SSH 
+A chave SSH é o par de arquivos que faz o login na VM sem senha. Se você ainda não tem uma, gere no seu computador e aperte Enter para aceitar o caminho padrão. No Windows, os mesmos comandos funcionam no PowerShell. 
+
+bash, na sua máquina
+```
+ssh-keygen -t ed25519
+cat ~/.ssh/id_ed25519.pub
+```
+
+A VM recebe só a chave pública, o arquivo `.pub`. A privada, `~/.ssh/id_ed25519`, nunca sai do seu computador. Não use a opção Generate a key pair for me.  do console. Se você fechar a página sem baixar a chave privada que ela gera, ninguém entra mais na VM. 
+
+## Criar a VM 
+Em Compute, Instances, clique em Create instance.  e preencha na ordem da página. Com o console em português, os nomes aparecem traduzidos, no mesmo lugar. A VCN, virtual cloud network, é a rede privada da Oracle onde a VM fica, e a sub-rede é um trecho dessa rede. A VNIC é a placa de rede da VM.  
+
+| Campo | Valor |
+| --- | --- | 
+| Name | O nome da máquina, como `agente` | 
+| Image | Change image. , Ubuntu, `Canonical Ubuntu 24.04` na versão `aarch64`. A shape troca sozinha para Ampere | 
+| Shape | Change shape. , Ampere, `VM.Standard.A1.Flex`, 2 OCPU e 12 GB de memória | 
+| Security | O padrão | 
+| Primary VNIC, rede | Create new virtual cloud network.  | 
+| Primary VNIC, sub-rede | Create new public subnet. . Sub-rede privada não recebe IP público | 
+| Private IPv4 address | Automatically assign.  | 
+| Public IPv4 address | Automatically assign public IPv4 address.  ligado | 
+| Add SSH keys | Upload public key files (.pub).  com o seu `id_ed25519.pub`, ou Paste public keys.  com a linha que o `cat` mostrou | 
+| Boot volume | Specify a custom boot volume size. , 100 GB, sem política de backup. Sobra cota de disco para outra VM, e o volume de boot não encolhe depois |  
+Ignore o aviso amarelo de service limit na shape e no disco. Antes de clicar em Create. , confira o selo Always Free-eligible na shape e na imagem. 
+
+## O IP público 
+Quando a VM ficar Running. , o IP aparece em Instance access, Public IP address. Às vezes ele não aparece, mesmo com a opção ligada na criação. Para designar um: 
+
+- Abrir a VNIC. Na página da instância, aba Networking, clique na VNIC em Attached VNICs. 
+- Editar o IP. Em IP administration, na linha do IP privado, clique em ⋮ e em Edit. . 
+- Escolher efêmero. Marque Ephemeral public IP.  e clique em Update. . O efêmero é grátis e só muda se você o tirar da VNIC ou apagar a VM.   
+
+## Entrar pela primeira vez 
+
+bash, na sua máquina
+```
+ssh ubuntu@<ip-publico>
+```
+
+O usuário da imagem Ubuntu é `ubuntu`. Na primeira conexão, responda `yes` à pergunta da impressão digital. 
+
+## A rede da Oracle 
+Duas camadas filtram o tráfego que chega à VM. A security list, a lista de regras de rede da sub-rede, filtra antes de o pacote chegar à VM. Dentro da VM, a imagem Ubuntu da Oracle traz regras de iptables que recusam tudo menos o SSH. A máquina só precisa da porta 22, que as duas já liberam. 
+A regra da porta 22 fica em Networking, Virtual cloud networks, a sua VCN, a sub-rede pública, aba Security, Default Security List. , aba Security rules. Ela é a linha de Ingress, a regra de entrada, com origem `0.0.0.0/0`, protocolo TCP e porta de destino 22. Se ela não estiver lá, clique em Add Ingress Rules.  e preencha: 
+
+| Campo | Valor |
+| --- | --- | 
+| Source Type | CIDR | 
+| Source CIDR | `0.0.0.0/0` | 
+| IP Protocol | TCP | 
+| Destination Port Range | `22` |   
+Não ligue o `ufw`, o firewall do Ubuntu, nessa VM, porque a imagem e a security list já fecham a entrada. Para abrir outra porta, como a 80 e a 443 de um site, crie uma ingress rule igual com a porta nova e libere a porta no iptables da VM, antes da linha de REJECT: 
+
+bash, na VM
+```
+sudo iptables -L INPUT --line-numbers
+sudo iptables -I INPUT <linha-do-REJECT> -p tcp --dport 80 -j ACCEPT
+```
+
+Para a regra sobreviver ao reboot, acrescente a mesma linha `-A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT` em `/etc/iptables/rules.v4`, logo antes da linha de REJECT. Com Docker instalado, não rode `netfilter-persistent save`. Ele grava as regras do Docker junto, e elas duplicam no reboot. 
+
+## Onde a montagem trava 
+
+| Sintoma | Causa e saída |
+| --- | --- | 
+| O cadastro é recusado na etapa do cartão | Nome da conta diferente do nome do cartão, ou cartão de outra pessoa. Refaça com os dados do titular | 
+| "Out of host capacity" ao criar a VM | Conta ainda só Always Free, ou upgrade sem aprovação. Faça o upgrade e espere o e-mail | 
+| Na Pay As You Go, ainda "Out of host capacity" | Falta máquina ARM livre naquele availability domain, um dos data centers da região. Troque o domain em Placement, ou tente mais tarde | 
+| A VM está Running e o Public IP aparece vazio | A Oracle não designou o IP. Designe o efêmero, como em O IP público | 
+| Nenhum IP público disponível para escolher | A VM nasceu numa sub-rede privada. Apague e crie de novo com Create new public subnet.  | 
+| O `ssh` fica parado e dá timeout | Sem IP público, ou sem a ingress rule da porta 22. Confira os dois | 
+| `Permission denied (publickey)` | Usuário diferente de `ubuntu`, ou a chave usada não é o par do `.pub` enviado. Teste com `ssh -i ~/.ssh/id_ed25519 ubuntu@<ip>`. Chave errada na criação pede recriar a VM | 
+| Porta nova, como a 80, não responde | Falta a ingress rule na security list ou o ACCEPT no iptables |  
+Com o SSH funcionando, siga para Como fazer a config inicial da VPS (txt/preparar.txt).

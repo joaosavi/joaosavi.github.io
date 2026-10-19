@@ -1,0 +1,380 @@
+# Como montar o orquestrador e os agentes  
+O orquestrador é uma sessão do Claude Code que fica sempre aberta no app. Você pede a tarefa a ele, e ele abre um agente por tarefa, na pasta do projeto, com teto de RAM próprio. O agente é outra sessão do Claude Code, que faz o trabalho. O orquestrador distribui as tarefas, acompanha os agentes e relata o resultado. 
+
+- Você pede, pelo celular 
+- Orquestrador confere, agentes vivos e o repo 
+- Abre o agente, na pasta, com teto 
+- Agente trabalha, testa e commita 
+- Avisa que acabou, no app ou no Telegram 
+- Encerra o agente, a memória volta  
+
+## Por que um orquestrador 
+
+- O Remote Control liga uma sessão da máquina ao app do Claude. Sem orquestrador, cada projeto novo pede um serviço do Remote Control próprio, criado à mão. Com o orquestrador, projeto novo é uma linha no `projects.json`. 
+- Cada agente nasce dentro do slice dos agentes, o grupo do systemd com um teto de memória para todos eles somados, com o teto do projeto, e um projeto pesado não derruba os outros. 
+- O agente abre na pasta do projeto e carrega o `CLAUDE.md`, a memória e os hooks dele.  
+
+## Duas formas de pôr uma sessão no app 
+
+| Forma | Como | Quem usa |
+| --- | --- | --- | 
+| Modo servidor | `claude remote-control` espera, e abre uma sessão nova cada vez que você pede pelo app | O recover, a sessão de socorro | 
+| Sessão de terminal ligada ao app | `claude --remote-control <nome>` num tmux. A sessão aparece pronta no app, com a pasta, o teto e a tarefa com que nasceu | O orquestrador e os agentes |  
+Se o app não conseguir abrir uma sessão, use a segunda forma: entre pelo SSH, abra um tmux e rode `claude --remote-control <nome>` na pasta. 
+
+## O nome e a pasta 
+Escolha um nome para o orquestrador. Ele é o nome da sessão no app e o endereço que os agentes usam no `SendMessage`. Nesta página, o nome aparece como `<orquestrador>`, e o slice dos agentes como `<slice>`. 
+O `projects.json` lista cada projeto com a pasta e o teto de RAM do agente: 
+
+bash, na máquina
+```
+mkdir -p ~/<orquestrador> && cat > ~/<orquestrador>/projects.json <<'EOF'
+{
+  "site": { "path": "~/repos/site", "memory": "1536M" },
+  "api":  { "path": "~/repos/api",  "memory": "3G" }
+}
+EOF
+```
+
+O `CLAUDE.md` da pasta diz ao orquestrador o que ele faz e o que ele não faz: 
+
+bash, na máquina
+```
+cat > ~/<orquestrador>/CLAUDE.md <<'EOF'
+# Orquestrador
+
+Você é o orquestrador dos agentes desta máquina. Eu converso com você pelo app, e você entrega cada tarefa a um agente aberto na pasta do projeto. O agente faz o trabalho. Você distribui, acompanha e relata, e não mexe em código, dado nem configuração de projeto.
+
+## Os projetos
+
+`projects.json`, nesta pasta, lista cada projeto com a pasta e o teto de RAM. Projeto novo entra lá antes do primeiro agente.
+
+## O comando `agent`
+
+| Comando | O que faz |
+| :--- | :--- |
+| `agent start <projeto> [--name NOME] "<tarefa>"` | Abre o agente na pasta do projeto, em bypass, com o teto do projeto e já com a tarefa. Devolve o nome e o link no app |
+| `agent list` | Agentes vivos, com projeto, RAM usada e teto |
+| `agent result <nome>` | A última resposta do agente, lida do transcript |
+| `agent stop <nome>` | Encerra o agente e devolve a RAM |
+
+Arquivar a sessão no app não encerra o processo. Todo agente termina com `agent stop`.
+
+## Antes de disparar
+
+1. `agent list` e `ListAgents`: quem está vivo, em qual projeto, ocupado ou ocioso.
+2. No repo do projeto, `git status` e a branch atual.
+3. Já existe agente no mesmo assunto: mande a tarefa para ele com `SendMessage`. Senão, abra um novo. Dois agentes no mesmo repo dividem a árvore: se a tarefa nova mexe nos mesmos arquivos de outro agente vivo, me pergunte antes.
+
+## Enquanto o agente trabalha
+
+Peça `notify_when_idle` ao disparar e a cada continuação. Quando o aviso chegar, leia com `agent result` e me relate em uma ou duas linhas: o que entrou, o que rodou, o que falta. Agente que entregou sai com `agent stop`. Quando o próprio agente avisar que terminou, rode `agent stop` e me conte em uma linha.
+
+## RAM
+
+Os agentes somados dividem o teto do slice. Antes de abrir um agente pesado, confira o `agent list`. Se a soma dos tetos vivos passar do teto do slice, me avise e espere a vez.
+EOF
+```
+
+## O comando agent 
+Este comando abre, lista e encerra os agentes. Cada agente roda num tmux próprio, um terminal que segue rodando sem o SSH, dentro de um scope do systemd, um grupo de processos criado na hora, no slice dos agentes e com o teto do projeto. O comando usa `sudo -n systemd-run`, então o usuário precisa do sudo sem senha configurado em Como fazer a config inicial da VPS (txt/preparar.txt). Ver o script do comando agent (232 linhas) 
+
+bash, na máquina
+```
+cat > ~/.local/bin/agent <<'EOF'
+#!/usr/bin/env python3
+"""Abre, lista e encerra os agentes do orquestrador, cada um com teto de RAM próprio.
+
+  agent start <projeto> [--name NOME] [--resume SESSAO] "<tarefa>"
+  agent list
+  agent result <nome>
+  agent stop <nome>
+
+A pasta e o teto de cada projeto vêm do projects.json do orquestrador. AGENT_ORCHESTRATOR é o nome
+do orquestrador no app, e AGENT_SLICE o slice dos agentes; o serviço do orquestrador exporta os dois.
+"""
+
+import json
+import os
+import subprocess
+import sys
+import time
+import uuid
+from pathlib import Path
+
+HOME = Path.home()
+ORCHESTRATOR = os.environ.get("AGENT_ORCHESTRATOR", "orquestrador")
+PROJECTS = Path(os.environ.get("AGENT_PROJECTS", HOME / ORCHESTRATOR / "projects.json"))
+SLICE = os.environ.get("AGENT_SLICE", "agents.slice")
+STATE = HOME / ".local" / "state" / "agents"
+RUNTIME_DIR = f"/run/user/{os.getuid()}"
+DONE_PROMPT = ("Você é o agente {name}, aberto pelo {orch}. Quando concluir o trabalho e não houver mais "
+               "nada pendente, mande SendMessage para {orch} com \"{name} terminou, pode encerrar\" e uma "
+               "linha do que entregou.")
+
+def die(msg):
+    print(f"agent: {msg}", file=sys.stderr)
+    sys.exit(1)
+
+def tmux(name, *args):
+    return subprocess.run(["tmux", "-L", name, *args], capture_output=True, text=True)
+
+def pane(name):
+    return tmux(name, "capture-pane", "-p", "-S", "-200", "-t", name).stdout
+
+def agent_pid(name):
+    out = subprocess.run(["pgrep", "-f", f"^claude .*--remote-control {name}( |$)"],
+                         capture_output=True, text=True).stdout.split()
+    return int(out[0]) if out else None
+
+def cgroup(pid):
+    try:
+        return Path(f"/proc/{pid}/cgroup").read_text().split("::", 1)[1].strip()
+    except (OSError, IndexError):
+        return None
+
+def mib(path):
+    try:
+        v = Path(f"/sys/fs/cgroup{path}").read_text().strip()
+        return "max" if v == "max" else f"{int(v) // 2**20}M"
+    except OSError:
+        return "?"
+
+def trust(path):
+    # A pasta-mãe confiável não cobre um repo com .claude próprio, e a tela "trust this folder"
+    # travaria o agente na subida.
+    cfg = HOME / ".claude.json"
+    data = json.loads(cfg.read_text())
+    entry = data.setdefault("projects", {}).setdefault(str(path), {})
+    if entry.get("hasTrustDialogAccepted"):
+        return
+    entry["hasTrustDialogAccepted"] = True
+    tmp = cfg.with_suffix(".json.agent")
+    tmp.write_text(json.dumps(data, indent=2))
+    os.replace(tmp, cfg)
+
+def start(argv):
+    opts, rest = {}, []
+    it = iter(argv)
+    for a in it:
+        if a in ("--name", "--resume"):
+            opts[a[2:]] = next(it, None) or die(f"{a} precisa de um valor")
+        else:
+            rest.append(a)
+    if len(rest) != 2:
+        die('uso: agent start <projeto> [--name NOME] [--resume SESSAO] "<tarefa>"')
+    project, task = rest
+    try:
+        cfg = json.loads(PROJECTS.read_text()).get(project) or die(f"projeto {project} fora de {PROJECTS}")
+    except FileNotFoundError:
+        die(f"{PROJECTS} não existe")
+    path = Path(os.path.expanduser(cfg["path"]))
+    if not path.is_dir():
+        die(f"{path} não existe")
+    trust(path)
+    name = opts.get("name") or f"{project}-{uuid.uuid4().hex[:4]}"
+    if agent_pid(name) or tmux(name, "has-session").returncode == 0:
+        die(f"{name} já está rodando")
+
+    STATE.mkdir(parents=True, exist_ok=True)
+    spec = {"name": name, "project": project, "path": str(path), "task": task, "memory": cfg["memory"],
+            "session": opts.get("resume") or str(uuid.uuid4()), "resume": bool(opts.get("resume")),
+            "orchestrator": ORCHESTRATOR,
+            "started": time.strftime("%Y-%m-%dT%H:%M:%S")}
+    (STATE / f"{name}.json").write_text(json.dumps(spec, indent=2))
+
+    # Um servidor tmux por agente: com um servidor só, o segundo agente nasceria no scope do primeiro.
+    # O tmux nasce sem XDG_RUNTIME_DIR: com ele, o tmux muda o painel para fora do scope.
+    shell = os.environ.get("SHELL", "/bin/bash")
+    inner = f"exec {os.path.realpath(sys.argv[0])} _run {name}"
+    # O setpriv devolve o usuário com todos os grupos dele, como o docker. O --uid do systemd-run
+    # deixaria só o grupo principal, mais o root.
+    subprocess.run(["sudo", "-n", "systemd-run", "--scope", "-q", f"--slice={SLICE}",
+                    "-p", f"MemoryMax={cfg['memory']}", f"--working-directory={path}",
+                    "setpriv", f"--reuid={os.getuid()}", f"--regid={os.getgid()}", "--init-groups",
+                    "env", f"HOME={HOME}", f"USER={os.environ['USER']}", f"LOGNAME={os.environ['USER']}",
+                    "tmux", "-L", name, "new-session", "-d", "-s", name, f"{shell} -lic '{inner}'"],
+                   check=True)
+
+    for _ in range(60):
+        if tmux(name, "has-session").returncode != 0:
+            (STATE / f"{name}.json").unlink(missing_ok=True)
+            die(f"{name} saiu na subida; veja o erro com: agent _run {name}")
+        if "bypass permissions on" in pane(name):
+            break
+        time.sleep(1)
+    else:
+        die(f"{name} não subiu em 60 s; veja com: tmux -L {name} attach")
+
+    link = "?"
+    for _ in range(20):
+        link = next((w for w in pane(name).split() if w.startswith("https://claude.ai/code/session_")), "?")
+        if link != "?":
+            break
+        time.sleep(1)
+    pid = agent_pid(name)
+    print(f"{name}  pid {pid}  {cgroup(pid)}  teto {cfg['memory']}\n{link}")
+
+def run(name):
+    spec = json.loads((STATE / f"{name}.json").read_text())
+    cmd = ["claude", "--permission-mode", "bypassPermissions", "--remote-control", name, "--name", name,
+           "--resume" if spec["resume"] else "--session-id", spec["session"],
+           "--append-system-prompt", DONE_PROMPT.format(name=name, orch=spec["orchestrator"]), spec["task"]]
+    # O sudo limpa o ambiente, então o nome do orquestrador vem do spec gravado no start.
+    # Sem XDG_RUNTIME_DIR, o socket de mensagens cai em /tmp e o orquestrador não enxerga o agente.
+    os.environ["XDG_RUNTIME_DIR"] = RUNTIME_DIR
+    os.execvp("claude", cmd)
+
+def list_():
+    rows = []
+    for f in sorted(STATE.glob("*.json")):
+        spec = json.loads(f.read_text())
+        pid = agent_pid(spec["name"])
+        if not pid:
+            f.unlink()
+            continue
+        cg = cgroup(pid) or ""
+        rows.append((spec["name"], spec["project"], f"{mib(cg + '/memory.current')}/{mib(cg + '/memory.max')}",
+                     spec["started"]))
+    if not rows:
+        print("nenhum agente rodando")
+        return
+    rows.insert(0, ("NOME", "PROJETO", "MEMÓRIA", "INÍCIO"))
+    widths = [max(len(r[i]) for r in rows) for i in range(4)]
+    for r in rows:
+        print("  ".join(c.ljust(w) for c, w in zip(r, widths)).rstrip())
+
+def result(argv):
+    f = STATE / f"{argv[0]}.json" if len(argv) == 1 else die("uso: agent result <nome>")
+    if not f.exists():
+        die(f"{argv[0]} não está rodando")
+    spec = json.loads(f.read_text())
+    found = list((HOME / ".claude" / "projects").glob(f"*/{spec['session']}.jsonl"))
+    if not found:
+        die(f"{argv[0]} ainda não tem transcript")
+    last = None
+    for line in found[0].read_text().splitlines():
+        msg = json.loads(line).get("message") or {}
+        if msg.get("role") == "assistant" and isinstance(msg.get("content"), list):
+            text = "".join(b.get("text", "") for b in msg["content"] if b.get("type") == "text")
+            last = text if text.strip() else last
+    print(last or f"{argv[0]} ainda não respondeu")
+
+def stop(argv):
+    name = argv[0] if len(argv) == 1 else die("uso: agent stop <nome>")
+    pid = agent_pid(name)
+    tmux(name, "kill-server")
+    for _ in range(30):
+        if not pid or not Path(f"/proc/{pid}").exists():
+            break
+        time.sleep(1)
+    else:
+        die(f"{name} (pid {pid}) segue vivo depois de 30 s")
+    spec_file = STATE / f"{name}.json"
+    if spec_file.exists():
+        spec = json.loads(spec_file.read_text())
+        with open(STATE / "stopped.jsonl", "a") as f:
+            f.write(json.dumps({"name": name, "project": spec["project"], "session": spec["session"],
+                                "stopped": time.strftime("%Y-%m-%dT%H:%M:%S")}) + "\n")
+        spec_file.unlink()
+    print(f"{name} encerrado")
+
+def main():
+    if len(sys.argv) < 2:
+        die(__doc__.split("\n\n")[1])
+    cmd, argv = sys.argv[1], sys.argv[2:]
+    if cmd == "start":
+        start(argv)
+    elif cmd == "list":
+        list_()
+    elif cmd == "result":
+        result(argv)
+    elif cmd == "stop":
+        stop(argv)
+    elif cmd == "_run":
+        run(argv[0])
+    else:
+        die(f"comando desconhecido: {cmd}")
+
+if __name__ == "__main__":
+    main()
+EOF
+chmod 755 ~/.local/bin/agent
+```
+
+- Um servidor tmux por agente, com `tmux -L <nome>`. Com um servidor compartilhado, o segundo agente nasce dentro do scope do primeiro e herda o teto dele. 
+- O `XDG_RUNTIME_DIR` vai só para o `claude`, nunca para o tmux. Sem ele, o socket de mensagens cai em `/tmp` e o orquestrador não acha o agente. Com ele no tmux, o painel sai do scope e do teto. 
+- O comando marca a pasta do projeto como confiável antes de abrir. Sem isso, o agente trava na tela "trust this folder". 
+- O `setpriv --init-groups` abre o agente com todos os grupos do usuário. Com o `--uid` do `systemd-run`, ele nasceria só com o grupo principal mais o `root`, e o `docker` falharia por falta de permissão.  
+
+## O serviço 
+O script sempre retoma a última conversa, e o laço sobe o orquestrador de novo se ele sair: 
+
+bash, na máquina
+```
+cat > ~/.local/bin/orchestrator-rc <<'EOF'
+#!/bin/sh
+# O orquestrador sobe pelo terminal, com --remote-control, e volta sempre na última conversa.
+# O --continue sai na hora quando não há conversa, e aí ele abre uma nova.
+cd "$HOME/<orquestrador>" || exit 1
+# Sem XDG_RUNTIME_DIR, o socket de mensagens cai em /tmp e os agentes não acham o orquestrador.
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export AGENT_ORCHESTRATOR=<orquestrador> AGENT_SLICE=<slice>.slice
+set -- --permission-mode bypassPermissions --remote-control <orquestrador> --name <orquestrador>
+while true; do
+    t=$(date +%s)
+    claude --continue "$@"
+    [ $(($(date +%s) - t)) -lt 5 ] && claude "$@"
+    sleep 10
+done
+EOF
+chmod 755 ~/.local/bin/orchestrator-rc
+```
+
+Na pasta, rode uma vez à mão `claude --dangerously-skip-permissions --remote-control <orquestrador>`. Aceite a confiança na pasta, o Remote Control e o aviso do bypass, o modo em que a sessão roda comandos sem pedir permissão, e saia com `/exit`. Depois grave o serviço, com `voce` trocado pelo seu usuário. O orquestrador não roda comando pesado, e 1 GiB de teto basta para ele. 
+
+bash, na máquina
+```
+sudo tee /etc/systemd/system/<orquestrador>.service > /dev/null <<'EOF'
+[Unit]
+Description=Orquestrador dos agentes do Claude Code
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+User=voce
+Slice=<slice>.slice
+MemoryHigh=768M
+MemoryMax=1G
+OOMPolicy=continue
+ExecStart=/usr/bin/tmux -L <orquestrador> new-session -d -s <orquestrador> "bash -lic orchestrator-rc"
+ExecStop=/usr/bin/tmux -L <orquestrador> kill-server
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload && sudo systemctl enable --now <orquestrador>
+```
+
+## Falar com os agentes 
+
+- O nome do agente no `agent start` é o nome dele no `ListAgents` e no app. O orquestrador manda continuação com `SendMessage` e pede `notify_when_idle` para saber quando ele termina. 
+- Você também fala direto com o agente, pela sessão dele no app. 
+- Arquivar a sessão no app não encerra o processo, e a RAM fica presa. Encerre com `agent stop`. 
+- Agente encerrado volta na mesma conversa com `agent start <projeto> --name <nome> --resume <id>`. O `agent stop` grava o id em `~/.local/state/agents/stopped.jsonl`.  
+
+## Provar 
+
+bash, na máquina
+```
+agent start site --name teste "responda só: pronto"
+agent list
+agent result teste
+agent stop teste
+```
+
+O `agent start` devolve o link da sessão e o grupo `/<slice>.slice/run-….scope`. O `agent list` mostra a RAM do agente contra o teto do projeto, o `agent result` responde `pronto`, e depois do `agent stop` o agente some do `agent list`. Pelo app, peça ao orquestrador a mesma tarefa e confira que ele abre, espera, relata e encerra sozinho. 
+Com o orquestrador de pé, instale os mods do Cockpit (txt/mods.txt), o pacote de travas e indicadores para o Claude Code.

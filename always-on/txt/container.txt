@@ -1,0 +1,129 @@
+# Como rodar num container de uma VPS sua  
+Uma VPS é um servidor virtual alugado, ligado 24 horas, e nesta página ela se chama host. Se você já tem uma com folga rodando outros serviços, um container LXD dá ao agente um Linux próprio dentro dela, com Docker próprio. O agente é a sessão do Claude Code que trabalha nesse Linux. O `docker ps` do container não mostra os seus serviços, e limites de memória, CPU e disco protegem o resto do host. 
+
+Não faça no host
+Não rode os passos de Como fazer a config inicial da VPS (txt/preparar.txt) no host. Eles mudam o hostname e ligam o ufw, o firewall do Ubuntu, que bloqueia os serviços. Não rode `netfilter-persistent save`. Não reinicie o host nem o Docker. Meça os serviços antes e depois de cada mudança de rede. 
+
+## Antes de começar 
+O host precisa de pelo menos 4 GB de memória e 30 GB de disco livres. Anote como os serviços respondem hoje: 
+
+bash, no host
+```
+free -h; df -h /; nproc
+ip -4 -br addr; ip route | grep default
+sudo iptables -S INPUT; sudo iptables -S FORWARD
+cat /etc/docker/daemon.json
+curl -s -o /dev/null -w '%{http_code} %{time_total}s\n' https://seu-servico
+```
+
+O primeiro lxc instala o LXD
+No Ubuntu 24.04, o primeiro comando `lxc`, mesmo um `lxc list` de leitura, instala o snap do LXD. Rode o primeiro comando só quando quiser o LXD instalado. 
+
+## Montar 
+
+- Instalar e iniciar o LXD. Se 192.168.200.0/24 já aparece no `ip -4 -br addr` ou no `daemon.json`, troque por outra /24 em quatro lugares: no preseed, no `ipv4.address` do passo 3, no `HostName` do `~/.ssh/config` e no `.10` do container. Em `size`, ponha menos que o espaço livre do `df`, com folga para o host. O arquivo do pool só ocupa o que o container grava, e o disco do host enche sem aviso se o teto passar do livre.  
+
+bash, no host
+```
+cat > preseed.yaml <<'EOF'
+config: {}
+networks:
+- name: lxdbr0
+  type: bridge
+  config:
+    ipv4.address: 192.168.200.1/24
+    ipv4.nat: "true"
+    ipv6.address: none
+storage_pools:
+- name: default
+  driver: btrfs
+  config:
+    size: 60GiB
+profiles:
+- name: default
+  devices:
+    root: {path: /, pool: default, type: disk}
+    eth0: {name: eth0, network: lxdbr0, type: nic}
+EOF
+```
+
+bash, no host
+```
+sudo snap install lxd
+sudo lxd init --preseed < preseed.yaml
+```
+
+- Liberar o container no firewall. O Docker põe a política do FORWARD em DROP, e imagens de nuvem terminam o INPUT em REJECT, então o container fica sem rede. As quatro primeiras regras deixam o container receber IP e DNS do host e mais nada do host. As duas últimas deixam o container sair para a internet só pela interface de saída do host. Troque `enp0s6` pela interface que aparece no `ip route | grep default`. Sem Docker no host, troque `DOCKER-USER` por `FORWARD` nas duas últimas regras. Cada regra entra no topo da lista, então o REJECT vem primeiro no arquivo e os ACCEPT ficam acima dele.  
+
+bash, no host
+```
+sudo tee /usr/local/sbin/lxd-firewall.sh > /dev/null <<'EOF'
+#!/bin/sh
+set -e
+regra() { iptables -C "$@" 2>/dev/null || iptables -I "$@"; }
+regra INPUT -i lxdbr0 -j REJECT
+regra INPUT -i lxdbr0 -p udp --dport 67 -j ACCEPT
+regra INPUT -i lxdbr0 -p udp --dport 53 -j ACCEPT
+regra INPUT -i lxdbr0 -p tcp --dport 53 -j ACCEPT
+regra DOCKER-USER -i lxdbr0 -o enp0s6 -j ACCEPT
+regra DOCKER-USER -i enp0s6 -o lxdbr0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+EOF
+sudo chmod 755 /usr/local/sbin/lxd-firewall.sh
+
+sudo tee /etc/systemd/system/lxd-firewall.service > /dev/null <<'EOF'
+[Unit]
+After=netfilter-persistent.service docker.service snap.lxd.daemon.service
+PartOf=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/lxd-firewall.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target docker.service
+EOF
+sudo systemctl daemon-reload && sudo systemctl enable --now lxd-firewall
+```
+
+Se o agente precisa alcançar o host, por exemplo para um túnel SSH até um banco, acrescente logo abaixo da linha do REJECT a regra `regra INPUT -i lxdbr0 -p tcp --dport 22 -j ACCEPT`. As regras ficam num serviço porque `netfilter-persistent save` grava as regras do Docker junto, e elas entram em conflito no próximo boot. A saída fica restrita à interface de saída, então o container não alcança as redes do Docker do host. Depois de aplicar as regras, meça os serviços de novo. 
+
+- Criar o container com limites. O peso de CPU 20, contra 100 do host, dá ao host uns 83% da CPU quando os dois disputam. Para a memória, some o que os serviços usam e o pico dos builds deles, e dê o resto ao container. Troque `6GiB` pelo resultado da conta, e nunca use mais que a memória livre do `free -h`. O `security.nesting` deixa rodar Docker dentro.  
+
+bash, no host
+```
+sudo lxc init ubuntu:24.04 agente \
+  -c security.nesting=true \
+  -c security.syscalls.intercept.mknod=true \
+  -c security.syscalls.intercept.setxattr=true \
+  -c limits.memory=6GiB \
+  -c boot.autostart=true \
+  -c raw.lxc="lxc.cgroup2.cpu.weight = 20"
+sudo lxc config device override agente eth0 ipv4.address=192.168.200.10
+sudo lxc start agente
+sudo lxc exec agente -- cloud-init status --wait
+sudo lxc exec agente -- curl -sI https://github.com
+```
+
+Confira o isolamento. De dentro do container, nenhuma porta do host pode abrir, fora as que você liberou. Troque `22` pelas portas que o `sudo ss -ltnp` do host lista: 
+
+bash, no host
+```
+sudo lxc exec agente -- timeout 3 bash -c '</dev/tcp/192.168.200.1/22' && echo ABRIU || echo fechada
+```
+
+- Usuário e chave dentro do container. Troque o usuário da imagem pelo seu e dê sudo, sempre por `lxc exec`. Rodados no host por engano, esses comandos renomeariam o usuário do host e tirariam o sudo dele.  
+
+bash, no host
+```
+sudo lxc exec agente -- sh -c 'usermod -l voce -d /home/voce -m ubuntu && groupmod -n voce ubuntu && echo "voce ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/90-voce && chmod 440 /etc/sudoers.d/90-voce && rm -f /etc/sudoers.d/90-cloud-init-users && hostnamectl set-hostname agente && install -d -m 700 -o voce -g voce /home/voce/.ssh'
+```
+
+Copie a chave do seu computador, e não do `authorized_keys` do host, que pode ter chave de deploy de outro serviço: 
+
+bash, na sua máquina
+```
+cat ~/.ssh/id_ed25519.pub | ssh host-do-agente 'sudo lxc exec agente -- sh -c "cat > /home/voce/.ssh/authorized_keys && chown voce:voce /home/voce/.ssh/authorized_keys && chmod 600 /home/voce/.ssh/authorized_keys"'
+```
+
+- Entrar pelo host. O container não tem porta pública. O SSH pula pelo host com `ProxyJump`, como mostra Como acessar a VPS por SSH e VS Code (txt/acesso.txt). Depois siga de Como acessar a VPS por SSH e VS Code (txt/acesso.txt) em diante, dentro do container, e pule Como fazer a config inicial da VPS (txt/preparar.txt).
