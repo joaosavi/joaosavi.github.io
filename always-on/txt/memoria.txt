@@ -1,3 +1,217 @@
 # Como pôr teto de memória e o agente de recover  
 Os agentes são as sessões do Claude Code que trabalham na máquina, uma por tarefa. Sem limite, um comando pesado de uma sessão enche a memória da máquina, e as outras sessões e o SSH param junto. Com swap, uma área do disco que serve de memória extra, e um teto de memória para os agentes, só o comando pesado morre. O recover, uma sessão de socorro com memória reservada, continua respondendo pelo celular. 
-Na nossa montagem, num container com 2 núcleos e 7 GB e sem swap, um typecheck com dois `tsc` de 1 GB cada levou a memória ao limite. Cada conexão SSH passou de 1 segundo para 20 a 77 segundos, e as sessões do app pararam de responder.
+Na nossa montagem, num container com 2 núcleos e 7 GB e sem swap, um typecheck com dois `tsc` de 1 GB cada levou a memória ao limite. Cada conexão SSH passou de 1 segundo para 20 a 77 segundos, e as sessões do app pararam de responder.  
+
+## Swap 
+Com o swap ligado e o mesmo typecheck rodando, a pressão de memória da nossa máquina caiu de 45% para 32%, e 637 MB foram para o swap. A pressão de memória é a parcela do tempo em que os processos ficam esperando memória. Antes de criar o swap, confira com `findmnt -no FSTYPE /` que o disco é `ext4`, o sistema de arquivos em que testamos, e com `df -h /` que sobram pelo menos 8 GB. Em btrfs, o arquivo de swap precisa de outro procedimento. Usamos 8 GB de swap num host de 12 GB. 
+
+bash, na máquina
+```
+sudo fallocate -l 8G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+cat /proc/swaps
+```
+
+O `cat /proc/swaps` mostra o `/swapfile` com 8388604 KB. A linha do `/etc/fstab` liga o swap de novo depois de um reboot.  
+
+O container não tem swap próprio e usa o do host, sem configuração extra no LXD. Rode no host os mesmos comandos da aba VM ou VPS. Depois, confira de dentro do container quanto swap ele pode usar, em bytes. Na nossa montagem, o valor foi igual ao `limits.memory`. 
+
+bash, na máquina
+```
+cat /sys/fs/cgroup/memory.swap.max
+```
+
+O swap do host vale para todos
+Os outros serviços do host passam a usar o mesmo swap. Crie o arquivo com a confirmação de quem cuida do host, e meça os serviços antes e depois, como na página do container (txt/container.txt).   
+
+## O slice dos agentes 
+Um slice do systemd é um grupo de processos com um teto de memória que vale para tudo que roda dentro dele, somado. O orquestrador, a sessão que recebe os pedidos e abre os agentes, fica no mesmo slice que todos os agentes. Cada agente ganha, ao nascer, um teto próprio abaixo do teto do grupo, e um projeto pesado não come a memória dos outros. 
+Escolha o nome do slice e calcule os números a partir da memória da máquina: 
+
+| Valor | Como calcular |
+| --- | --- | 
+| `<teto>` | O total do `free -m` menos 512 MB do recover e 1 GiB do sistema e do Docker. Desconte mais se os containers do projeto usam mais que isso | 
+| `<alto>` | `<teto>` menos uns 512 MB. Acima dele, o grupo fica lento e empurra memória para o swap antes de bater no teto | 
+| `<swap-agentes>` | Até metade do swap, para sobrar swap ao resto da máquina | 
+| Teto de cada projeto | Quanto o comando mais pesado do projeto usa, mais uns 500 MB da sessão. Um typecheck grande de TypeScript passa de 1 GB |  
+
+bash, na máquina
+```
+sudo tee /etc/systemd/system/<slice>.slice > /dev/null <<'EOF'
+[Unit]
+Description=Sessões do Claude Code, com teto de memória somado
+
+[Slice]
+MemoryHigh=<alto>
+MemoryMax=<teto>
+MemorySwapMax=<swap-agentes>
+EOF
+sudo systemctl daemon-reload
+```
+
+O serviço do orquestrador entra nesse slice pela linha `Slice=` da unit, o arquivo que define o serviço no systemd, em Como montar o orquestrador e os agentes (txt/orquestrador.txt), e o comando `agent` abre cada agente dentro dele com o teto do projeto. 
+
+Sem OOMPolicy=continue
+O padrão do systemd é `stop`: quando o kernel mata um processo do serviço, o systemd derruba o serviço inteiro, com todas as sessões. Ponha `OOMPolicy=continue` em toda unit de sessão. 
+
+## O agente de recover 
+O recover é a sessão de socorro que você abre pelo celular quando a máquina trava, e ele é obrigatório. Ele fica fora do slice dos agentes, num slice próprio com 512 MB de teto e 256 MB que o kernel não toma dele. Quando os agentes batem no teto, o recover ainda responde, acha o comando pesado e mata. 
+
+bash, na máquina
+```
+sudo tee /etc/systemd/system/recover.slice > /dev/null <<'EOF'
+[Unit]
+Description=Memória reservada do agente de recover
+
+[Slice]
+MemoryMin=256M
+MemoryMax=512M
+CPUWeight=1000
+EOF
+```
+
+O script roda o Remote Control, o recurso que liga o Claude Code da máquina ao app do Claude, no modo servidor, que abre uma sessão nova cada vez que você pede pelo app: 
+
+bash, na máquina
+```
+mkdir -p ~/recover ~/.local/bin && cat > ~/.local/bin/recover-rc <<'EOF'
+#!/bin/sh
+# O modo servidor sai depois de uns 10 minutos sem rede, e o laço o devolve.
+cd "$HOME/recover" || exit 1
+# Sem XDG_RUNTIME_DIR, o socket de mensagens cai em /tmp e a sessão não alcança os agentes.
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+while true; do
+    claude remote-control --name recover --remote-control-session-name-prefix recover \
+        --spawn same-dir --capacity 2 --permission-mode bypassPermissions
+    sleep 10
+done
+EOF
+chmod 755 ~/.local/bin/recover-rc
+```
+
+As instruções do recover ficam no `CLAUDE.md` da pasta dele, que a sessão lê ao começar: 
+
+bash, na máquina
+```
+cat > ~/recover/CLAUDE.md <<'EOF'
+# Agente de recover
+
+Você é a sessão que eu abro pelo celular quando a máquina trava. Ache o que ocupa a memória, libere e me conte o que fez. Você roda em `recover.slice`, com 256 MB reservados e teto de 512 MB, e responde mesmo com as outras sessões sem memória.
+
+## Diagnóstico
+
+1. Rode `memoria`. Pressão full acima de 10% é travamento, e um grupo perto do teto é o culpado.
+2. Liste os maiores processos: `ps -eo pid,ppid,rss,etime,args --sort=-rss | head -20`. O grupo de um processo está em `/proc/<pid>/cgroup`.
+3. Suba pela cadeia de `ppid` até a sessão do Claude Code que disparou o comando.
+
+## Como liberar
+
+Do menos destrutivo ao mais destrutivo, com `memoria` depois de cada passo:
+
+1. Mate o comando pesado (`tsc`, testes, build, navegador) com `kill <pid>`. A sessão que o rodou continua viva.
+2. Mate a sessão que sozinha passa de 1 GiB.
+3. Um agente inteiro preso: `agent list` mostra a RAM de cada um, e `agent stop <nome>` devolve o grupo dele.
+4. O orquestrador não responde no app: `sudo systemctl restart <orquestrador>`. Ele volta na mesma conversa.
+
+O `recover-rc.service` é o seu próprio servidor. Me peça antes de mexer nele.
+
+## O relato
+
+O que ocupava a memória (processo, sessão, MB), o que você matou, e a saída de `memoria` no fim.
+EOF
+```
+
+Na pasta, rode uma vez à mão o mesmo comando do script. Responda `y` à confiança na pasta e ao Remote Control, aceite o aviso do bypass, o modo em que a sessão roda comandos sem pedir permissão, e saia com Ctrl+C. Para usar o bypass, rode antes também `claude --dangerously-skip-permissions` uma vez e saia com `/exit`. Depois grave o serviço. Troque `voce` pelo seu usuário e, se o seu shell de login é zsh, troque `bash -lic` por `zsh -lic`: 
+
+bash, na máquina
+```
+sudo tee /etc/systemd/system/recover-rc.service > /dev/null <<'EOF'
+[Unit]
+Description=Remote Control do Claude Code para o agente de recover
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=forking
+User=voce
+Slice=recover.slice
+OOMPolicy=continue
+OOMScoreAdjust=-900
+ExecStart=/usr/bin/tmux -L recover new-session -d -s recover "bash -lic recover-rc"
+ExecStop=/usr/bin/tmux -L recover kill-server
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload && sudo systemctl enable --now recover-rc
+```
+
+Confira com `tmux -L recover capture-pane -p -t recover`, que mostra `Capacity: 0/2`. No app, a sessão aparece com o título `recover`. 
+
+Se o app não abrir a sessão do recover
+Entre pelo SSH e abra uma sessão de terminal já ligada ao app: `cd ~/recover && tmux new -s recover2 'claude --remote-control recover2'`. Ela aparece pronta no app, sem passar pelo modo servidor. É o plano B quando o recover falha, e é também o jeito como o comando `agent` abre os agentes. 
+
+## O comando memoria 
+Este comando mostra quanto cada grupo usa, o alto e o teto de cada um, e a pressão de memória da máquina. Com a nossa máquina travada, a pressão estava em 45%. Em uso normal, ela fica perto de 0%. 
+
+bash, na máquina
+```
+cat > ~/.local/bin/memoria <<'EOF'
+#!/bin/sh
+# Mostra quanto cada grupo de memória usa, os limites dele e a pressão de memória da máquina.
+mb() { case "$1" in max) echo "sem teto" ;; *) echo "$(( $1 / 1048576 )) MB" ;; esac; }
+for cg in <slice>.slice recover.slice system.slice; do
+    p=/sys/fs/cgroup/$cg
+    [ -d "$p" ] || continue
+    printf '%-34s usa %-8s swap %-8s alto %-9s teto %s\n' "$cg" "$(mb "$(cat $p/memory.current)")" \
+        "$(mb "$(cat $p/memory.swap.current)")" "$(mb "$(cat $p/memory.high)")" "$(mb "$(cat $p/memory.max)")"
+done
+echo
+free -m | sed -n '1,3p'
+echo
+printf 'pressão de memória (full avg10): %s%%\n' "$(sed -n 's/^full avg10=\([0-9.]*\).*/\1/p' /sys/fs/cgroup/memory.pressure)"
+EOF
+chmod 755 ~/.local/bin/memoria && memoria
+```
+
+## Os limites no CLAUDE.md 
+As sessões não enxergam o teto sozinhas. Escreva os números no `~/.claude/CLAUDE.md` da máquina, que toda sessão lê ao começar, para elas conferirem a folga antes de um comando pesado. 
+
+bash, na máquina
+```
+cat >> ~/.claude/CLAUDE.md <<'EOF'
+
+# Memória desta máquina
+
+Cada sessão roda dentro de um teto de memória. O teto vale para a sessão e para tudo que ela dispara: MCP, testes, build, navegador.
+
+| Grupo systemd | Quem roda lá | Alto | Teto |
+|---|---|---|---|
+| `<slice>.slice` | o orquestrador e os agentes somados | <alto> | <teto> |
+| `<slice>.slice/run-*.scope` | um agente aberto pelo `agent start` | | o do projeto, no `projects.json` |
+| `recover.slice` | o agente de recover | 256 MB reservados | 512 MB |
+
+Passou do alto, o grupo inteiro fica lento e empurra memória para o swap. Bateu no teto, o kernel mata o maior processo do grupo, que quase sempre é o comando pesado.
+
+Antes de typecheck, suíte de teste, build ou Playwright, rode `memoria` e confira a folga do grupo. Um comando que morre com exit 137 bateu no teto: rode de novo com menos paralelismo.
+EOF
+```
+
+O Cockpit (txt/mods.txt), um pacote de mods para o Claude Code, traz o mod `memory-guard`, que faz essa conferência sozinho antes de cada comando pesado. 
+
+## Provar o teto 
+Um processo de teste com teto de 200 MB tenta alocar 400 MB. O kernel tem de matá-lo: 
+
+bash, na máquina
+```
+sudo systemd-run --wait -p MemoryMax=200M -p MemorySwapMax=0 python3 -c "a=bytearray(400*1024*1024)"
+```
+
+Funcionou
+A saída termina em `Finished with result: oom-kill`. Com `MemoryMax=600M`, o mesmo comando termina em `success`. 
+Com o recover de pé, siga para Como montar o orquestrador e os agentes (txt/orquestrador.txt).

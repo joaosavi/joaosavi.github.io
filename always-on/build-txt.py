@@ -10,6 +10,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 SKIP = {"script", "style", "svg", "button"}
+# Tags sem fechamento: não entram na pilha, ou a pilha desalinha e o resto da página some.
+VOID = {"input", "br", "img", "hr", "meta", "link", "wbr", "source", "col", "area"}
 SKIP_CLASS = {"demo", "crumb", "copy", "page-actions", "done-btn", "vals", "membar", "progress", "unfold"}
 
 
@@ -20,6 +22,10 @@ class Text(HTMLParser):
         self.row, self.rows = 0, 0
 
     def handle_starttag(self, tag, attrs):
+        if tag in VOID:
+            if tag == "br" and not self.skip:
+                self.out.append("\n")
+            return
         cls = dict(attrs).get("class") or ""
         hide = tag in SKIP or bool(SKIP_CLASS & set(cls.split()))
         self.stack.append(hide)
@@ -57,7 +63,14 @@ class Text(HTMLParser):
             href = dict(attrs).get("href") or ""
             self.stack[-1] = ("a", href)
 
+    def handle_startendtag(self, tag, attrs):
+        self.handle_starttag(tag, attrs)
+        if tag not in VOID:
+            self.handle_endtag(tag)
+
     def handle_endtag(self, tag):
+        if tag in VOID:
+            return
         top = self.stack.pop() if self.stack else False
         if top is True:
             self.skip -= 1
