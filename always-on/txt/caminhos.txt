@@ -3,11 +3,11 @@ Uma VPS é um servidor virtual alugado, ligado 24 horas, onde o Claude Code roda
 
 ## Comparação 
 
-| Caminho | Custo | Máquina | Alcança serviço privado | Roda sem pedir permissão (bypass) | Quem mantém |
-| --- | --- | --- | --- | --- | --- | 
-| Oracle, Pay As You Go.  (txt/oracle.txt) | US$ 0 dentro da cota | ARM, 2 OCPU, 12 GB, até 200 GB |  |  | Você | 
-| VPS dedicada paga.  (txt/vps.txt) | R$ 43,99 por mês na Hostinger KVM 2, em contrato de 24 meses | x86, 2 vCPU, 8 GB, 100 GB |  |  | Você | 
-| Container numa VPS que você já tem.  (txt/container.txt) | Nada a mais | O que sobra da VPS |  |  | Você |  
+| Caminho | Custo | Máquina | Serviço privado | Bypass |
+| --- | --- | --- | --- | --- | 
+| Oracle, Pay As You Go.  (txt/oracle.txt) | US$ 0 dentro da cota | ARM, 2 OCPU, 12 GB, até 200 GB |  |  | 
+| VPS dedicada paga.  (txt/vps.txt) | R$ 43,99 por mês na Hostinger KVM 2, em contrato de 24 meses | x86, 2 vCPU, 8 GB, 100 GB |  |  | 
+| Container numa VPS que você já tem.  (txt/container.txt) | Nada a mais | O que sobra da VPS |  |  |  
 
 ## Qual escolher 
 

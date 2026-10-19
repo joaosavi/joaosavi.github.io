@@ -156,11 +156,11 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 40px 0; }
 .table-wrap { overflow-x: auto; margin: 18px 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
 table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
 th, td { text-align: left; vertical-align: top; padding: 11px 14px; border-bottom: 1px solid var(--line); }
-th { font: 600 12.5px var(--f-body); letter-spacing: .03em; text-transform: uppercase; color: var(--muted); background: var(--sunken); white-space: nowrap; }
+th { font: 600 13px var(--f-body); letter-spacing: .03em; text-transform: uppercase; color: var(--muted); background: var(--sunken); }
 tr:last-child td { border-bottom: 0; }
 th[scope="row"] { text-transform: none; font: 600 14px/1.4 var(--f-body); letter-spacing: 0; color: var(--ink); background: var(--surface); white-space: normal; }
 tr:last-child th[scope="row"] { border-bottom: 0; }
-td code { white-space: nowrap; }
+td code { overflow-wrap: anywhere; }
 tr.rec td:first-child { box-shadow: inset 3px 0 0 var(--led); }
 .pill { display: inline-block; font: 600 11.5px/1 var(--f-body); padding: 4px 8px; border-radius: 999px; white-space: nowrap; }
 .pill.ok { background: var(--ok-soft); color: var(--ok); }
@@ -503,6 +503,10 @@ a.agent.main:hover { outline: 2px solid var(--led); }
 .vals input { height: 36px; border: 1px solid var(--line-strong); border-radius: 8px; padding: 0 10px; background: var(--bg); color: var(--ink); font: 14px var(--f-mono); }
 
 /* Rodada 2 da revisão. */
+td.ic, th.ic { width: 1%; text-align: center; }
+td.ic { white-space: nowrap; }
+th.ic { min-width: 84px; }
+@media (max-width: 640px) { th.ic { min-width: 0; } .table-wrap.stack td[data-label]::before { content: attr(data-label); display: block; font-size: 13px; color: var(--muted); } .table-wrap.stack td.ic { width: auto; text-align: left; } }
 .mb-limit::after { content: none; }
 .membar { overflow: hidden; padding: 8px 2px 2px; }
 .mb-legend li.lim::before { background: none; border: 2px dashed var(--ink); width: 8px; height: 8px; }
@@ -641,14 +645,14 @@ td code.cp.ok { background: var(--ok-soft); }
 
   <h2>O que muda para você</h2>
   <div class="table-wrap"><table class="vs">
-    <tr><th></th><th><span class="l">Chat do claude.ai</span><span class="s">Chat</span></th><th><span class="l">Claude Code no PC</span><span class="s">PC</span></th><th><span class="l">Claude Code na VPS</span><span class="s">VPS</span></th></tr>
-    <tr><td>Mexe nos seus repos e roda comandos</td><td><span class="n" aria-label="não"></span></td><td><span class="y" aria-label="sim"></span></td><td><span class="y" aria-label="sim"></span></td></tr>
-    <tr><td>Continua com o seu PC desligado</td><td><span class="y" aria-label="sim"></span></td><td><span class="n" aria-label="não"></span></td><td><span class="y" aria-label="sim"></span></td></tr>
-    <tr><td>Você pede e acompanha pelo celular</td><td><span class="y" aria-label="sim"></span></td><td><span class="p" aria-label="só com o PC ligado"></span></td><td><span class="y" aria-label="sim"></span></td></tr>
-    <tr><td>Várias tarefas ao mesmo tempo, cada uma com teto de memória</td><td><span class="n" aria-label="não"></span></td><td><span class="p" aria-label="em parte"></span></td><td><span class="y" aria-label="sim"></span></td></tr>
-    <tr><td>Trabalha sem pedir permissão a cada passo</td><td><span class="n" aria-label="não"></span></td><td><span class="p" aria-label="enquanto você olha"></span></td><td><span class="y" aria-label="sim"></span></td></tr>
-    <tr><td>Avisa e manda arquivo pelo Telegram</td><td><span class="n" aria-label="não"></span></td><td><span class="n" aria-label="não"></span></td><td><span class="y" aria-label="sim"></span></td></tr>
-    <tr><td>Usa senha sem o valor passar pela conversa</td><td><span class="n" aria-label="não"></span></td><td><span class="p" aria-label="se você montar"></span></td><td><span class="y" aria-label="sim"></span></td></tr>
+    <tr><th></th><th class="ic"><span class="l">Chat do claude.ai</span><span class="s">Chat</span></th><th class="ic"><span class="l">Claude Code no PC</span><span class="s">PC</span></th><th class="ic"><span class="l">Claude Code na VPS</span><span class="s">VPS</span></th></tr>
+    <tr><td>Mexe nos seus repos e roda comandos</td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
+    <tr><td>Continua com o seu PC desligado</td><td class="ic"><span class="y" aria-label="sim"></span></td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
+    <tr><td>Você pede e acompanha pelo celular</td><td class="ic"><span class="y" aria-label="sim"></span></td><td class="ic"><span class="p" aria-label="só com o PC ligado"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
+    <tr><td>Várias tarefas ao mesmo tempo, cada uma com teto de memória</td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="p" aria-label="em parte"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
+    <tr><td>Trabalha sem pedir permissão a cada passo</td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="p" aria-label="enquanto você olha"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
+    <tr><td>Avisa e manda arquivo pelo Telegram</td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
+    <tr><td>Usa senha sem o valor passar pela conversa</td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="p" aria-label="se você montar"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
   </table></div>
   <p class="figcap"><span class="p" aria-hidden="true"></span> em parte: o PC precisa estar ligado e você por perto.</p>
   <p>A montagem leva de 1 a 2 horas e é feita uma vez. Depois, cuidar da máquina fica com você, e a manutenção automática faz quase tudo.</p>
@@ -1078,11 +1082,11 @@ sudo iptables -I INPUT &lt;linha-do-REJECT&gt; -p tcp --dport 80 -j ACCEPT</pre>
   
 
   <h2>Comparação</h2>
-  <div class="table-wrap"><table>
-    <tr><th>Caminho</th><th>Custo</th><th>Máquina</th><th>Alcança serviço privado</th><th>Roda sem pedir permissão (bypass)</th><th>Quem mantém</th></tr>
-    <tr class="rec"><td><a href="#oracle"><b>Oracle, Pay As You Go</b></a></td><td>US$ 0 dentro da cota</td><td>ARM, 2 OCPU, 12 GB, até 200 GB</td><td><span class="y" aria-label="sim"></span></td><td><span class="y" aria-label="sim"></span></td><td>Você</td></tr>
-    <tr><td><a href="#vps"><b>VPS dedicada paga</b></a></td><td>R$ 43,99 por mês na Hostinger KVM 2, em contrato de 24 meses</td><td>x86, 2 vCPU, 8 GB, 100 GB</td><td><span class="y" aria-label="sim"></span></td><td><span class="y" aria-label="sim"></span></td><td>Você</td></tr>
-    <tr><td><a href="#container"><b>Container numa VPS que você já tem</b></a></td><td>Nada a mais</td><td>O que sobra da VPS</td><td><span class="y" aria-label="sim"></span></td><td><span class="y" aria-label="sim"></span></td><td>Você</td></tr>
+  <div class="table-wrap stack"><table>
+    <tr><th>Caminho</th><th>Custo</th><th>Máquina</th><th class="ic">Serviço privado</th><th class="ic">Bypass</th></tr>
+    <tr class="rec"><td><a href="#oracle"><b>Oracle, Pay As You Go</b></a></td><td>US$ 0 dentro da cota</td><td>ARM, 2 OCPU, 12 GB, até 200 GB</td><td class="ic"><span class="y" aria-label="sim"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
+    <tr><td><a href="#vps"><b>VPS dedicada paga</b></a></td><td>R$ 43,99 por mês na Hostinger KVM 2, em contrato de 24 meses</td><td>x86, 2 vCPU, 8 GB, 100 GB</td><td class="ic"><span class="y" aria-label="sim"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
+    <tr><td><a href="#container"><b>Container numa VPS que você já tem</b></a></td><td>Nada a mais</td><td>O que sobra da VPS</td><td class="ic"><span class="y" aria-label="sim"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
   </table></div>
 
   <h2>Qual escolher</h2>
@@ -1107,7 +1111,7 @@ sudo iptables -I INPUT &lt;linha-do-REJECT&gt; -p tcp --dport 80 -j ACCEPT</pre>
   <p class="lead">Uma VPS é um servidor virtual alugado, ligado 24 horas. Contrate uma paga, só para o Claude Code, quando você aceita pagar ou quando a Oracle está sem capacidade na sua região. A opção sugerida é a Hostinger, que cobra em reais, usa processador AMD EPYC (x86) e tem data center na América do Sul.</p>
 
   <h2>Qual plano</h2>
-  <div class="table-wrap"><table>
+  <div class="table-wrap stack"><table>
     <tr><th>Plano Hostinger</th><th>Máquina</th><th>Preço no contrato de 24 meses</th><th>Renovação</th><th>Para quê</th></tr>
     <tr><td>KVM 1</td><td>1 vCPU, 4 GB, 50 GB NVMe</td><td>R$ 29,99 por mês</td><td>R$ 59,99 por mês</td><td>Insuficiente. Com um núcleo só, o build e os testes travam</td></tr>
     <tr class="rec"><td><b>KVM 2</b></td><td>2 vCPU, 8 GB, 100 GB NVMe</td><td>R$ 43,99 por mês</td><td>R$ 77,99 por mês</td><td>Claude Code, git, Docker e testes. Próximo da máquina medida neste guia</td></tr>
@@ -2769,6 +2773,12 @@ claude plugin install cockpit@cockpit</pre></div>
   document.querySelectorAll('#dia td code, #problemas td code').forEach(function (c) {
     c.classList.add('cp'); c.title = 'Copiar';
     c.addEventListener('click', function () { try { navigator.clipboard.writeText(c.textContent).then(function () { c.classList.add('ok'); setTimeout(function () { c.classList.remove('ok'); }, 1200); }); } catch (e) {} });
+  });
+  // tabela em cartões no celular: cada célula leva o nome da coluna
+  document.querySelectorAll('.table-wrap.stack table').forEach(function (t) {
+    var head = t.rows[0] ? [].map.call(t.rows[0].cells, function (c) { return c.textContent.trim(); }) : [];
+    if (head.length < 3) return;
+    [].slice.call(t.rows, 1).forEach(function (r) { [].forEach.call(r.cells, function (c, i) { if (i && head[i]) c.dataset.label = head[i]; }); });
   });
   route();
 })();
