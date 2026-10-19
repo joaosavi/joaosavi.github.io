@@ -181,6 +181,125 @@ a.card:hover { border-color: var(--led); transform: translateY(-1px); }
 .term .a { color: #f0b43c; }
 .term .d { color: #7d8597; }
 
+/* Lateral: busca no topo, grupos com ícone, um mini-guia por linha. */
+.sidebar { padding-top: 0; }
+.side-search { position: sticky; top: 0; z-index: 2; margin: 0 -16px 14px -20px; padding: 16px 16px 12px 20px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.side-search svg { position: absolute; left: 31px; top: 28px; width: 16px; height: 16px; stroke: var(--muted); }
+.side-search input { width: 100%; height: 40px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font: 14.5px var(--f-body); padding: 0 34px 0 36px; }
+.side-search input:focus { outline: 2px solid var(--led); outline-offset: 0; border-color: transparent; }
+.side-search kbd { position: absolute; right: 26px; top: 26px; font: 500 12px/1 var(--f-mono); color: var(--muted); border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 5px; padding: 3px 6px; background: var(--surface); pointer-events: none; }
+.side-empty { margin: 4px 10px; color: var(--muted); font-size: 14px; }
+.nav-group { margin-bottom: 18px; }
+.nav-group h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 6px 10px; font: 700 13px/1 var(--f-body); letter-spacing: .02em; text-transform: none; color: var(--ink); }
+.nav-group h4 svg { width: 16px; height: 16px; stroke: var(--led); flex-shrink: 0; }
+.nav-group a { align-items: flex-start; gap: 9px; padding: 7px 10px; font-size: 14px; line-height: 1.4; color: var(--muted); }
+.nav-group a:hover { color: var(--ink); }
+.nav-group a.active { color: var(--ink); }
+.nav-group a .num { flex-shrink: 0; width: 20px; height: 20px; margin-top: 0; border-radius: 50%; display: grid; place-items: center; font: 600 12px/1 var(--f-mono); color: var(--muted); background: var(--sunken); }
+.nav-group a.active .num { background: var(--led); color: var(--surface); }
+.nav-group a .lbl { flex: 1; min-width: 0; }
+.nav-group a .tag { margin-top: 1px; font-size: 13px; padding: 3px 7px; color: var(--warn); background: var(--led-soft); }
+.nav-group a .snip { display: block; margin-top: 3px; font-size: 13px; color: var(--muted); font-weight: 400; }
+.nav-group a .snip b { color: var(--ink); font-weight: 600; }
+mark.hit { background: var(--led-soft); color: inherit; box-shadow: 0 0 0 2px var(--led); border-radius: 3px; }
+
+/* Antes e no fim de cada mini-guia. */
+.brief { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; margin: 0 0 28px; border: 1px solid var(--line); border-radius: 12px; background: var(--line); overflow: hidden; }
+.brief-col { display: flex; flex-direction: column; gap: 4px; padding: 12px 16px; background: var(--surface); font-size: 14.5px; }
+.brief-col p { margin: 0; }
+.brief-k { font: 700 13px var(--f-body); color: var(--warn); }
+@media (max-width: 640px) { .brief { grid-template-columns: 1fr; } }
+
+/* Quickstart. */
+.quick { list-style: none; padding: 0; margin: 8px 0 14px; display: grid; gap: 12px; }
+.quick > li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow); max-width: none; }
+.quick .q-n { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font: 700 18px var(--f-display); background: var(--led); color: var(--surface); }
+.quick b { display: block; font: 700 19px/1.3 var(--f-display); }
+.quick p { margin: 4px 0 10px; color: var(--muted); }
+.q-go { font-weight: 600; text-decoration: none; }
+.q-go:hover { text-decoration: underline; }
+.q-copy { border: 0; border-radius: 9px; padding: 9px 14px; margin-right: 12px; background: var(--ink); color: var(--bg); font: 600 14.5px var(--f-body); cursor: pointer; }
+.q-copy.done { background: var(--ok); color: var(--surface); }
+.q-alt { color: var(--muted); }
+
+/* Mapa de mini-guias. */
+.taskmap { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 18px 0; }
+.tm-group { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 16px 18px; }
+.tm-group h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font: 700 16px var(--f-display); }
+.tm-group h3 svg { width: 18px; height: 18px; stroke: var(--led); }
+.tm-group ul { margin: 0; padding: 0; list-style: none; }
+.tm-group li { padding: 5px 0; border-top: 1px solid var(--line); font-size: 14.5px; }
+.tm-group li:first-child { border-top: 0; }
+.tm-group a { text-decoration: none; }
+.tm-group a:hover { text-decoration: underline; }
+
+.refs { columns: 2 260px; column-gap: 28px; padding-left: 18px; }
+.refs li { break-inside: avoid; margin-bottom: 6px; font-size: 14.5px; }
+@media (max-width: 880px) { .side-search { margin: 0 -16px 14px -20px; } }
+/* Desenhos em HTML: se reorganizam no celular. */
+.d-s, .d-l { font-size: 13px; }
+.arch { display: grid; grid-template-columns: minmax(0, 1.1fr) 28px minmax(0, .8fr) 28px minmax(0, 2fr); align-items: center; gap: 0; margin: 18px 0 8px; }
+.arch-col { display: flex; flex-direction: column; gap: 8px; }
+.arch-k { font: 700 13px var(--f-body); color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+.chip { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 14px; line-height: 1.3; }
+.chip i { display: grid; place-items: center; width: 20px; flex-shrink: 0; }
+.chip i svg { width: 18px; height: 18px; stroke: var(--led); }
+.chip small { display: block; color: var(--muted); font-size: 13px; }
+.arrow { justify-self: center; color: var(--muted); font-size: 20px; }
+.arrow::before { content: "→"; }
+.cloud { padding: 12px; border: 1.5px dashed var(--line-strong); border-radius: 14px; text-align: center; font-size: 14px; background: var(--sunken); }
+.cloud b { display: block; font-size: 15px; }
+.cloud small { color: var(--muted); font-size: 13px; }
+.vps { padding: 12px; border: 2px solid var(--led); border-radius: 16px; background: var(--led-soft); display: grid; gap: 10px; }
+.vps > .arch-k { color: var(--warn); }
+.slice { padding: 10px; border: 1.5px solid var(--line-strong); border-radius: 12px; background: var(--surface); display: grid; gap: 8px; }
+.slice-h { display: flex; justify-content: space-between; gap: 8px; font: 600 13.5px var(--f-body); }
+.slice-h span:last-child { color: var(--muted); font-weight: 500; }
+.agents { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 6px; }
+.agent { padding: 7px 9px; border-radius: 9px; background: var(--sunken); font-size: 13.5px; }
+.agent small { display: block; color: var(--muted); font-size: 13px; }
+.agent.main { background: var(--ink); color: var(--bg); }
+.agent.main small { color: var(--bg); opacity: .75; }
+.vps-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px; }
+.vps-row .chip { font-size: 13.5px; padding: 7px 9px; }
+@media (max-width: 760px) {
+  .arch { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .arrow::before { content: "↓"; }
+  .arch-col { flex-direction: row; flex-wrap: wrap; }
+  .arch-col .arch-k { flex-basis: 100%; }
+  .arch-col .chip { flex: 1 1 140px; }
+}
+
+.flow { list-style: none; padding: 0; margin: 18px 0 8px; display: flex; flex-wrap: wrap; gap: 8px 0; counter-reset: f; }
+.flow li { counter-increment: f; display: flex; align-items: center; max-width: none; }
+.flow li > span { display: block; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 14px; line-height: 1.35; }
+.flow li > span::before { content: counter(f); display: inline-grid; place-items: center; width: 20px; height: 20px; margin-right: 7px; border-radius: 50%; background: var(--led); color: var(--surface); font: 700 12.5px var(--f-mono); vertical-align: -3px; }
+.flow li > span small { display: block; color: var(--muted); font-size: 13px; margin-left: 27px; }
+.flow li:not(:last-child)::after { content: "→"; color: var(--muted); margin: 0 7px; font-size: 18px; }
+@media (max-width: 640px) { .flow { flex-direction: column; gap: 0; } .flow li { flex-direction: column; align-items: stretch; } .flow li:not(:last-child)::after { content: "↓"; text-align: center; margin: 2px 0; } }
+
+.vs { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14.5px; }
+.vs th { text-transform: none; letter-spacing: 0; font: 700 14px var(--f-body); color: var(--ink); white-space: normal; text-align: center; }
+.vs th:first-child { text-align: left; }
+.vs th.us { background: var(--led-soft); box-shadow: inset 0 3px 0 var(--led); }
+.vs td { text-align: center; }
+.vs td:first-child { text-align: left; }
+.vs td.us { background: color-mix(in srgb, var(--led-soft) 55%, transparent); }
+.y, .n, .p { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; font: 700 14px var(--f-body); }
+.y { background: var(--ok-soft); color: var(--ok); }
+.y::before { content: "✓"; }
+.n { background: var(--danger-soft); color: var(--danger); }
+.n::before { content: "✕"; }
+.p { background: var(--warn-soft); color: var(--warn); }
+.p::before { content: "~"; }
+@media (max-width: 640px) { .vs th, .vs td { padding: 8px 6px; font-size: 13.5px; } .vs td:first-child { min-width: 128px; } }
+
+.memmap { margin: 18px 0 8px; padding: 12px; border: 2px solid var(--line-strong); border-radius: 16px; display: grid; grid-template-columns: 2.4fr 1fr 1fr; gap: 10px; }
+.memmap > .arch-k { grid-column: 1 / -1; }
+.memmap .slice.ag { border-color: var(--led); background: var(--led-soft); }
+.memmap .slice.rec { border-color: var(--ok); background: var(--ok-soft); }
+.memmap .slice.sys { background: var(--sunken); }
+@media (max-width: 640px) { .memmap { grid-template-columns: 1fr; } }
 /* Telas da Oracle: wireframes próprios, com cursor que anda até o campo do passo. */
 .demo { margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); overflow: hidden; }
 .demo-screen { position: relative; background: var(--bg); }
@@ -317,132 +436,117 @@ a.card:hover { border-color: var(--led); transform: translateY(-1px); }
     <span class="sep" aria-hidden="true"></span>
     <span class="docs">Docs</span>
   </a>
-  <nav class="topnav" aria-label="Seções da documentação">
-    <a href="#inicio" data-group="Começar">Começar</a>
-    <a href="#setup" data-group="Fazer com o Claude Code">Setup guiado</a>
-    <a href="#oracle" data-group="Onde hospedar">Hospedagem</a>
-    <a href="#preparar" data-group="Montar à mão">Montagem</a>
-    <a href="#dia" data-group="Referência">Referência</a>
-  </nav>
-  <div class="search">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-    <input id="q" type="search" placeholder="Buscar na documentação" autocomplete="off" aria-label="Buscar na documentação">
-    <kbd aria-hidden="true">/</kbd>
-    <div class="results" id="results" hidden></div>
-  </div>
   <span class="ver" title="Data da última revisão">out 2026</span>
 </header>
 
 <div class="shell">
-<nav class="sidebar" id="sidebar" aria-label="Páginas do guia">
-  <div class="nav-group"><h4>Começar</h4>
-    <a href="#inicio">Visão geral</a>
-    <a href="#caminhos">Escolher o caminho</a>
-    <a href="#nuvem">Como funciona a nuvem da Anthropic</a>
+<nav class="sidebar" id="sidebar" aria-label="Mini-guias">
+  <div class="side-search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Buscar nos guias" autocomplete="off" aria-label="Buscar nos guias"><kbd aria-hidden="true">/</kbd></div>
+  <p class="side-empty" id="sideEmpty" hidden>Nada encontrado. Tente outra palavra.</p>
+  <div class="nav-group"><h4><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Começar</h4>
+    <a href="#inicio" data-id="inicio"><span class="lbl">Quickstart</span><span class="tag">comece aqui</span></a>
+    <a href="#setup" data-id="setup"><span class="lbl">Como deixar o Claude Code montar tudo</span></a>
   </div>
-  <div class="nav-group"><h4>Fazer com o Claude Code</h4>
-    <a href="#setup">Setup guiado pelo Claude <span class="tag">recomendado</span></a>
+  <div class="nav-group"><h4><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></svg>Conseguir a máquina</h4>
+    <a href="#oracle" data-id="oracle"><span class="lbl">Como conseguir a VPS grátis na Oracle</span></a>
+    <a href="#caminhos" data-id="caminhos"><span class="lbl">Quando usar outra máquina</span></a>
+    <a href="#vps" data-id="vps"><span class="lbl">Como contratar uma VPS paga</span></a>
+    <a href="#container" data-id="container"><span class="lbl">Como rodar num container de uma VPS sua</span></a>
+    <a href="#nuvem" data-id="nuvem"><span class="lbl">Como usar sem VPS, na nuvem da Anthropic</span></a>
   </div>
-  <div class="nav-group"><h4>Onde hospedar</h4>
-    <a href="#oracle">Oracle Cloud, Pay As You Go</a>
-    <a href="#vps">VPS dedicada paga</a>
-    <a href="#container">Container numa VPS compartilhada</a>
+  <div class="nav-group"><h4><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-2.4z"/></svg>Montar a máquina</h4>
+    <a href="#preparar" data-id="preparar"><span class="num">1</span><span class="lbl">Como fazer a config inicial da VPS</span></a>
+    <a href="#acesso" data-id="acesso"><span class="num">2</span><span class="lbl">Como acessar a VPS por SSH e VS Code</span></a>
+    <a href="#ambiente" data-id="ambiente"><span class="num">3</span><span class="lbl">Como instalar as ferramentas e levar suas configs</span></a>
+    <a href="#logins" data-id="logins"><span class="num">4</span><span class="lbl">Como fazer login no Claude e no GitHub</span></a>
+    <a href="#codigo" data-id="codigo"><span class="num">5</span><span class="lbl">Como organizar pastas, repos e segredos</span></a>
+    <a href="#memoria" data-id="memoria"><span class="num">6</span><span class="lbl">Como pôr teto de memória e o agente de recover</span></a>
+    <a href="#orquestrador" data-id="orquestrador"><span class="num">7</span><span class="lbl">Como montar o orquestrador e os agentes</span></a>
+    <a href="#mods" data-id="mods"><span class="num">8</span><span class="lbl">Como instalar o Cockpit e o que ele faz</span></a>
+    <a href="#provar" data-id="provar"><span class="num">9</span><span class="lbl">Como provar que tudo funciona</span></a>
   </div>
-  <div class="nav-group"><h4>Montar à mão</h4>
-    <a href="#preparar"><span class="num">1</span>Preparar a máquina</a>
-    <a href="#acesso"><span class="num">2</span>Acesso por SSH e VS Code</a>
-    <a href="#ambiente"><span class="num">3</span>Ambiente e dotfiles</a>
-    <a href="#logins"><span class="num">4</span>Login do Claude e do GitHub</a>
-    <a href="#codigo"><span class="num">5</span>Código e segredos</a>
-    <a href="#memoria"><span class="num">6</span>Memória e recover</a>
-    <a href="#orquestrador"><span class="num">7</span>Orquestrador e agentes</a>
-    <a href="#mods"><span class="num">8</span>Mods do Cockpit</a>
-    <a href="#provar"><span class="num">9</span>Provar que funciona</a>
+  <div class="nav-group"><h4><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Canais e ferramentas</h4>
+    <a href="#canais-conseguir" data-id="canais-conseguir"><span class="lbl">Como conseguir o bot do Telegram e o número do WhatsApp</span></a>
+    <a href="#canais-ligar" data-id="canais-ligar"><span class="lbl">Como ligar o Telegram e o WhatsApp à máquina</span></a>
+    <a href="#cofre" data-id="cofre"><span class="lbl">Como dar senhas ao agente sem ele ver o valor</span></a>
+    <a href="#navegador" data-id="navegador"><span class="lbl">Como deixar o agente usar um navegador</span></a>
+    <a href="#ferramentas" data-id="ferramentas"><span class="lbl">Como dar ao agente e-mail, conectores e ferramentas</span></a>
   </div>
-  <div class="nav-group"><h4>Opcionais</h4>
-    <a href="#integracoes">Integrações</a>
-    <a href="#extras">Manutenção e extras</a>
-  </div>
-  <div class="nav-group"><h4>Referência</h4>
-    <a href="#dia">No dia a dia</a>
-    <a href="#problemas">Problemas comuns</a>
-    <a href="#seguranca">Segurança e custos</a>
-    <a href="#fontes">Fontes</a>
+  <div class="nav-group"><h4><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Manter e consultar</h4>
+    <a href="#manter" data-id="manter"><span class="lbl">Como manter a máquina de pé sozinha</span></a>
+    <a href="#personalizar" data-id="personalizar"><span class="lbl">Como personalizar e guardar a configuração</span></a>
+    <a href="#baixar" data-id="baixar"><span class="lbl">Como baixar um arquivo da máquina</span></a>
+    <a href="#dia" data-id="dia"><span class="lbl">Comandos do dia a dia</span></a>
+    <a href="#problemas" data-id="problemas"><span class="lbl">O que fazer quando algo quebra</span></a>
+    <a href="#seguranca" data-id="seguranca"><span class="lbl">O que custa e o que proteger</span></a>
+    <a href="#fontes" data-id="fontes"><span class="lbl">Fontes</span></a>
   </div>
 </nav>
 
 <main id="main">
 
-<!-- ============ VISÃO GERAL ============ -->
-<article class="page" id="inicio" data-title="Visão geral">
+<article class="page" id="inicio" data-title="Quickstart">
   <div class="crumb">Começar</div>
-  <h1>Visão geral</h1>
-  <p class="lead">O Claude Code roda numa máquina que não desliga, e você conversa com ele pelo celular, pelo navegador, pelo terminal e pelo VS Code. Este guia ajuda você a escolher onde essa máquina fica e leva você até a primeira sessão aberta pelo celular.</p>
+  <h1>Quickstart</h1>
+  <p class="lead">O Claude Code numa VPS que não desliga, com um orquestrador que abre um agente por tarefa. Você fala com ele pelo celular, pelo navegador, pelo terminal e pelo VS Code.</p>
 
-  <div class="term" role="img" aria-label="Exemplo dos agentes vivos na máquina remota"><span class="p">voce@agente:~$</span> systemctl is-active orquestrador recover-rc
-<span class="g">active</span>
-<span class="g">active</span>
-<span class="p">voce@agente:~$</span> agent list
-NOME        PROJETO  MEMÓRIA      INÍCIO
-<span class="a">site-3f9a</span>   site     612M/1536M   2026-10-19T09:12:40
-<span class="a">api-testes</span>  api      1840M/3072M  2026-10-19T09:30:02</div>
+  <ol class="quick">
+    <li><span class="q-n">1</span><div><b>Consiga a VPS</b><p>Uma VM ARM grátis na Oracle, com 2 núcleos e 12 GB. Leva uns 30 minutos, e o cartão só é pré-autorizado.</p><a class="q-go" href="#oracle">Como conseguir a VPS grátis na Oracle →</a></div></li>
+    <li><span class="q-n">2</span><div><b>Cole o pedido no Claude Code</b><p>No Claude Code do seu computador, cole o pedido. Ele entrevista você e monta a máquina passo a passo, parando só no que precisa da sua mão.</p><button type="button" class="q-copy" data-copy-target="prompt-text">Copiar o pedido</button> <a class="q-go" href="#setup">Ver o pedido e o que ele pergunta →</a></div></li>
+    <li><span class="q-n">3</span><div><b>Peça uma tarefa pelo celular</b><p>Abra o <a href="https://claude.ai/code">claude.ai/code</a> ou a aba Code do app, escolha o orquestrador e peça. Ele abre o agente no projeto e te avisa quando acabar.</p></div></li>
+  </ol>
+  <p class="q-alt">Prefere montar à mão? Siga <a href="#preparar">Montar a máquina</a>, do passo 1 ao 9. Não quer manter uma VPS? Veja <a href="#caminhos">Quando usar outra máquina</a>.</p>
 
-  <h2>Como funciona</h2>
-  <div class="figure">
-    <svg viewBox="0 0 760 360" role="img" aria-label="O agente roda numa máquina sempre ligada, e você chega por dois caminhos">
-      <defs><marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="d-arrow" d="M0 0L10 5L0 10z"/></marker></defs>
-      <rect class="d-main" x="448" y="24" width="288" height="296" rx="10"/>
-      <text class="d-t" x="466" y="50">Máquina sempre ligada</text>
-      <text class="d-l" x="466" y="68">Oracle, outra VPS ou um container</text>
-      <rect class="d-in" x="466" y="86" width="252" height="58" rx="8"/>
-      <text class="d-t" x="482" y="111">Sessões do Claude Code</text>
-      <text class="d-s" x="482" y="129">no seu repo, com os .env</text>
-      <rect class="d-in" x="466" y="160" width="252" height="58" rx="8"/>
-      <text class="d-t" x="482" y="185">Remote Control</text>
-      <text class="d-s" x="482" y="203">serviço do systemd</text>
-      <rect class="d-in" x="466" y="234" width="252" height="58" rx="8"/>
-      <text class="d-t" x="482" y="259">Docker</text>
-      <text class="d-s" x="482" y="277">banco e serviços de dev</text>
-      <rect class="d-box" x="24" y="40" width="192" height="76" rx="10"/>
-      <text class="d-t" x="40" y="66">Celular ou navegador</text>
-      <text class="d-s" x="40" y="84">claude.ai/code ou</text>
-      <text class="d-s" x="40" y="101">app do Claude</text>
-      <rect class="d-box" x="256" y="40" width="160" height="76" rx="10"/>
-      <text class="d-t" x="272" y="66">claude.ai</text>
-      <text class="d-s" x="272" y="84">liga o celular</text>
-      <text class="d-s" x="272" y="101">à sessão</text>
-      <rect class="d-box" x="24" y="224" width="192" height="92" rx="10"/>
-      <text class="d-t" x="40" y="250">Terminal e VS Code</text>
-      <text class="d-s" x="40" y="268">ssh agente</text>
-      <text class="d-s" x="40" y="285">Remote-SSH no VS Code</text>
-      <text class="d-s" x="40" y="302">ssh -L para abrir o app</text>
-      <path class="d-line" d="M216 78H254" marker-end="url(#arw)"/>
-      <path class="d-line" d="M466 189H336V118" marker-end="url(#arw)"/>
-      <path class="d-line" d="M592 160V146" marker-end="url(#arw)"/>
-      <path class="d-line" d="M216 270H446" marker-end="url(#arw)"/>
-      <text class="d-l" x="344" y="158">conexão de saída</text>
-      <text class="d-l" x="331" y="260" text-anchor="middle">SSH, porta 22</text>
-    </svg>
+
+  <h2>Como fica no fim</h2>
+  <div class="arch" role="img" aria-label="Você fala de qualquer aparelho com o claude.ai, que liga à VPS. Na VPS, o orquestrador abre agentes com teto de memória, e o recover fica fora do teto.">
+    <div class="arch-col"><span class="arch-k">Você</span>
+      <div class="chip"><i><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg></i><span>Celular e navegador<small>app do Claude</small></span></div>
+      <div class="chip"><i><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 4 4-4 4M12 16h7"/></svg></i><span>Terminal e VS Code<small>SSH</small></span></div>
+      <div class="chip"><i><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg></i><span>Telegram e WhatsApp<small>aviso e arquivo</small></span></div>
+    </div>
+    <span class="arrow" aria-hidden="true"></span>
+    <div class="cloud"><b>claude.ai</b>Remote Control<br><small>a VPS liga para fora, nenhuma porta aberta</small></div>
+    <span class="arrow" aria-hidden="true"></span>
+    <div class="vps"><span class="arch-k">A sua VPS, ligada 24 horas</span>
+      <div class="slice"><div class="slice-h"><span>Slice dos agentes</span><span>teto somado</span></div>
+        <div class="agents">
+          <div class="agent main">Orquestrador<small>recebe o pedido, abre e encerra agentes</small></div>
+          <div class="agent">Agente do site<small>teto 1,5 GB</small></div>
+          <div class="agent">Agente da API<small>teto 3 GB</small></div>
+        </div>
+      </div>
+      <div class="vps-row">
+        <div class="chip"><i><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="m5.6 5.6 3.6 3.6M14.8 14.8l3.6 3.6M18.4 5.6l-3.6 3.6M9.2 14.8l-3.6 3.6"/></svg></i><span>Recover<small>512 MB fora do teto</small></span></div>
+        <div class="chip"><i><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M12 22V12M3 7l9 5 9-5"/></svg></i><span>Cockpit<small>segredo, memória, limite</small></span></div>
+        <div class="chip"><i><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></i><span>Cofre<small>senha pelo nome</small></span></div>
+        <div class="chip"><i><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></i><span>Navegador<small>o seu Chrome ou o da VPS</small></span></div>
+      </div>
+    </div>
   </div>
-  <p class="figcap">O serviço do Remote Control liga para o claude.ai de dentro da máquina. Nenhuma porta precisa abrir para o celular funcionar.</p>
-  <p>Na máquina, um serviço mantém o <code>claude remote-control</code> sempre de pé. Ele se conecta ao claude.ai por uma conexão de saída e abre uma sessão nova sempre que você pede pelo app, até 32 ao mesmo tempo. O terminal e o VS Code entram por SSH, como em qualquer servidor.</p>
 
-  <h2>Duas formas de rodar fora do seu computador</h2>
-  <div class="table-wrap"><table>
-    <tr><th></th><th>Máquina sua com Remote Control</th><th>Nuvem da Anthropic</th></tr>
-    <tr><th scope="row">Onde roda</th><td>Numa VM ou container seu</td><td>Numa VM que a Anthropic cria por sessão</td></tr>
-    <tr><th scope="row">Serviço privado</th><td>Sim, por túnel SSH ou VPN</td><td>Não, só domínios que a rede do ambiente libera</td></tr>
-    <tr><th scope="row">Modo bypass</th><td>Sim</td><td>Não. Modos Accept edits, Plan e Auto</td></tr>
-    <tr><th scope="row">Quem mantém</th><td>Você</td><td>A Anthropic</td></tr>
-    <tr><th scope="row">Custo</th><td>A máquina, ou zero na Oracle Pay As You Go</td><td>Incluso no plano</td></tr>
+  <h2>O caminho de uma tarefa</h2>
+  <ol class="flow" aria-label="O caminho de uma tarefa">
+    <li><span>Você pede<small>pelo celular</small></span></li>
+    <li><span>Orquestrador confere<small>agentes vivos e o repo</small></span></li>
+    <li><span>Abre o agente<small>na pasta, com teto</small></span></li>
+    <li><span>Agente trabalha<small>testa e commita</small></span></li>
+    <li><span>Avisa que acabou<small>no app ou no Telegram</small></span></li>
+    <li><span>Encerra o agente<small>a memória volta</small></span></li>
+  </ol>
+
+  <h2>O que muda para você</h2>
+  <div class="table-wrap"><table class="vs">
+    <tr><th></th><th>Chat do claude.ai</th><th>Claude Code no PC</th><th class="us">Claude Code na VPS</th></tr>
+    <tr><td>Mexe nos seus repos e roda comandos</td><td><span class="n" aria-label="não"></span></td><td><span class="y" aria-label="sim"></span></td><td class="us"><span class="y" aria-label="sim"></span></td></tr>
+    <tr><td>Continua com o seu PC desligado</td><td><span class="y" aria-label="sim"></span></td><td><span class="n" aria-label="não"></span></td><td class="us"><span class="y" aria-label="sim"></span></td></tr>
+    <tr><td>Você pede e acompanha pelo celular</td><td><span class="y" aria-label="sim"></span></td><td><span class="p" aria-label="só com o PC ligado"></span></td><td class="us"><span class="y" aria-label="sim"></span></td></tr>
+    <tr><td>Várias tarefas ao mesmo tempo, cada uma com teto de memória</td><td><span class="n" aria-label="não"></span></td><td><span class="p" aria-label="em parte"></span></td><td class="us"><span class="y" aria-label="sim"></span></td></tr>
+    <tr><td>Trabalha sem pedir permissão a cada passo</td><td><span class="n" aria-label="não"></span></td><td><span class="p" aria-label="enquanto você olha"></span></td><td class="us"><span class="y" aria-label="sim"></span></td></tr>
+    <tr><td>Te avisa e manda arquivo pelo Telegram</td><td><span class="n" aria-label="não"></span></td><td><span class="n" aria-label="não"></span></td><td class="us"><span class="y" aria-label="sim"></span></td></tr>
+    <tr><td>Usa senha sem o valor passar pela conversa</td><td><span class="n" aria-label="não"></span></td><td><span class="p" aria-label="se você montar"></span></td><td class="us"><span class="y" aria-label="sim"></span></td></tr>
   </table></div>
-  <p>As duas gastam a mesma cota da sua conta do Claude. A <a href="#nuvem">página da nuvem</a> explica quando ela basta.</p>
-
-  <h2>Como usar este guia</h2>
-  <div class="cards">
-    <a class="card" href="#setup"><span class="pill ok">recomendado</span><h3>Com o Claude Code</h3><p>Você cola um pedido no Claude Code da sua máquina. Ele entrevista você, escolhe o caminho junto e faz a montagem, parando só no que precisa da sua mão.</p></a>
-    <a class="card" href="#caminhos"><span class="pill led">manual</span><h3>À mão, passo a passo</h3><p>Escolha onde hospedar e siga as páginas de montagem, de 1 a 8. Cada comando tem botão de copiar.</p></a>
-  </div>
+  <p class="figcap"><span class="p" aria-hidden="true"></span> em parte: o PC precisa estar ligado e você por perto.</p>
 
   <h2>O que você precisa ter</h2>
   <ul>
@@ -452,94 +556,25 @@ NOME        PROJETO  MEMÓRIA      INÍCIO
     <li>Para a Oracle, um cartão no seu nome, com US$ 100 de limite para a pré-autorização do upgrade para Pay As You Go. Serve cartão virtual temporário.</li>
   </ul>
   <p>Para conferir a conta, rode <code>claude remote-control --help</code>. Ele lista as opções quando a conta pode usar o Remote Control, e responde com erro quando não pode.</p>
+
+  <h2>Todos os mini-guias</h2>
+  <div class="taskmap">
+    <section class="tm-group"><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></svg>Conseguir a máquina</h3>
+      <ul><li><a href="#oracle">Como conseguir a VPS grátis na Oracle</a></li><li><a href="#vps">Como contratar uma VPS paga</a></li><li><a href="#container">Como rodar num container de uma VPS sua</a></li><li><a href="#nuvem">Como usar a nuvem da Anthropic</a></li></ul></section>
+    <section class="tm-group"><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-2.4z"/></svg>Montar a máquina</h3>
+      <ul><li><a href="#preparar">Como fazer a config inicial da VPS</a></li><li><a href="#acesso">Como acessar a VPS por SSH e VS Code</a></li><li><a href="#ambiente">Como instalar as ferramentas e levar suas configs</a></li><li><a href="#logins">Como fazer login no Claude e no GitHub</a></li><li><a href="#codigo">Como organizar pastas, repos e segredos</a></li><li><a href="#memoria">Como pôr teto de memória e o agente de recover</a></li><li><a href="#orquestrador">Como montar o orquestrador e os agentes</a></li><li><a href="#mods">Como instalar o Cockpit e o que ele faz</a></li><li><a href="#provar">Como provar que tudo funciona</a></li></ul></section>
+    <section class="tm-group"><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Canais e ferramentas</h3>
+      <ul><li><a href="#canais-conseguir">Como conseguir o bot do Telegram e o número do WhatsApp</a></li><li><a href="#canais-ligar">Como ligar o Telegram e o WhatsApp à máquina</a></li><li><a href="#cofre">Como dar senhas ao agente sem ele ver o valor</a></li><li><a href="#navegador">Como deixar o agente usar um navegador</a></li><li><a href="#ferramentas">Como dar ao agente e-mail, conectores e ferramentas</a></li></ul></section>
+    <section class="tm-group"><h3><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Manter e consultar</h3>
+      <ul><li><a href="#manter">Como manter a máquina de pé sozinha</a></li><li><a href="#personalizar">Como personalizar e guardar a configuração</a></li><li><a href="#baixar">Como baixar um arquivo da máquina</a></li><li><a href="#dia">Comandos do dia a dia</a></li><li><a href="#problemas">O que fazer quando algo quebra</a></li><li><a href="#seguranca">O que custa e o que proteger</a></li></ul></section>
+  </div>
 </article>
 
-<!-- ============ CAMINHOS ============ -->
-<article class="page" id="caminhos" data-title="Escolher o caminho" hidden>
+<article class="page" id="setup" data-title="Como deixar o Claude Code montar tudo" data-next="" hidden>
   <div class="crumb">Começar</div>
-  <h1>Escolher o caminho</h1>
-  <p class="lead">São quatro caminhos. Para a maioria das pessoas, o melhor é uma VM ARM na Oracle com conta Pay As You Go. Ela tem 2 núcleos, 12 GB de memória e até 200 GB de disco, e fica ligada o mês inteiro sem custo.</p>
-
-  <form class="chooser" id="chooser" aria-labelledby="ch-t">
-    <h3 id="ch-t">Qual é o seu caso?</h3>
-    <p>Três perguntas. A recomendação aparece embaixo.</p>
-    <fieldset class="q"><legend>O projeto precisa alcançar algo privado, como um banco sem porta pública, ou você quer sessões em modo bypass?</legend>
-      <div class="opts"><label><input type="radio" name="q1" value="sim" id="q1s"> Sim</label><label><input type="radio" name="q1" value="nao" id="q1n"> Não, só GitHub e pacotes públicos</label></div></fieldset>
-    <fieldset class="q"><legend>Você já tem uma VPS com folga rodando outras coisas?</legend>
-      <div class="opts"><label><input type="radio" name="q2" value="sim" id="q2s"> Sim, com 4 GB de memória e 30 GB de disco livres</label><label><input type="radio" name="q2" value="nao" id="q2n"> Não</label></div></fieldset>
-    <fieldset class="q"><legend>Quanto quer gastar?</legend>
-      <div class="opts"><label><input type="radio" name="q3" value="zero" id="q3z"> Nada</label><label><input type="radio" name="q3" value="pago" id="q3p"> Posso pagar por mês</label></div></fieldset>
-    <div class="verdict" id="verdict" aria-live="polite"><b>Responda as três perguntas</b><p>Sem resposta, a recomendação padrão é a Oracle com Pay As You Go.</p></div>
-  </form>
-
-  <h2>Comparação</h2>
-  <div class="table-wrap"><table>
-    <tr><th>Caminho</th><th>Custo</th><th>Máquina</th><th>Serviço privado</th><th>Bypass</th><th>Quem mantém</th></tr>
-    <tr class="rec"><td><a href="#oracle"><b>Oracle, Pay As You Go</b></a><br><span class="pill ok">recomendado</span></td><td>US$ 0 dentro da cota</td><td>ARM, 2 OCPU, 12 GB, até 200 GB</td><td><span class="pill ok">sim</span></td><td><span class="pill ok">sim</span></td><td>Você</td></tr>
-    <tr><td><a href="#vps"><b>VPS dedicada paga</b></a></td><td>R$ 43,99 por mês na Hostinger KVM 2, em contrato de 24 meses</td><td>x86, 2 vCPU, 8 GB, 100 GB</td><td><span class="pill ok">sim</span></td><td><span class="pill ok">sim</span></td><td>Você</td></tr>
-    <tr><td><a href="#container"><b>Container numa VPS que você já tem</b></a></td><td>Nada a mais</td><td>O que sobra da VPS</td><td><span class="pill ok">sim</span></td><td><span class="pill ok">sim</span></td><td>Você</td></tr>
-    <tr><td><a href="#nuvem"><b>Nuvem da Anthropic</b></a></td><td>Incluso no plano</td><td>VM da Anthropic por sessão</td><td><span class="pill no">não</span></td><td><span class="pill no">não</span></td><td>Anthropic</td></tr>
-  </table></div>
-
-  <h2>Qual escolher</h2>
-  <ul>
-    <li>Só GitHub e pacotes públicos, sem bypass? Comece pela <a href="#nuvem">nuvem da Anthropic</a>. Não há máquina para manter.</li>
-    <li>Quer custo zero e uma máquina sua? <a href="#oracle">Oracle com Pay As You Go</a>. Na conta Pay As You Go, o que cabe no Always Free não é cobrado, e a Oracle não recolhe a VM por ociosidade.</li>
-    <li>Já tem uma VPS com folga rodando outras coisas? Um <a href="#container">container LXD</a> nela sai de graça e não mistura o agente com os outros serviços.</li>
-    <li>Prefere pagar, ou a Oracle está sem capacidade na sua região? Uma <a href="#vps">VPS dedicada</a> num provedor comum.</li>
-  </ul>
-
-  <h2>Tamanho da máquina</h2>
-  <p>Medimos com 2 núcleos e 7 GB de memória, num projeto Next.js com Postgres em Docker. A suíte inteira de testes de tela levou 32 minutos. Com menos de 4 GB, o build de um app web e o navegador dos testes disputam memória. Cada sessão parada do Claude Code ocupou de 200 a 500 MB, e a página <a href="#memoria">Limites de memória</a> dá a conta do teto das sessões.</p>
-  <div class="callout note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><strong class="label">Troque os nomes de exemplo</strong><p>Os comandos usam três nomes de exemplo. Troque <code>voce</code> pelo seu usuário, <code>agente</code> pelo nome da máquina e <code>projeto</code> pela pasta do repo na máquina. Escolha os três antes de começar, porque eles se repetem em várias páginas.</p></div></div>
-  <div class="callout note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><strong class="label">ARM ou x86</strong><p>A Oracle grátis é ARM. Confira se as imagens Docker e os binários do projeto têm versão <code>linux/arm64</code>. Imagem Docker que roda num Mac com Apple Silicon já é <code>linux/arm64</code> e serve. Binário que o npm ou o pip baixam no Mac é para macOS e não prova nada. Se o seu deploy já roda em ARM, o projeto roda.</p></div></div>
-</article>
-
-<!-- ============ NUVEM ANTHROPIC ============ -->
-<article class="page" id="nuvem" data-title="Como funciona a nuvem da Anthropic" hidden>
-  <div class="crumb">Começar</div>
-  <h1>Como funciona a nuvem da Anthropic</h1>
-  <p class="lead">No Claude Code na web, cada sessão roda numa VM que a Anthropic cria e mantém. Não existe máquina para você configurar, e a sessão continua com o seu computador desligado.</p>
-
-  <h2>O caminho de uma sessão</h2>
-  <ol class="steps">
-    <li><b>Você pede</b>Pelo <a href="https://claude.ai/code">claude.ai/code</a>, pela aba Code do app do Claude, ou com <code>claude --cloud "tarefa"</code> no terminal.</li>
-    <li><b>A VM nasce</b>No navegador e no app, você escolhe o repo e o branch. Pelo terminal, o <code>--cloud</code> clona o branch atual do GitHub. Commit sem push não chega.</li>
-    <li><b>O ambiente prepara</b>Roda o setup script do ambiente, ou reaproveita o disco guardado da última vez.</li>
-    <li><b>O Claude trabalha</b>Edita, roda testes, sobe serviços com Docker e devolve um branch. O PR sai pela própria sessão.</li>
-    <li><b>Você continua de onde quiser</b>Pelo app, pelo navegador, ou no terminal com <code>claude --teleport</code>, que traz a sessão e o branch dela.</li>
-  </ol>
-
-  <h2>O que já vem na VM</h2>
-  <p>Docker, <code>docker compose</code>, PostgreSQL 16 e Redis 7, além das linguagens e gerenciadores de pacote comuns. O PostgreSQL e o Redis vêm parados, e o Claude sobe quando você pede.</p>
-
-  <h2>O que configurar</h2>
-  <ol class="steps">
-    <li><b>Conecte o GitHub</b>No primeiro acesso ao claude.ai/code. Repo público já funciona. Para repo privado, instale o app do Claude no GitHub da conta dona do repo. Pelo terminal, <code>/web-setup</code> manda o token do seu <code>gh</code> para a conta. No Team e no Enterprise, o <code>/web-setup</code> só aparece se um Owner ligar o Quick web setup.</li>
-    <li><b>Confira o ambiente e a rede</b>O primeiro acesso cria o ambiente Default, com rede Trusted, ou pede para você criar. Para mudar, use o seletor de ambiente do claude.ai/code. Trusted libera registries de pacote, GitHub e Docker Hub. Custom usa só a sua lista de domínios, e soma a do Trusted se você marcar a opção. Full libera qualquer domínio, e None corta tudo.</li>
-    <li><b>Ponha as variáveis de ambiente</b>No formato <code>.env</code>. Todo mundo que usa o ambiente lê os valores. No Pro e no Max, guarde chave de API em API credentials, e a sessão usa a chave sem enxergá-la.</li>
-    <li><b>Escreva o setup script</b>Instale as dependências e rode <code>docker compose pull</code>. Se ele termina em uns 5 minutos, a Anthropic guarda o disco, e as próximas sessões começam prontas. O disco guardado vale uns 7 dias e guarda arquivos, não processos, então banco e compose sobem de novo a cada sessão.</li>
-  </ol>
-
-  <h2>Os limites</h2>
-  <ul>
-    <li>A VM pausa depois de alguns minutos sem atividade e pode ser recolhida. Reabrir a sessão devolve a conversa, mas não o que rodava em segundo plano.</li>
-    <li>Não existe modo bypass. Os modos são Accept edits, Plan e Auto, em que um classificador revisa cada ação.</li>
-    <li>A sessão não alcança o que não tem endereço público, como um banco atrás de túnel SSH.</li>
-    <li>Para devolver commit e PR, o repo precisa estar no GitHub.</li>
-    <li>Está nos planos Pro, Max e Team, e no Enterprise com assento premium ou Chat + Claude Code. A VM não é cobrada à parte, e as sessões gastam a cota da conta.</li>
-  </ul>
-
-  <h2>Quando ela basta</h2>
-  <p>Quando o projeto só precisa de GitHub, pacotes públicos e serviços que sobem em Docker na própria VM, e você aceita aprovar ou deixar o modo Auto aprovar as ações. Se algum desses falha, use uma máquina sua com Remote Control, começando pela <a href="#oracle">Oracle</a>.</p>
-  <div class="callout note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><strong class="label">Ambiente self-hosted</strong><p>Organizações Team e Enterprise podem fazer as sessões da nuvem rodarem em máquinas próprias, com um runner. Está em beta, um Owner liga em Admin settings, Cloud environments, e a instalação está no <a href="https://code.claude.com/docs/en/self-hosted-environments-quickstart">quickstart oficial</a>. Este guia não cobre esse caminho.</p></div></div>
-</article>
-
-<!-- ============ SETUP GUIADO ============ -->
-<article class="page" id="setup" data-title="Setup guiado pelo Claude" data-next="" hidden>
-  <div class="crumb">Fazer com o Claude Code</div>
-  <h1>Setup guiado pelo Claude Code</h1>
+  <h1>Como deixar o Claude Code montar tudo</h1>
   <p class="lead">Cole o pedido desta página no Claude Code da máquina que você usa hoje. Ele descobre sozinho o que dá para ver, entrevista você, recomenda o caminho e faz a montagem passo a passo, parando só onde precisa de você.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><span>Nada. Comece por aqui.</span></div><div class="brief-col"><span class="brief-k">No fim</span><p>O Claude Code da sua máquina monta tudo com você, do começo ao fim.</p></div></div>
 
   <h2>Antes de colar</h2>
   <ul class="checklist">
@@ -1208,15 +1243,15 @@ Comece pela fase 0.</pre></div>
     <li>Com qual nome e e-mail os commits do agente saem.</li>
     <li>O nome do usuário, da máquina, do orquestrador e do slice dos agentes.</li>
     <li>Se o GitHub entra com login completo ou com um token só dos repos do agente.</li>
-    <li>Quais <a href="#integracoes">integrações</a> e <a href="#extras">extras</a> montar agora.</li>
+    <li>Quais canais e ferramentas montar agora, como o <a href="#canais-ligar">Telegram e o WhatsApp</a>, o <a href="#cofre">cofre</a> e o <a href="#navegador">navegador</a>, e quais extras de <a href="#manter">manutenção</a>.</li>
   </ol>
 </article>
 
-<!-- ============ ORACLE ============ -->
-<article class="page" id="oracle" data-title="Oracle Cloud, Pay As You Go" data-prev="caminhos" data-next="preparar" hidden>
-  <div class="crumb">Onde hospedar</div>
-  <h1>Oracle Cloud com Pay As You Go</h1>
+<article class="page" id="oracle" data-title="Como conseguir a VPS grátis na Oracle" data-prev="inicio" data-next="preparar" hidden>
+  <div class="crumb">Conseguir a máquina</div>
+  <h1>Como conseguir a VPS grátis na Oracle</h1>
   <p class="lead">A Oracle dá, sem prazo, uma VM ARM com 2 núcleos e 12 GB de memória, até 200 GB de disco e 10 TB de tráfego de saída por mês. Com a conta Pay As You Go, você continua sem pagar nada dentro desses limites, consegue criar a VM, e ela não é recolhida por ociosidade.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><span>Nada. Comece por aqui.</span></div><div class="brief-col"><span class="brief-k">No fim</span><p>Uma VM ARM grátis, com IP público, que aceita o seu SSH.</p></div></div>
 
   <h2>O vídeo</h2>
   <div class="video">
@@ -1376,11 +1411,40 @@ sudo iptables -I INPUT &lt;linha-do-REJECT&gt; -p tcp --dport 80 -j ACCEPT</pre>
   <p>Com o SSH funcionando, siga para <a href="#preparar">Preparar a máquina</a>.</p>
 </article>
 
-<!-- ============ VPS ============ -->
-<article class="page" id="vps" data-title="VPS dedicada paga" data-prev="caminhos" data-next="preparar" hidden>
-  <div class="crumb">Onde hospedar</div>
-  <h1>VPS dedicada paga</h1>
+<article class="page" id="caminhos" data-title="Quando usar outra máquina" hidden>
+  <div class="crumb">Conseguir a máquina</div>
+  <h1>Quando usar outra máquina</h1>
+  <p class="lead">A recomendação é a <a href="#oracle">VPS grátis na Oracle</a>. Use outra máquina quando a Oracle não serve: sem capacidade na sua região, projeto que não roda em ARM, ou quando você já tem uma VPS sobrando.</p>
+  
+
+  <h2>Comparação</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Caminho</th><th>Custo</th><th>Máquina</th><th>Serviço privado</th><th>Bypass</th><th>Quem mantém</th></tr>
+    <tr class="rec"><td><a href="#oracle"><b>Oracle, Pay As You Go</b></a><br><span class="pill ok">recomendado</span></td><td>US$ 0 dentro da cota</td><td>ARM, 2 OCPU, 12 GB, até 200 GB</td><td><span class="pill ok">sim</span></td><td><span class="pill ok">sim</span></td><td>Você</td></tr>
+    <tr><td><a href="#vps"><b>VPS dedicada paga</b></a></td><td>R$ 43,99 por mês na Hostinger KVM 2, em contrato de 24 meses</td><td>x86, 2 vCPU, 8 GB, 100 GB</td><td><span class="pill ok">sim</span></td><td><span class="pill ok">sim</span></td><td>Você</td></tr>
+    <tr><td><a href="#container"><b>Container numa VPS que você já tem</b></a></td><td>Nada a mais</td><td>O que sobra da VPS</td><td><span class="pill ok">sim</span></td><td><span class="pill ok">sim</span></td><td>Você</td></tr>
+    <tr><td><a href="#nuvem"><b>Nuvem da Anthropic</b></a></td><td>Incluso no plano</td><td>VM da Anthropic por sessão</td><td><span class="pill no">não</span></td><td><span class="pill no">não</span></td><td>Anthropic</td></tr>
+  </table></div>
+
+  <h2>Qual escolher</h2>
+  <ul>
+    <li>Na maioria dos casos, a <a href="#oracle">Oracle com Pay As You Go</a>: custo zero e uma máquina sua.</li>
+    <li>A Oracle está sem capacidade, ou o projeto não roda em ARM? Uma <a href="#vps">VPS dedicada</a> num provedor comum.</li>
+    <li>Já tem uma VPS com folga rodando outras coisas? Um <a href="#container">container</a> nela sai de graça e não mistura o agente com os outros serviços.</li>
+    <li>Só GitHub e pacotes públicos, e aceita sessões sem bypass? A <a href="#nuvem">nuvem da Anthropic</a> dispensa a VPS. É a alternativa, não o padrão.</li>
+  </ul>
+
+  <h2>Tamanho da máquina</h2>
+  <p>Medimos com 2 núcleos e 7 GB de memória, num projeto Next.js com Postgres em Docker. A suíte inteira de testes de tela levou 32 minutos. Com menos de 4 GB, o build de um app web e o navegador dos testes disputam memória. Cada sessão parada do Claude Code ocupou de 200 a 500 MB, e o guia <a href="#memoria">Como pôr teto de memória e o agente de recover</a> dá a conta do teto das sessões.</p>
+  <div class="callout note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><strong class="label">Troque os nomes de exemplo</strong><p>Os comandos usam três nomes de exemplo. Troque <code>voce</code> pelo seu usuário, <code>agente</code> pelo nome da máquina e <code>projeto</code> pela pasta do repo na máquina. Escolha os três antes de começar, porque eles se repetem em várias páginas.</p></div></div>
+  <div class="callout note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><strong class="label">ARM ou x86</strong><p>A Oracle grátis é ARM. Confira se as imagens Docker e os binários do projeto têm versão <code>linux/arm64</code>. Imagem Docker que roda num Mac com Apple Silicon já é <code>linux/arm64</code> e serve. Binário que o npm ou o pip baixam no Mac é para macOS e não prova nada. Se o seu deploy já roda em ARM, o projeto roda.</p></div></div>
+</article>
+
+<article class="page" id="vps" data-title="Como contratar uma VPS paga" data-prev="caminhos" data-next="preparar" hidden>
+  <div class="crumb">Conseguir a máquina</div>
+  <h1>Como contratar uma VPS paga</h1>
   <p class="lead">Uma VPS só para o agente, paga em reais. É o caminho mais simples quando você aceita pagar, ou quando a Oracle está sem capacidade na sua região. A recomendação é a Hostinger, que cobra em reais, usa processador AMD EPYC (x86) e tem data center na América do Sul.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#caminhos">Como escolher onde rodar</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>Uma VPS Ubuntu paga, que aceita o seu SSH.</p></div></div>
 
   <h2>Qual plano</h2>
   <div class="table-wrap"><table>
@@ -1402,11 +1466,11 @@ sudo iptables -I INPUT &lt;linha-do-REJECT&gt; -p tcp --dport 80 -j ACCEPT</pre>
   </ol>
 </article>
 
-<!-- ============ CONTAINER ============ -->
-<article class="page" id="container" data-title="Container numa VPS compartilhada" data-prev="caminhos" data-next="acesso" hidden>
-  <div class="crumb">Onde hospedar</div>
-  <h1>Container numa VPS compartilhada</h1>
+<article class="page" id="container" data-title="Como rodar num container de uma VPS sua" data-prev="caminhos" data-next="acesso" hidden>
+  <div class="crumb">Conseguir a máquina</div>
+  <h1>Como rodar num container de uma VPS sua</h1>
   <p class="lead">Se você já tem uma VPS com folga rodando outros serviços, um container LXD dá ao agente um Linux próprio, com Docker próprio. O <code>docker ps</code> dele não mostra os seus serviços, e limites de memória, CPU e disco protegem o resto.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#caminhos">Como escolher onde rodar</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>Um container isolado na sua VPS, que aceita o seu SSH.</p></div></div>
 
   <div class="callout danger"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg><div><strong class="label">Não faça no host</strong><p>Não rode os passos de <a href="#preparar">Preparar a máquina</a> no host. Eles mudam o hostname e ligam o ufw, que bloqueia os serviços. Não rode <code>netfilter-persistent save</code>. Não reinicie o host nem o Docker. Meça os serviços antes e depois de cada mudança de rede.</p></div></div>
 
@@ -1507,11 +1571,51 @@ sudo lxc exec agente -- curl -sI https://github.com</pre></div>
   </ol>
 </article>
 
-<!-- ============ 1 PREPARAR ============ -->
-<article class="page" id="preparar" data-title="Preparar a máquina" data-prev="caminhos" hidden>
-  <div class="crumb">Montar à mão · passo 1 de 9</div>
-  <h1>Preparar a máquina</h1>
+<article class="page" id="nuvem" data-title="Como usar sem VPS, na nuvem da Anthropic" hidden>
+  <div class="crumb">Conseguir a máquina</div>
+  <h1>Como usar sem VPS, na nuvem da Anthropic</h1>
+  <p class="lead">No Claude Code na web, cada sessão roda numa VM que a Anthropic cria e mantém. Não existe máquina para você configurar, e a sessão continua com o seu computador desligado.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#caminhos">Como escolher onde rodar</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>Sessões na nuvem da Anthropic, sem máquina para manter.</p></div></div>
+
+  <h2>O caminho de uma sessão</h2>
+  <ol class="steps">
+    <li><b>Você pede</b>Pelo <a href="https://claude.ai/code">claude.ai/code</a>, pela aba Code do app do Claude, ou com <code>claude --cloud "tarefa"</code> no terminal.</li>
+    <li><b>A VM nasce</b>No navegador e no app, você escolhe o repo e o branch. Pelo terminal, o <code>--cloud</code> clona o branch atual do GitHub. Commit sem push não chega.</li>
+    <li><b>O ambiente prepara</b>Roda o setup script do ambiente, ou reaproveita o disco guardado da última vez.</li>
+    <li><b>O Claude trabalha</b>Edita, roda testes, sobe serviços com Docker e devolve um branch. O PR sai pela própria sessão.</li>
+    <li><b>Você continua de onde quiser</b>Pelo app, pelo navegador, ou no terminal com <code>claude --teleport</code>, que traz a sessão e o branch dela.</li>
+  </ol>
+
+  <h2>O que já vem na VM</h2>
+  <p>Docker, <code>docker compose</code>, PostgreSQL 16 e Redis 7, além das linguagens e gerenciadores de pacote comuns. O PostgreSQL e o Redis vêm parados, e o Claude sobe quando você pede.</p>
+
+  <h2>O que configurar</h2>
+  <ol class="steps">
+    <li><b>Conecte o GitHub</b>No primeiro acesso ao claude.ai/code. Repo público já funciona. Para repo privado, instale o app do Claude no GitHub da conta dona do repo. Pelo terminal, <code>/web-setup</code> manda o token do seu <code>gh</code> para a conta. No Team e no Enterprise, o <code>/web-setup</code> só aparece se um Owner ligar o Quick web setup.</li>
+    <li><b>Confira o ambiente e a rede</b>O primeiro acesso cria o ambiente Default, com rede Trusted, ou pede para você criar. Para mudar, use o seletor de ambiente do claude.ai/code. Trusted libera registries de pacote, GitHub e Docker Hub. Custom usa só a sua lista de domínios, e soma a do Trusted se você marcar a opção. Full libera qualquer domínio, e None corta tudo.</li>
+    <li><b>Ponha as variáveis de ambiente</b>No formato <code>.env</code>. Todo mundo que usa o ambiente lê os valores. No Pro e no Max, guarde chave de API em API credentials, e a sessão usa a chave sem enxergá-la.</li>
+    <li><b>Escreva o setup script</b>Instale as dependências e rode <code>docker compose pull</code>. Se ele termina em uns 5 minutos, a Anthropic guarda o disco, e as próximas sessões começam prontas. O disco guardado vale uns 7 dias e guarda arquivos, não processos, então banco e compose sobem de novo a cada sessão.</li>
+  </ol>
+
+  <h2>Os limites</h2>
+  <ul>
+    <li>A VM pausa depois de alguns minutos sem atividade e pode ser recolhida. Reabrir a sessão devolve a conversa, mas não o que rodava em segundo plano.</li>
+    <li>Não existe modo bypass. Os modos são Accept edits, Plan e Auto, em que um classificador revisa cada ação.</li>
+    <li>A sessão não alcança o que não tem endereço público, como um banco atrás de túnel SSH.</li>
+    <li>Para devolver commit e PR, o repo precisa estar no GitHub.</li>
+    <li>Está nos planos Pro, Max e Team, e no Enterprise com assento premium ou Chat + Claude Code. A VM não é cobrada à parte, e as sessões gastam a cota da conta.</li>
+  </ul>
+
+  <h2>Quando ela basta</h2>
+  <p>Quando o projeto só precisa de GitHub, pacotes públicos e serviços que sobem em Docker na própria VM, e você aceita aprovar ou deixar o modo Auto aprovar as ações. Se algum desses falha, use uma máquina sua com Remote Control, começando pela <a href="#oracle">Oracle</a>.</p>
+  <div class="callout note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><strong class="label">Ambiente self-hosted</strong><p>Organizações Team e Enterprise podem fazer as sessões da nuvem rodarem em máquinas próprias, com um runner. Está em beta, um Owner liga em Admin settings, Cloud environments, e a instalação está no <a href="https://code.claude.com/docs/en/self-hosted-environments-quickstart">quickstart oficial</a>. Este guia não cobre esse caminho.</p></div></div>
+</article>
+
+<article class="page" id="preparar" data-title="Como fazer a config inicial da VPS" hidden>
+  <div class="crumb">Montar a máquina</div>
+  <h1>Como fazer a config inicial da VPS</h1>
   <p class="lead">Crie o seu usuário, feche o login por senha e confira as atualizações automáticas. Vale para a Oracle e para a VPS dedicada. No container, pule esta página.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#oracle">Como conseguir a VPS grátis na Oracle</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>Um usuário seu com sudo, login só por chave e atualização automática.</p></div></div>
   <p>Se a sua máquina atual é Linux ou WSL, use o mesmo nome de usuário. Assim os caminhos absolutos das suas configurações, como <code>/home/voce/...</code>, valem lá sem mudar nada. Vindo do macOS, troque <code>/Users/voce</code> por <code>/home/voce</code> nas configurações que você levar.</p>
 
   <h2>Usuário com sudo</h2>
@@ -1536,11 +1640,11 @@ sudo systemctl reload ssh</pre></div>
   <div class="callout warn"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg><div><strong class="label">O Docker passa por cima do ufw</strong><p>Porta publicada por container entra por regra própria de iptables, mesmo com o ufw fechado. Publique porta só no loopback, como <code>127.0.0.1:5432:5432</code>.</p></div></div>
 </article>
 
-<!-- ============ 2 ACESSO ============ -->
-<article class="page" id="acesso" data-title="Acesso por SSH e VS Code" hidden>
-  <div class="crumb">Montar à mão · passo 2 de 9</div>
-  <h1>Acesso por SSH e VS Code</h1>
+<article class="page" id="acesso" data-title="Como acessar a VPS por SSH e VS Code" hidden>
+  <div class="crumb">Montar a máquina</div>
+  <h1>Como acessar a VPS por SSH e VS Code</h1>
   <p class="lead">O celular fala com o agente pelo Remote Control, sem SSH. O SSH serve ao terminal, ao VS Code e a abrir no seu navegador o app que roda na máquina.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#preparar">Como fazer a config inicial da VPS</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>A máquina num atalho do <code>~/.ssh/config</code>, no terminal e no VS Code.</p></div></div>
 
   <h2>O bloco do ~/.ssh/config</h2>
   <p>Autorize na máquina todas as chaves de onde você vai entrar. No Windows com WSL, a chave do Windows e a do WSL são arquivos diferentes, então autorize as duas. Na máquina que já entra, mande a chave pública da outra. No WSL, a chave do Windows fica em <code>/mnt/c/Users/&lt;seu-usuario-windows&gt;/.ssh</code>.</p>
@@ -1590,11 +1694,11 @@ sudo ufw delete allow OpenSSH</pre></div>
   <p>Na Oracle, pule o bloco acima e apague a regra da porta 22 na security list da VCN.</p>
 </article>
 
-<!-- ============ 3 AMBIENTE ============ -->
-<article class="page" id="ambiente" data-title="Ambiente e dotfiles" hidden>
-  <div class="crumb">Montar à mão · passo 3 de 9</div>
-  <h1>Ambiente e dotfiles</h1>
+<article class="page" id="ambiente" data-title="Como instalar as ferramentas e levar suas configs" hidden>
+  <div class="crumb">Montar a máquina</div>
+  <h1>Como instalar as ferramentas e levar suas configs</h1>
   <p class="lead">Instale as ferramentas que todo caminho usa e decida entre o Ubuntu padrão e os seus dotfiles. Rode como o seu usuário, na máquina ou dentro do container.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#acesso">Como acessar a VPS por SSH e VS Code</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>Docker e Claude Code instalados, e só as configs que você escolheu.</p></div></div>
 
   <h2>Ferramentas básicas</h2>
   <div class="code"><div class="code-head"><span>bash</span><button class="copy">Copiar</button></div><pre>sudo apt-get update &amp;&amp; sudo apt-get install -y git curl tmux gh
@@ -1644,11 +1748,11 @@ sudo systemctl restart docker</pre></div>
   <p>Trazer o shell inteiro de um WSL ou de um Mac costuma trazer junto o que não serve num servidor: caminhos de Windows, ferramentas de interface gráfica e binários de outra arquitetura.</p>
 </article>
 
-<!-- ============ 4 LOGINS ============ -->
-<article class="page" id="logins" data-title="Login do Claude e do GitHub" hidden>
-  <div class="crumb">Montar à mão · passo 4 de 9</div>
-  <h1>Login do Claude e do GitHub</h1>
+<article class="page" id="logins" data-title="Como fazer login no Claude e no GitHub" hidden>
+  <div class="crumb">Montar a máquina</div>
+  <h1>Como fazer login no Claude e no GitHub</h1>
   <p class="lead">Cada máquina faz o próprio login. Os dois mostram um link ou um código e esperam você, então rode cada um dentro de um tmux, para a espera não morrer se o SSH cair.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#ambiente">Como instalar as ferramentas e levar suas configs</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>O Claude e o GitHub logados na máquina, e a identidade dos commits definida.</p></div></div>
   <div class="callout danger"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg><div><strong class="label">Não copie as credenciais</strong><p>Não copie o <code>~/.claude/.credentials.json</code> da sua máquina. O token de renovação gira, e a primeira máquina que renovar derruba a outra.</p></div></div>
 
   <h2>Claude</h2>
@@ -1667,11 +1771,11 @@ git config --global user.email 12345678+voce@users.noreply.github.com</pre></div
   <p>Servidores MCP com OAuth pedem login de novo nesta máquina. Compare <code>claude mcp list</code> nas duas e autentique com <code>/mcp</code> numa sessão.</p>
 </article>
 
-<!-- ============ 5 CÓDIGO ============ -->
-<article class="page" id="codigo" data-title="Código e segredos" hidden>
-  <div class="crumb">Montar à mão · passo 5 de 9</div>
-  <h1>Código e segredos</h1>
+<article class="page" id="codigo" data-title="Como organizar pastas, repos e segredos" hidden>
+  <div class="crumb">Montar a máquina</div>
+  <h1>Como organizar pastas, repos e segredos</h1>
   <p class="lead">Clone os repos e leve, à mão, só os arquivos ignorados que o agente precisa.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#logins">Como fazer login no Claude e no GitHub</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>As pastas separadas por ambiente, os repos clonados e os segredos no lugar.</p></div></div>
 
   <h2>Separar os ambientes</h2>
   <p>Decida antes de clonar como as pastas se dividem. A sugestão é separar pelo que cada pasta entrega:</p>
@@ -1705,12 +1809,26 @@ git config --global user.email 12345678+voce@users.noreply.github.com</pre></div
   </ul>
 </article>
 
-<!-- ============ 6 REMOTE CONTROL ============ -->
-<article class="page" id="memoria" data-title="Memória e recover" hidden>
-  <div class="crumb">Montar à mão · passo 6 de 9</div>
-  <h1>Memória e recover</h1>
+<article class="page" id="memoria" data-title="Como pôr teto de memória e o agente de recover" hidden>
+  <div class="crumb">Montar a máquina</div>
+  <h1>Como pôr teto de memória e o agente de recover</h1>
   <p class="lead">Sem limite, um comando pesado de uma sessão enche a memória da máquina, e as outras sessões e o SSH param junto. Com swap e um teto para os agentes, só o comando pesado morre, e um agente de recover com memória reservada continua respondendo pelo celular.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#codigo">Como organizar pastas, repos e segredos</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>Swap, um teto para os agentes e o recover respondendo pelo celular.</p></div></div>
   <p>Na nossa montagem, num container com 2 núcleos e 7 GB e sem swap, um typecheck com dois <code>tsc</code> de 1 GB cada levou a memória ao limite. Cada conexão SSH passou de 1 segundo para 20 a 77 segundos, e as sessões do app pararam de responder.</p>
+
+  <div class="memmap" role="img" aria-label="A memória da máquina dividida em três grupos: o slice dos agentes com teto somado, o recover com 512 MB e o sistema.">
+    <span class="arch-k">A memória da máquina</span>
+    <div class="slice ag"><div class="slice-h"><span>Slice dos agentes</span><span>teto somado</span></div>
+      <div class="agents">
+        <div class="agent main">Orquestrador<small>1 GB</small></div>
+        <div class="agent">Agente A<small>teto do projeto</small></div>
+        <div class="agent">Agente B<small>teto do projeto</small></div>
+      </div>
+    </div>
+    <div class="slice rec"><div class="slice-h"><span>recover</span></div><div class="agent">512 MB de teto<small>256 MB reservados</small></div></div>
+    <div class="slice sys"><div class="slice-h"><span>Sistema</span></div><div class="agent">Docker e o resto<small>uns 1 GB</small></div></div>
+  </div>
+  <p class="figcap">Bateu no teto do agente, o kernel mata o comando pesado dele, e o resto segue. O recover responde mesmo com os agentes cheios.</p>
 
   <h2>Swap</h2>
   <p>Com o swap ligado e o typecheck ainda rodando, a pressão de memória da nossa máquina caiu de 45% para 32%, e 637 MB foram para o swap. Antes, confira com <code>findmnt -no FSTYPE /</code> que o disco é <code>ext4</code>, onde testamos, e com <code>df -h /</code> que sobram pelo menos 8 GB. Em btrfs, o arquivo de swap precisa de outro procedimento. Usamos 8 GB num host de 12 GB.</p>
@@ -1881,11 +1999,20 @@ EOF</pre></div>
   <p>Com o recover de pé, siga para <a href="#orquestrador">Orquestrador e agentes</a>.</p>
 </article>
 
-<!-- ============ 7 MEMÓRIA ============ -->
-<article class="page" id="orquestrador" data-title="Orquestrador e agentes" hidden>
-  <div class="crumb">Montar à mão · passo 7 de 9</div>
-  <h1>Orquestrador e agentes</h1>
+<article class="page" id="orquestrador" data-title="Como montar o orquestrador e os agentes" hidden>
+  <div class="crumb">Montar a máquina</div>
+  <h1>Como montar o orquestrador e os agentes</h1>
   <p class="lead">Uma sessão fica sempre no app: o orquestrador. Você pede a ele, e ele abre um agente por tarefa, na pasta do projeto, com teto de RAM próprio. O agente faz o trabalho, e o orquestrador distribui, acompanha e relata.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#memoria">Como pôr teto de memória e o agente de recover</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>O orquestrador no app, abrindo um agente por tarefa com teto próprio.</p></div></div>
+
+  <ol class="flow" aria-label="O caminho de uma tarefa">
+    <li><span>Você pede<small>pelo celular</small></span></li>
+    <li><span>Orquestrador confere<small>agentes vivos e o repo</small></span></li>
+    <li><span>Abre o agente<small>na pasta, com teto</small></span></li>
+    <li><span>Agente trabalha<small>testa e commita</small></span></li>
+    <li><span>Avisa que acabou<small>no app ou no Telegram</small></span></li>
+    <li><span>Encerra o agente<small>a memória volta</small></span></li>
+  </ol>
 
   <h2>Por que assim</h2>
   <ul>
@@ -2249,10 +2376,11 @@ agent stop teste</pre></div>
   <p>Com o orquestrador de pé, instale os <a href="#mods">mods do Cockpit</a>.</p>
 </article>
 
-<article class="page" id="mods" data-title="Mods do Cockpit" hidden>
-  <div class="crumb">Montar à mão · passo 8 de 9</div>
-  <h1>Mods do Cockpit</h1>
+<article class="page" id="mods" data-title="Como instalar o Cockpit e o que ele faz" hidden>
+  <div class="crumb">Montar a máquina</div>
+  <h1>Como instalar o Cockpit e o que ele faz</h1>
   <p class="lead">O Cockpit é um pacote de mods para o Claude Code. Os guardas seguram os erros comuns de um agente sozinho, e os instrumentos mostram onde cada sessão está. A recomendação é instalar o pacote inteiro.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#orquestrador">Como montar o orquestrador e os agentes</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>Os mods do Cockpit segurando segredo, memória e limite de uso.</p></div></div>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>claude plugin marketplace add joaosavi/cockpit
 claude plugin install cockpit@cockpit</pre></div>
   <p>Reinicie o Claude Code e rode <code>/cockpit:setup</code> numa sessão de terminal. Ele faz quatro perguntas, com prévia, e grava a status line, a linha do spinner e quando compactar. As sessões que já rodam pegam os mods com <code>/reload-plugins</code>, e o orquestrador e o recover com <code>sudo systemctl restart &lt;orquestrador&gt; recover-rc</code>.</p>
@@ -2266,11 +2394,11 @@ claude plugin install cockpit@cockpit</pre></div>
   <p>Com os mods instalados, siga para <a href="#provar">Provar que funciona</a>.</p>
 </article>
 
-<!-- ============ 8 PROVAR ============ -->
-<article class="page" id="provar" data-title="Provar que funciona" hidden>
-  <div class="crumb">Montar à mão · passo 9 de 9</div>
-  <h1>Provar que funciona</h1>
+<article class="page" id="provar" data-title="Como provar que tudo funciona" hidden>
+  <div class="crumb">Montar a máquina</div>
+  <h1>Como provar que tudo funciona</h1>
   <p class="lead">Confira cada item antes de deixar a máquina sozinha. Na nossa montagem, os testes, os servidores MCP e o modo de permissão pegaram defeito. Dias depois, foi a memória.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#mods">Como instalar o Cockpit e o que ele faz</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>Cada peça conferida, inclusive depois de um reboot.</p></div></div>
   <ul class="checklist">
     <li>A suíte de testes do projeto passa na máquina. Em 2 núcleos, um teste que sobe banco em container estourou o limite padrão de 5s, e três testes de tela reprovaram por lentidão, mas passaram rodando sozinhos.</li>
     <li><code>claude mcp list</code> mostra os mesmos servidores conectados aqui e lá.</li>
@@ -2286,38 +2414,25 @@ claude plugin install cockpit@cockpit</pre></div>
   <div class="callout tip"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><div><strong class="label">Pronto</strong><p>Abra o <a href="https://claude.ai/code">claude.ai/code</a> ou a aba Code do app do Claude e escolha a sessão com o nome da máquina.</p></div></div>
 </article>
 
-<!-- ============ DIA A DIA ============ -->
-<article class="page" id="integracoes" data-title="Integrações" hidden>
-  <div class="crumb">Opcionais</div>
-  <h1>Integrações</h1>
-  <p class="lead">Nada desta página é obrigatório. Cada item dá ao agente uma ferramenta a mais, e o <a href="#setup">setup guiado</a> pergunta quais você quer e monta só essas.</p>
-
-  <h2>Cofre de senhas</h2>
-  <p>O agente usa uma senha pelo nome, sem ver o valor. Um cofre Bitwarden, ou um Vaultwarden seu, ganha uma conta só do agente, que enxerga só uma organização com os itens que você compartilhar com ela. Um comando pequeno destrava o cofre, entrega o valor ao processo e trava de novo:</p>
-  <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>vault names                                  # lista os nomes, sem valor
-vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do comando</pre></div>
-  <p>O valor vive só no ambiente do comando. Com o <code>secret-guard</code> do <a href="#mods">Cockpit</a> lendo os valores do cofre, um segredo que escape numa saída aparece mascarado. O usuário que roda as sessões ainda consegue destravar o cofre, então o cofre evita vazamento por acidente e não segura um agente que queira a senha.</p>
-
-  <h2>Navegador na máquina</h2>
-  <p>O <code>@playwright/mcp</code> roda um Chromium headless na própria máquina, para o agente navegar sozinho, sem supervisão. Ligado ao cofre, ele digita a senha pelo nome do segredo, e o Playwright mascara o valor em tudo que devolve. Muito site, como o Google, barra o login de um navegador headless num IP de nuvem.</p>
-
-  <h2>Chrome do seu computador</h2>
-  <p>Na maioria das vezes, o melhor navegador é o seu. Com a extensão Claude in Chrome no seu Chrome, uma sessão da máquina aberta com <code>--chrome</code> usa o seu navegador pela ponte do claude.ai, com os seus logins, e você acompanha ao vivo o que ela clica. O seu computador precisa estar ligado, com o Chrome aberto.</p>
-
-  <h2>Conectores do claude.ai</h2>
-  <p>Os conectores que você liga em <a href="https://claude.ai/settings/connectors">claude.ai/settings/connectors</a>, como Gmail, Drive, Slack e Notion, aparecem nas sessões da máquina, porque elas entram com a sua conta. Eles agem como você. Para um agente que não deve ler o seu e-mail, bloqueie o conector na sessão dele com <code>--disallowedTools</code>.</p>
-
-  <h2>E-mail do agente</h2>
-  <p>Uma conta Gmail só do agente serve para receber confirmação de cadastro e código de login sem passar pelo seu e-mail. O Google barra o login headless, então o acesso é por OAuth: um app seu no Google Cloud, um login feito uma vez pelo navegador, e o refresh token guardado no cofre. Um CLI como o <a href="https://github.com/googleworkspace/cli">gws</a> lê e envia com o token, e sai.</p>
+<article class="page" id="canais-conseguir" data-title="Como conseguir o bot do Telegram e o número do WhatsApp" hidden>
+  <div class="crumb">Canais e ferramentas</div>
+  <h1>Como conseguir o bot do Telegram e o número do WhatsApp</h1>
+  <p class="lead">O bot sai em dois minutos pelo BotFather. O número do WhatsApp precisa receber um SMS uma vez, e um número de ativação resolve.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><span>Nada. Comece por aqui.</span></div><div class="brief-col"><span class="brief-k">No fim</span><p>O token do bot, o número do WhatsApp travado com PIN e a lista de contas.</p></div></div>
 
   <h2>WhatsApp e Telegram não são chat</h2>
   <p>Os dois servem para trocar informação com a máquina, e não para conversar com o agente. Você encaminha um PDF pelo WhatsApp em vez de baixar e subir no chat. O orquestrador avisa pelo Telegram que um teste quebrou ou que um relatório ficou pronto, e manda o arquivo junto. Conversa e pedido de trabalho vão pelo Remote Control, no app do Claude.</p>
   <div class="callout warn"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg><div><strong class="label">Um número de mensagem é uma porta de entrada</strong><p>Quem descobre o número ou o bot pode tentar mandar ordens ao agente, e uma conta de WhatsApp ou de Telegram é mais fácil de roubar que a sua conta do Claude. Por isso cada canal só aceita as contas de uma lista, e o agente confirma pelo app antes de agir sobre um pedido que chegue por ali. Dá para configurar os dois como chat, mas a recomendação é não fazer.</p></div></div>
 
-  <h2>WhatsApp</h2>
-  <p>Um número descartável vira aparelho vinculado pelo <a href="https://github.com/openclaw/wacli">wacli</a>. Você encaminha mensagem, áudio e arquivo para esse número, e um serviço grava cada mensagem num <code>.md</code> numa pasta da máquina, com a mídia ao lado. Só entram as mensagens dos números da lista, e o resto é ignorado. O agente lê dali quando você avisar. Áudio pode sair transcrito por uma API de Whisper. O serviço só recebe: ninguém conversa com o Claude pelo WhatsApp.</p>
 
-  <h3>Um número descartável para o WhatsApp</h3>
+  <h2>O bot do Telegram</h2>
+  <ol class="steps">
+    <li><b>Abrir o BotFather</b>No Telegram, abra o <a href="https://t.me/BotFather">@BotFather</a> e mande <code>/newbot</code>.</li>
+    <li><b>Dar nome e usuário</b>Escolha o nome que aparece nas conversas e um usuário terminado em <code>bot</code>, como <code>meu_agente_bot</code>.</li>
+    <li><b>Guardar o token</b>O BotFather responde com o token, no formato <code>123456789:AAH…</code>. Guarde no cofre ou entregue direto à máquina. Quem tem o token controla o bot.</li>
+  </ol>
+
+  <h2>O número do WhatsApp</h2>
   <p>O Telegram cria um bot sem número. O WhatsApp pede um número de celular que receba SMS. Um serviço de ativação, como o <a href="https://5sim.net/">5sim</a>, aluga um número por alguns minutos só para receber o código.</p>
   <ol class="steps">
     <li><b>Pôr saldo</b>Crie a conta no 5sim e ponha um saldo pequeno. Dá para pagar por Pix. Um número para WhatsApp custa a partir de uns US$ 0,06, e o preço muda com o país e o operador.</li>
@@ -2329,10 +2444,25 @@ vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do
   </ol>
   <div class="callout warn"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg><div><strong class="label">O número não volta</strong><p>Você perde o acesso ao número depois dos minutos do aluguel. Se o WhatsApp pedir um código por SMS de novo, como num celular novo, a conta se perde. Deixe a conta do agente logada como segunda conta no seu celular: um aparelho vinculado é desconectado quando o celular principal fica 14 dias sem abrir o WhatsApp. O WhatsApp também pode banir número de ativação, então use o número só para o bot.</p></div></div>
 
+
+  <h2>A lista de contas</h2>
+  <p>Antes de ligar os canais, decida quais números de WhatsApp e quais contas de Telegram podem falar com a máquina. Quem estiver fora da lista é ignorado, sem resposta. Para cada conta, anote o número ou o usuário: o setup pergunta.</p>
+</article>
+
+<article class="page" id="canais-ligar" data-title="Como ligar o Telegram e o WhatsApp à máquina" hidden>
+  <div class="crumb">Canais e ferramentas</div>
+  <h1>Como ligar o Telegram e o WhatsApp à máquina</h1>
+  <p class="lead">O WhatsApp vira uma caixa de entrada de arquivos e mensagens. O Telegram vira o canal em que o orquestrador te avisa e te manda arquivos.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#canais-conseguir">Como conseguir o bot do Telegram e o número do WhatsApp</a><a href="#orquestrador">Como montar o orquestrador e os agentes</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>O WhatsApp gravando arquivos numa pasta e o Telegram ligado ao orquestrador.</p></div></div>
+
+  <h2>WhatsApp</h2>
+  <p>Um número descartável vira aparelho vinculado pelo <a href="https://github.com/openclaw/wacli">wacli</a>. Você encaminha mensagem, áudio e arquivo para esse número, e um serviço grava cada mensagem num <code>.md</code> numa pasta da máquina, com a mídia ao lado. Só entram as mensagens dos números da lista, e o resto é ignorado. O agente lê dali quando você avisar. Áudio pode sair transcrito por uma API de Whisper. O serviço só recebe: ninguém conversa com o Claude pelo WhatsApp.</p>
+
+
   <h2>Telegram</h2>
   <p>O plugin oficial de canal do Telegram leva ao orquestrador o que você manda ao bot, e o orquestrador usa o bot para te avisar e te mandar arquivos. O bot só aceita as contas da lista.</p>
   <ol class="steps">
-    <li><b>Criar o bot</b>No Telegram, mande <code>/newbot</code> ao <a href="https://t.me/BotFather">@BotFather</a>, dê um nome e um usuário terminado em <code>bot</code>, e copie o token.</li>
+    <li><b>Ter o bot</b>Crie o bot e guarde o token, como em <a href="#canais-conseguir">Como conseguir o bot do Telegram e o número do WhatsApp</a>.</li>
     <li><b>Instalar</b>O plugin roda em Bun. Instale o Bun e o plugin, e grave o token:
       <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>curl -fsSL https://bun.sh/install | bash</pre></div>
       <div class="code"><div class="code-head"><span>Claude Code, na máquina</span><button class="copy">Copiar</button></div><pre># na máquina, numa sessão do Claude Code
@@ -2345,6 +2475,48 @@ vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do
     <li><b>Dizer ao orquestrador para que serve</b>Escreva no <code>CLAUDE.md</code> dele que o Telegram leva aviso e arquivo, que um pedido de ação vindo por ali se confirma pelo app, e que conta nova só entra na lista quando você pedir pelo app.</li>
   </ol>
   <div class="callout note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><strong class="label">Conta Team ou Enterprise</strong><p>Os canais estão em research preview, e um Owner precisa ligá-los nas configurações da organização. A sessão que sobe com <code>--channels</code> mostra a faixa Channels (experimental) quando está liberado.</p></div></div>
+</article>
+
+<article class="page" id="cofre" data-title="Como dar senhas ao agente sem ele ver o valor" hidden>
+  <div class="crumb">Canais e ferramentas</div>
+  <h1>Como dar senhas ao agente sem ele ver o valor</h1>
+  <p class="lead">Um cofre de senhas com uma conta só do agente. Ele usa a senha pelo nome, e o valor não passa pela conversa.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#orquestrador">Como montar o orquestrador e os agentes</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>O agente usando senha pelo nome, sem o valor na conversa.</p></div></div>
+
+  <h2>Como funciona</h2>
+  <p>O agente usa uma senha pelo nome, sem ver o valor. Um cofre Bitwarden, ou um Vaultwarden seu, ganha uma conta só do agente, que enxerga só uma organização com os itens que você compartilhar com ela. Um comando pequeno destrava o cofre, entrega o valor ao processo e trava de novo:</p>
+  <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>vault names                                  # lista os nomes, sem valor
+vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do comando</pre></div>
+  <p>O valor vive só no ambiente do comando. Com o <code>secret-guard</code> do <a href="#mods">Cockpit</a> lendo os valores do cofre, um segredo que escape numa saída aparece mascarado. O usuário que roda as sessões ainda consegue destravar o cofre, então o cofre evita vazamento por acidente e não segura um agente que queira a senha.</p>
+</article>
+
+<article class="page" id="navegador" data-title="Como deixar o agente usar um navegador" hidden>
+  <div class="crumb">Canais e ferramentas</div>
+  <h1>Como deixar o agente usar um navegador</h1>
+  <p class="lead">Dois jeitos: um navegador sem tela na própria máquina, ou o Chrome do seu computador. Na maioria das vezes, o seu Chrome é o melhor.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#orquestrador">Como montar o orquestrador e os agentes</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>O agente navegando no seu Chrome ou num navegador da máquina.</p></div></div>
+
+  <h2>Chrome do seu computador</h2>
+  <p>Na maioria das vezes, o melhor navegador é o seu. Com a extensão Claude in Chrome no seu Chrome, uma sessão da máquina aberta com <code>--chrome</code> usa o seu navegador pela ponte do claude.ai, com os seus logins, e você acompanha ao vivo o que ela clica. O seu computador precisa estar ligado, com o Chrome aberto.</p>
+
+
+  <h2>Navegador na máquina</h2>
+  <p>O <code>@playwright/mcp</code> roda um Chromium headless na própria máquina, para o agente navegar sozinho, sem supervisão. Ligado ao cofre, ele digita a senha pelo nome do segredo, e o Playwright mascara o valor em tudo que devolve. Muito site, como o Google, barra o login de um navegador headless num IP de nuvem.</p>
+</article>
+
+<article class="page" id="ferramentas" data-title="Como dar ao agente e-mail, conectores e ferramentas" hidden>
+  <div class="crumb">Canais e ferramentas</div>
+  <h1>Como dar ao agente e-mail, conectores e ferramentas</h1>
+  <p class="lead">O que mais vale ligar depois da base: os conectores da sua conta do Claude, um e-mail só do agente e as ferramentas de linha de comando.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#orquestrador">Como montar o orquestrador e os agentes</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>Conectores, e-mail do agente e as ferramentas do projeto.</p></div></div>
+
+  <h2>Conectores do claude.ai</h2>
+  <p>Os conectores que você liga em <a href="https://claude.ai/settings/connectors">claude.ai/settings/connectors</a>, como Gmail, Drive, Slack e Notion, aparecem nas sessões da máquina, porque elas entram com a sua conta. Eles agem como você. Para um agente que não deve ler o seu e-mail, bloqueie o conector na sessão dele com <code>--disallowedTools</code>.</p>
+
+
+  <h2>E-mail do agente</h2>
+  <p>Uma conta Gmail só do agente serve para receber confirmação de cadastro e código de login sem passar pelo seu e-mail. O Google barra o login headless, então o acesso é por OAuth: um app seu no Google Cloud, um login feito uma vez pelo navegador, e o refresh token guardado no cofre. Um CLI como o <a href="https://github.com/googleworkspace/cli">gws</a> lê e envia com o token, e sai.</p>
+
 
   <h2>Ferramentas úteis</h2>
   <ul>
@@ -2354,16 +2526,19 @@ vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do
   </ul>
 </article>
 
-<article class="page" id="extras" data-title="Manutenção e extras" hidden>
-  <div class="crumb">Opcionais</div>
-  <h1>Manutenção e extras</h1>
-  <p class="lead">O que deixa a máquina de pé sem você olhar, e o que vale montar quando a base estiver rodando.</p>
+<article class="page" id="manter" data-title="Como manter a máquina de pé sozinha" hidden>
+  <div class="crumb">Manter e consultar</div>
+  <h1>Como manter a máquina de pé sozinha</h1>
+  <p class="lead">Três timers deixam a máquina andando sem você olhar: voltar depois da atualização do sistema, encerrar o agente esquecido e as tarefas agendadas.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#orquestrador">Como montar o orquestrador e os agentes</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>A máquina voltando sozinha de atualização, sem agente esquecido, e com tarefas agendadas.</p></div></div>
 
   <h2>Voltar depois da atualização do sistema</h2>
   <p>O <code>unattended-upgrades</code> atualiza bibliotecas do sistema de madrugada, e um serviço que segue rodando com a biblioteca antiga apagada pode quebrar dias depois. Um timer diário, rodando logo depois do upgrade, confere com <code>needrestart</code> ou pelos arquivos apagados em <code>/proc/&lt;pid&gt;/maps</code> se o orquestrador ou o recover estão nessa situação, e reinicia os dois. O orquestrador volta na mesma conversa pelo <code>--continue</code>, e cada agente vivo volta pelo id com <code>--resume</code>. Tire esses serviços do reinício automático do <code>needrestart</code>, para ele não derrubar as sessões no meio de um turno.</p>
 
+
   <h2>Encerrar o que ficou esquecido</h2>
   <p>Agente arquivado no app continua com a RAM. Um timer de hora em hora pode encerrar, com <code>agent stop</code>, o agente sem atividade no transcript há mais de 48 horas, e avisar o orquestrador. O id fica no <code>stopped.jsonl</code>, e a conversa volta com <code>--resume</code>.</p>
+
 
   <h2>Tarefas agendadas</h2>
   <p>Quem agenda é o orquestrador. Um timer do systemd manda a ele, por <code>SendMessage</code>, o pedido do dia, e ele abre o agente no projeto certo. Exemplos que pagam a montagem:</p>
@@ -2373,17 +2548,21 @@ vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do
     <li>Resumir de manhã o que os agentes entregaram no dia anterior.</li>
     <li>Conferir se um site ou uma API seus respondem, e avisar se não.</li>
   </ul>
+</article>
+
+<article class="page" id="personalizar" data-title="Como personalizar e guardar a configuração" hidden>
+  <div class="crumb">Manter e consultar</div>
+  <h1>Como personalizar e guardar a configuração</h1>
+  <p class="lead">As instruções que valem em toda sessão, um repo com a configuração da máquina, e o que mais pode rodar nela.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#provar">Como provar que tudo funciona</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>As suas regras em toda sessão e a configuração da máquina num repo.</p></div></div>
 
   <h2>Instruções para toda sessão</h2>
   <p>O <code>~/.claude/CLAUDE.md</code> da máquina entra em toda sessão, de todo projeto. Ele já leva a seção de memória. Se quiser, ponha ali o que você quer que valha sempre: como o agente deve responder, o tom, o que nunca fazer, e as preferências de escrita. O <a href="#setup">setup guiado</a> pergunta, e escreve só o que você disser.</p>
 
+
   <h2>Um repo com a configuração</h2>
   <p>Um repo privado no GitHub pode guardar a configuração da máquina: as units do systemd, os scripts de <code>~/.local/bin</code>, o <code>~/.claude/CLAUDE.md</code>, o <code>settings.json</code> e as skills. Ele vira o backup e a receita para montar outra máquina. Os arquivos instalados viram links para o repo, e uma mudança na máquina aparece no <code>git status</code>. Credencial, <code>.env</code> e o <code>~/.claude/.credentials.json</code> ficam fora. Você escolhe o que entra.</p>
 
-  <h2>Baixar um arquivo da máquina</h2>
-  <p>Pelo terminal do seu computador, com o bloco do <code>~/.ssh/config</code> pronto:</p>
-  <div class="code"><div class="code-head"><span>bash, na sua máquina</span><button class="copy">Copiar</button></div><pre>scp &lt;maquina&gt;:~/caminho/relatorio.pdf .</pre></div>
-  <p>Sem terminal à mão, como no celular, peça à sessão para publicar o arquivo numa página privada do claude.ai, com botão de download.</p>
 
   <h2>Outros serviços na mesma máquina</h2>
   <p>A máquina é do agente, e tudo que roda nela divide a memória com as sessões. Se sobrar folga, um <a href="https://coolify.io">Coolify</a> sobe serviços pequenos em Docker com HTTPS. Dois que ajudam a cuidar da própria máquina:</p>
@@ -2394,9 +2573,22 @@ vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do
   <p>Ponha o teto desses containers abaixo da folga que sobrou fora do slice dos agentes, e publique as portas só no loopback, atrás do proxy do Coolify.</p>
 </article>
 
-<article class="page" id="dia" data-title="No dia a dia" hidden>
-  <div class="crumb">Referência</div>
-  <h1>No dia a dia</h1>
+<article class="page" id="baixar" data-title="Como baixar um arquivo da máquina" hidden>
+  <div class="crumb">Manter e consultar</div>
+  <h1>Como baixar um arquivo da máquina</h1>
+  <p class="lead">Pelo terminal, com <code>scp</code>. Pelo celular, numa página privada do claude.ai.</p>
+  <div class="brief"><div class="brief-col"><span class="brief-k">Antes</span><a href="#acesso">Como acessar a VPS por SSH e VS Code</a></div><div class="brief-col"><span class="brief-k">No fim</span><p>O arquivo da máquina no seu computador ou no celular.</p></div></div>
+
+  <h2>Pelo terminal</h2>
+  <p>Pelo terminal do seu computador, com o bloco do <code>~/.ssh/config</code> pronto:</p>
+  <div class="code"><div class="code-head"><span>bash, na sua máquina</span><button class="copy">Copiar</button></div><pre>scp &lt;maquina&gt;:~/caminho/relatorio.pdf .</pre></div>
+  <h2>Pelo celular</h2>
+  <p>Sem terminal à mão, como no celular, peça à sessão para publicar o arquivo numa página privada do claude.ai, com botão de download.</p>
+</article>
+
+<article class="page" id="dia" data-title="Comandos do dia a dia" hidden>
+  <div class="crumb">Manter e consultar</div>
+  <h1>Comandos do dia a dia</h1>
   <p class="lead">Os comandos que você vai usar depois que tudo estiver de pé.</p>
   <div class="table-wrap"><table>
     <tr><th>Quero</th><th>Faço</th></tr>
@@ -2423,10 +2615,9 @@ vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do
   <p>Todas as sessões dividem as portas da máquina. Duas sessões subindo o servidor de desenvolvimento ao mesmo tempo disputam a mesma porta.</p>
 </article>
 
-<!-- ============ PROBLEMAS ============ -->
-<article class="page" id="problemas" data-title="Problemas comuns" hidden>
-  <div class="crumb">Referência</div>
-  <h1>Problemas comuns</h1>
+<article class="page" id="problemas" data-title="O que fazer quando algo quebra" hidden>
+  <div class="crumb">Manter e consultar</div>
+  <h1>O que fazer quando algo quebra</h1>
   <p class="lead">Quase todos aconteceram na nossa montagem. Procure pelo sintoma.</p>
   <div class="table-wrap"><table>
     <tr><th>Sintoma</th><th>Causa</th><th>Conserto</th></tr>
@@ -2461,10 +2652,9 @@ vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do
   </table></div>
 </article>
 
-<!-- ============ SEGURANÇA ============ -->
-<article class="page" id="seguranca" data-title="Segurança e custos" hidden>
-  <div class="crumb">Referência</div>
-  <h1>Segurança e custos</h1>
+<article class="page" id="seguranca" data-title="O que custa e o que proteger" hidden>
+  <div class="crumb">Manter e consultar</div>
+  <h1>O que custa e o que proteger</h1>
   <p class="lead">Uma máquina que trabalha sozinha 24 horas faz tudo o que as chaves dela permitem. Dê a ela só o necessário.</p>
   <ul>
     <li>Dê ao agente só as chaves que ele usa, cada uma revogável sem afetar as suas.</li>
@@ -2477,40 +2667,138 @@ vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do
   </ul>
 </article>
 
-<!-- ============ FONTES ============ -->
 <article class="page" id="fontes" data-title="Fontes" hidden>
-  <div class="crumb">Referência</div>
+  <div class="crumb">Manter e consultar</div>
   <h1>Fontes</h1>
-  <p class="lead">Páginas consultadas em 01/10/2026, e as de memória em 05/10/2026. Os números de tempo e tamanho vêm da nossa montagem, num container com 2 núcleos e 7 GB.</p>
-  <ul>
-    <li><a href="https://code.claude.com/docs/en/remote-control">Remote Control</a>, documentação do Claude Code. Modo servidor, flags, planos, a saída depois de 10 minutos sem rede, o <code>--capacity</code> e o <code>--name</code>, que dá o título da sessão.</li>
-    <li><a href="https://code.claude.com/docs/en/cross-session-messaging">Message your other Claude Code sessions</a>, consultada em 05/10/2026. O socket de cada sessão, o <code>SendMessage</code>, e a regra de que uma sessão em bypass só entrega a mensagem de um remetente que também está em bypass. O formato da linha de limite, os subagentes em <code>subagents/</code> e o <code>~/.claude/sessions/&lt;pid&gt;.json</code> vêm dos históricos da nossa máquina.</li>
-    <li><a href="https://code.claude.com/docs/en/authentication">Authentication</a>. O código colado em "Paste code here if prompted" e o vencimento do login, que para as sessões do Remote Control.</li>
-    <li><a href="https://code.claude.com/docs/en/agent-view">Background sessions e agent view</a>. <code>/bg</code>, <code>claude --bg</code>, o supervisor e o que acontece no reboot.</li>
-    <li><a href="https://code.claude.com/docs/en/permission-modes">Permission modes</a>. O <code>bypassPermissions</code> ignorado nas configurações do projeto, e os modos da nuvem.</li>
-    <li><a href="https://code.claude.com/docs/en/worktrees">Worktrees</a>. O branch de onde o worktree nasce e o <code>.worktreeinclude</code>.</li>
-    <li><a href="https://code.claude.com/docs/en/claude-code-on-the-web">Use Claude Code in the cloud</a>. Planos, GitHub, <code>--cloud</code>, <code>--teleport</code> e limites.</li>
-    <li><a href="https://code.claude.com/docs/en/cloud-environments">Configure cloud environments</a>. Rede, setup script, cache, ferramentas instaladas e pausa por inatividade.</li>
-    <li><a href="https://code.claude.com/docs/en/self-hosted-environments">Self-hosted environments</a>. Runner, planos e o que fica na sua rede.</li>
-    <li><a href="https://docs.oracle.com/en-us/iaas/Content/FreeTier/resourceref.htm">Oracle, Always Free Resources</a>. Cota ARM, VMs AMD, disco, tráfego, região principal, a regra de VM ociosa, "Out of host capacity" e a cobrança depois do upgrade.</li>
-    <li><a href="https://docs.oracle.com/iaas/Content/FreeTier/freetier.htm">Oracle Cloud Infrastructure Free Tier</a>. Como fazer o upgrade pelo console.</li>
-    <li><a href="https://blog.51sec.org/2023/02/oracle-cloud-cleaning-up-idle-compute.html">51sec, Oracle Cloud Cleaning Up Idle Compute Instances</a>. A conta Pay As You Go fora da regra de VM ociosa.</li>
-    <li><a href="https://www.youtube.com/watch?v=bk5sWon4tnE">Tiago Matos, Como ter um servidor VPS grátis pra sempre sem gambiarra</a>. O cadastro com os dados do cartão, o Out of host capacity da conta grátis, o upgrade que destrava, o IP público efêmero, a ingress rule e o REJECT do iptables da imagem. O vídeo usa a cota antiga de 4 OCPU e 24 GB.</li>
-    <li><a href="https://www.infoq.com/news/2026/07/oracle-cloud-free-tier-limits/">InfoQ, julho de 2026</a>. O corte da cota ARM da Oracle.</li>
-    <li><a href="https://www.hostinger.com/br/servidor-vps">Hostinger, servidor VPS</a>. Planos KVM, preços em reais no contrato de 24 meses e na renovação, processador AMD EPYC e data centers.</li>
-    <li><a href="https://tailscale.com/pricing">Tailscale, preços</a>. Plano Personal grátis para até 6 usuários.</li>
-    <li><a href="https://man7.org/linux/man-pages/man5/systemd.resource-control.5.html">systemd.resource-control</a>, cópia do man7.org. <code>MemoryHigh</code>, <code>MemoryMax</code>, <code>MemoryMin</code>, <code>MemorySwapMax</code> e <code>CPUWeight</code>.</li>
-    <li><a href="https://man7.org/linux/man-pages/man5/systemd.slice.5.html">systemd.slice</a> e <a href="https://man7.org/linux/man-pages/man5/systemd.unit.5.html">systemd.unit</a>. Limites de um slice valem para tudo que está dentro dele, e os drop-ins em <code>.service.d/</code>.</li>
-    <li><a href="https://man7.org/linux/man-pages/man5/systemd.service.5.html">systemd.service</a> e <a href="https://man7.org/linux/man-pages/man5/systemd.exec.5.html">systemd.exec</a>. <code>OOMPolicy</code> e <code>OOMScoreAdjust</code>. O padrão <code>stop</code> conferimos com <code>systemctl show -p OOMPolicy</code>.</li>
-    <li><a href="https://docs.kernel.org/admin-guide/cgroup-v2.html">Control Group v2</a>, documentação do kernel. O alto nunca chama o OOM killer, e o teto chama dentro do grupo.</li>
-    <li><a href="https://docs.kernel.org/accounting/psi.html">Pressure Stall Information</a>, documentação do kernel. O que <code>full</code> e <code>avg10</code> medem na pressão de memória.</li>
-    <li><a href="https://canonical.com/lxd/docs/latest/reference/instance_options/">LXD, opções de instância</a>. <code>limits.memory.swap</code> vem ligado por padrão. O limite de swap do container igual ao <code>limits.memory</code> vem da nossa medição.</li>
-    <li><a href="https://man7.org/linux/man-pages/man8/swapon.8.html">swapon(8)</a>. Arquivos de swap, e o cuidado com btrfs e arquivos com buracos. O <code>fallocate</code> em ext4 vem da nossa montagem.</li>
+  <p class="lead">Consultadas entre 01 e 19/10/2026. Os números de tempo e memória vêm da nossa montagem.</p>
+  <ul class="refs">
+    <li><a href="https://code.claude.com/docs/en/remote-control">Remote Control</a></li>
+    <li><a href="https://code.claude.com/docs/en/cross-session-messaging">Message your other Claude Code sessions</a></li>
+    <li><a href="https://code.claude.com/docs/en/authentication">Authentication</a></li>
+    <li><a href="https://code.claude.com/docs/en/agent-view">Background sessions e agent view</a></li>
+    <li><a href="https://code.claude.com/docs/en/permission-modes">Permission modes</a></li>
+    <li><a href="https://code.claude.com/docs/en/worktrees">Worktrees</a></li>
+    <li><a href="https://code.claude.com/docs/en/claude-code-on-the-web">Use Claude Code in the cloud</a></li>
+    <li><a href="https://code.claude.com/docs/en/cloud-environments">Configure cloud environments</a></li>
+    <li><a href="https://code.claude.com/docs/en/self-hosted-environments">Self-hosted environments</a></li>
+    <li><a href="https://docs.oracle.com/en-us/iaas/Content/FreeTier/resourceref.htm">Oracle, Always Free Resources</a></li>
+    <li><a href="https://docs.oracle.com/iaas/Content/FreeTier/freetier.htm">Oracle Cloud Infrastructure Free Tier</a></li>
+    <li><a href="https://blog.51sec.org/2023/02/oracle-cloud-cleaning-up-idle-compute.html">51sec, Oracle Cloud Cleaning Up Idle Compute Instances</a></li>
+    <li><a href="https://www.youtube.com/watch?v=bk5sWon4tnE">Tiago Matos, Como ter um servidor VPS grátis pra sempre sem gambiarra</a></li>
+    <li><a href="https://www.infoq.com/news/2026/07/oracle-cloud-free-tier-limits/">InfoQ, julho de 2026</a></li>
+    <li><a href="https://www.hostinger.com/br/servidor-vps">Hostinger, servidor VPS</a></li>
+    <li><a href="https://tailscale.com/pricing">Tailscale, preços</a></li>
+    <li><a href="https://man7.org/linux/man-pages/man5/systemd.resource-control.5.html">systemd.resource-control</a></li>
+    <li><a href="https://man7.org/linux/man-pages/man5/systemd.slice.5.html">systemd.slice</a></li>
+    <li><a href="https://man7.org/linux/man-pages/man5/systemd.service.5.html">systemd.service</a></li>
+    <li><a href="https://docs.kernel.org/admin-guide/cgroup-v2.html">Control Group v2</a></li>
+    <li><a href="https://docs.kernel.org/accounting/psi.html">Pressure Stall Information</a></li>
+    <li><a href="https://canonical.com/lxd/docs/latest/reference/instance_options/">LXD, opções de instância</a></li>
+    <li><a href="https://man7.org/linux/man-pages/man8/swapon.8.html">swapon(8)</a></li>
   </ul>
 </article>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <nav class="pager" id="pager" aria-label="Página anterior e próxima"></nav>
-<div class="foot">Claude Code Always-On · Guia independente, sem vínculo com a Anthropic · Revisado em 5 de outubro de 2026</div>
+<div class="foot">Claude Code Always-On · Guia independente, sem vínculo com a Anthropic · Revisado em 19 de outubro de 2026</div>
 </main>
 
 <aside class="toc" id="toc" aria-label="Nesta página"><h5>Nesta página</h5><div id="tocList"></div></aside>
@@ -2671,49 +2959,84 @@ vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do
     var a = verdict.querySelector('p + p a');
     a.href = '#' + r[2]; a.textContent = r[3] + ' →';
   }
-  form.addEventListener('change', decide);
-  form.addEventListener('submit', function (e) { e.preventDefault(); });
-
-  // busca
-  var q = document.getElementById('q');
-  var results = document.getElementById('results');
-  var norm = function (s) { return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); };
-  var index = pages.map(function (p) { return { id: p.id, title: p.dataset.title, text: norm(p.textContent.replace(/\s+/g, ' ')), raw: p.textContent.replace(/\s+/g, ' ') }; });
-  var sel = -1;
-  function show() {
-    var term = norm(q.value.trim());
-    if (term.length < 2) { results.hidden = true; return; }
-    var hits = index.filter(function (it) { return it.text.indexOf(term) !== -1; }).slice(0, 8);
-    results.innerHTML = '';
-    if (!hits.length) { results.innerHTML = '<div class="empty">Nada encontrado.</div>'; results.hidden = false; return; }
-    hits.forEach(function (it) {
-      var pos = it.text.indexOf(term);
-      var snip = it.raw.slice(Math.max(0, pos - 40), pos + 70);
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.innerHTML = '<span></span><small></small>';
-      b.querySelector('span').textContent = it.title;
-      b.querySelector('small').textContent = (pos > 40 ? '…' : '') + snip + '…';
-      b.addEventListener('click', function () { location.hash = it.id; results.hidden = true; q.value = ''; });
-      results.appendChild(b);
-    });
-    sel = -1;
-    results.hidden = false;
+  if (form) {
+    form.addEventListener('change', decide);
+    form.addEventListener('submit', function (e) { e.preventDefault(); });
   }
-  q.addEventListener('input', show);
-  q.addEventListener('keydown', function (e) {
-    var items = results.querySelectorAll('button');
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      e.preventDefault();
-      if (!items.length) return;
-      sel = (sel + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
-      items.forEach(function (b, i) { b.classList.toggle('on', i === sel); });
-    } else if (e.key === 'Enter') {
-      if (items.length) (items[sel >= 0 ? sel : 0]).click();
-    } else if (e.key === 'Escape') { results.hidden = true; q.blur(); }
+
+  // busca da lateral: filtra os mini-guias pelo título e pelo texto
+  var q = document.getElementById('q');
+  var sideEmpty = document.getElementById('sideEmpty');
+  var norm = function (t) { return t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); };
+  var index = {};
+  pages.forEach(function (p) {
+    // o pedido do setup repete o guia inteiro e ficaria em toda busca
+    var c = p.cloneNode(true); c.querySelectorAll('#prompt-text').forEach(function (e) { e.remove(); });
+    var raw = c.textContent.replace(/\s+/g, ' ');
+    index[p.id] = { title: norm(p.dataset.title), text: norm(raw), raw: raw };
   });
-  document.addEventListener('click', function (e) { if (!e.target.closest('.search')) results.hidden = true; });
-  document.addEventListener('keydown', function (e) { if (e.key === '/' && document.activeElement !== q && !/input|textarea/i.test(document.activeElement.tagName)) { e.preventDefault(); q.focus(); } });
+  var term = '';
+  function filter() {
+    term = norm(q.value.trim());
+    var any = false;
+    document.querySelectorAll('.nav-group').forEach(function (g) {
+      var shown = 0;
+      g.querySelectorAll('a').forEach(function (a) {
+        var it = index[a.dataset.id], old = a.querySelector('.snip');
+        if (old) old.remove();
+        var hit = !term || it.title.indexOf(term) !== -1 || it.text.indexOf(term) !== -1;
+        a.hidden = !hit;
+        if (hit) shown++;
+        if (hit && term && it.title.indexOf(term) === -1) {
+          var pos = it.text.indexOf(term), start = Math.max(0, pos - 30);
+          var sn = document.createElement('span');
+          sn.className = 'snip';
+          sn.append((start ? '…' : '') + it.raw.slice(start, pos));
+          var b = document.createElement('b'); b.textContent = it.raw.slice(pos, pos + term.length); sn.append(b);
+          sn.append(it.raw.slice(pos + term.length, pos + term.length + 40) + '…');
+          a.querySelector('.lbl').append(sn);
+        }
+      });
+      g.hidden = !shown;
+      any = any || shown > 0;
+    });
+    sideEmpty.hidden = any;
+  }
+  function markFirst(page) {
+    document.querySelectorAll('mark.hit').forEach(function (m) { m.replaceWith(document.createTextNode(m.textContent)); });
+    if (!term) return;
+    var walker = document.createTreeWalker(page, NodeFilter.SHOW_TEXT), n;
+    while ((n = walker.nextNode())) {
+      var i = norm(n.nodeValue).indexOf(term);
+      if (i === -1 || n.parentElement.closest('pre, .demo, svg')) continue;
+      var r = document.createRange(); r.setStart(n, i); r.setEnd(n, i + term.length);
+      var m = document.createElement('mark'); m.className = 'hit'; r.surroundContents(m);
+      setTimeout(function () { m.scrollIntoView({ block: 'center' }); }, 50);
+      return;
+    }
+  }
+  q.addEventListener('input', filter);
+  q.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { var vis = [].slice.call(document.querySelectorAll('.nav-group a:not([hidden])')); var a = vis.filter(function (x) { return !x.querySelector('.snip'); })[0] || vis[0]; if (a) { location.hash = a.dataset.id; if (location.hash === '#' + a.dataset.id) markFirst(document.getElementById(a.dataset.id)); } }
+    else if (e.key === 'Escape') { q.value = ''; filter(); q.blur(); }
+  });
+  window.addEventListener('hashchange', function () { var p = document.getElementById(location.hash.slice(1)); if (p && term) markFirst(p); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === '/' && document.activeElement !== q && !/input|textarea/i.test(document.activeElement.tagName)) {
+      e.preventDefault();
+      if (getComputedStyle(menuBtn).display !== 'none' && !sidebar.classList.contains('open')) menuBtn.click();
+      q.focus();
+    }
+  });
+
+  // botão que copia o pedido de outra página
+  document.querySelectorAll('[data-copy-target]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = document.getElementById(btn.dataset.copyTarget).textContent, old = btn.textContent;
+      var done = function () { btn.textContent = 'Copiado'; btn.classList.add('done'); setTimeout(function () { btn.textContent = old; btn.classList.remove('done'); }, 1600); };
+      try { navigator.clipboard.writeText(text).then(done, function () { location.hash = 'setup'; }); } catch (e) { location.hash = 'setup'; }
+    });
+  });
 
   route();
 })();
