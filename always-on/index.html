@@ -954,7 +954,7 @@ sudo tee /etc/caddy/Caddyfile &gt; /dev/null &lt;&lt;'EOF'
 }
 EOF
 sudo systemctl reload caddy</pre></div>
-      Em menos de um minuto, o cofre abre em <code>https://&lt;nome&gt;.duckdns.org</code>, no navegador, na extensão e no app do celular. O Caddy renova o certificado sozinho.</li>
+      Em menos de um minuto, o cofre abre em <code>https://&lt;nome&gt;.duckdns.org</code>, no navegador, na extensão e no app do celular. O Caddy renova o certificado sozinho. Testamos com um domínio do DuckDNS: o Let's Encrypt emitiu o certificado em segundos, e a extensão logou sem nenhum aviso.</li>
   </ol>
   <div class="callout warn"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg><div><strong class="label">O cofre fica na internet</strong><p>Qualquer pessoa alcança a tela de login, e o que protege as senhas é a senha mestra. Feche o cadastro depois de criar as contas, que o passo 10 abaixo mostra. Ligue o login em duas etapas na sua conta, em <strong>Settings</strong>, <strong>Security</strong>, <strong>Two-step login</strong>. Não defina o <code>ADMIN_TOKEN</code>: sem ele, o painel de administração do Vaultwarden fica desligado.</p></div></div>
 
