@@ -20,6 +20,17 @@ O valor fica só no ambiente do comando. O Cockpit (txt/mods.txt) é um pacote d
 | Vaultwarden | Na sua VPS, num container Docker | Você: atualizar a imagem e guardar cópia da pasta de dados |  
 O Vaultwarden é um servidor compatível com o Bitwarden: os mesmos apps, a mesma extensão e o mesmo comando `bw` funcionam com ele. Para quem começa, o Bitwarden na nuvem dá menos trabalho. 
 
+## O que o Bitwarden grátis não faz 
+O plano grátis do Bitwarden na nuvem basta para o que este guia monta, com estes limites: 
+
+| Recurso | No plano grátis |
+| --- | --- | 
+| Organização | Uma organização grátis para 2 pessoas, com até 2 coleções. Você e a conta do agente cabem nela. Uma terceira pessoa pede o plano Families, de US$ 3,99 por mês para até 6 | 
+| Código de 6 dígitos do login em duas etapas | Não gera. O autenticador integrado é do Premium, de US$ 1,65 por mês. Sem ele, o agente não entra sozinho num site que pede esse código | 
+| Anexo de arquivo, acesso de emergência e relatórios | Só no Premium | 
+| Senhas, notas, cartões e passkeys | Sem limite |  
+O Vaultwarden libera todos esses recursos de graça, inclusive o código de 6 dígitos e organizações sem limite de pessoas. Os limites do Bitwarden estão na página de preços (https://bitwarden.com/pricing/) e na documentação das organizações (https://bitwarden.com/help/about-organizations/), consultadas em 20/10/2026. 
+
 ## Como subir o Vaultwarden na VPS 
 O Vaultwarden e a extensão do Bitwarden só aceitam endereço com HTTPS, até em `localhost`. Testamos o Vaultwarden 1.37.4 e a extensão 2026.10.0: por `http`, o cofre web recusa o login e a extensão recusa o endereço. O HTTPS precisa de um domínio, e o DuckDNS dá um de graça, no formato `<nome>.duckdns.org`. O Caddy, um servidor web, fica na frente do cofre e tira o certificado sozinho. 
 

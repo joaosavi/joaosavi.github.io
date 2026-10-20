@@ -932,6 +932,17 @@ vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do
   </table></div>
   <p>O Vaultwarden é um servidor compatível com o Bitwarden: os mesmos apps, a mesma extensão e o mesmo comando <code>bw</code> funcionam com ele. Para quem começa, o Bitwarden na nuvem dá menos trabalho.</p>
 
+  <h2>O que o Bitwarden grátis não faz</h2>
+  <p>O plano grátis do Bitwarden na nuvem basta para o que este guia monta, com estes limites:</p>
+  <div class="table-wrap"><table>
+    <tr><th>Recurso</th><th>No plano grátis</th></tr>
+    <tr><td>Organização</td><td>Uma organização grátis para 2 pessoas, com até 2 coleções. Você e a conta do agente cabem nela. Uma terceira pessoa pede o plano Families, de US$ 3,99 por mês para até 6</td></tr>
+    <tr><td>Código de 6 dígitos do login em duas etapas</td><td>Não gera. O autenticador integrado é do Premium, de US$ 1,65 por mês. Sem ele, o agente não entra sozinho num site que pede esse código</td></tr>
+    <tr><td>Anexo de arquivo, acesso de emergência e relatórios</td><td>Só no Premium</td></tr>
+    <tr><td>Senhas, notas, cartões e passkeys</td><td>Sem limite</td></tr>
+  </table></div>
+  <p>O Vaultwarden libera todos esses recursos de graça, inclusive o código de 6 dígitos e organizações sem limite de pessoas. Os limites do Bitwarden estão na <a href="https://bitwarden.com/pricing/">página de preços</a> e na <a href="https://bitwarden.com/help/about-organizations/">documentação das organizações</a>, consultadas em 20/10/2026.</p>
+
   <h2>Como subir o Vaultwarden na VPS</h2>
   <p>O Vaultwarden e a extensão do Bitwarden só aceitam endereço com HTTPS, até em <code>localhost</code>. Testamos o Vaultwarden 1.37.4 e a extensão 2026.10.0: por <code>http</code>, o cofre web recusa o login e a extensão recusa o endereço. O HTTPS precisa de um domínio, e o DuckDNS dá um de graça, no formato <code>&lt;nome&gt;.duckdns.org</code>. O Caddy, um servidor web, fica na frente do cofre e tira o certificado sozinho.</p>
   <ol class="steps">
