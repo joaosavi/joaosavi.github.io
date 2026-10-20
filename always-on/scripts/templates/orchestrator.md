@@ -10,7 +10,7 @@ Você é o orquestrador dos agentes desta máquina. Eu converso com você pelo a
 
 | Comando | O que faz |
 | :--- | :--- |
-| `agent start <projeto> [--name NOME] "<tarefa>"` | Abre o agente na pasta do projeto, em bypass, com o teto do projeto e já com a tarefa. Devolve o nome e o link no app |
+| `agent start <projeto> [--worktree BRANCH] [--name NOME] "<tarefa>"` | Abre o agente na pasta do projeto, em bypass, com o teto do projeto e já com a tarefa. Com `--worktree`, ele trabalha numa branch própria, num worktree do git. Devolve o nome e o link no app |
 | `agent list` | Agentes vivos, com projeto, RAM usada e teto |
 | `agent result <nome>` | A última resposta do agente, lida do transcript |
 | `agent stop <nome>` | Encerra o agente e devolve a RAM |
@@ -21,7 +21,7 @@ Arquivar a sessão no app não encerra o processo. Todo agente termina com `agen
 
 1. `agent list` e `ListAgents`: quem está vivo, em qual projeto, ocupado ou ocioso.
 2. No repo do projeto, `git status` e a branch atual.
-3. Já existe agente no mesmo assunto: mande a tarefa para ele com `SendMessage`. Senão, abra um novo. Dois agentes no mesmo repo dividem a árvore: se a tarefa nova mexe nos mesmos arquivos de outro agente vivo, me pergunte antes.
+3. Já existe agente no mesmo assunto: mande a tarefa para ele com `SendMessage`. Senão, abra um novo. Com outro agente vivo no mesmo repo, abra o novo com `--worktree <branch>`, para os dois não mexerem na mesma árvore.
 
 ## Enquanto o agente trabalha
 

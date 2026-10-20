@@ -144,7 +144,7 @@ CPUWeight=1000
 EOF
 
 step "Comandos em $BIN"
-for f in agent orchestrator-rc recover-rc memstat sessions-restart sessions-idle; do
+for f in agent orchestrator-rc recover-rc memstat sessions-restart sessions-idle cockpit-panel; do
     put "$BIN/$f" user 755 <"$HERE/bin/$f"
 done
 
@@ -160,8 +160,8 @@ sed -e "s/<orquestrador>/$ORCHESTRATOR/g" -e "s/<slice>/$SLICE/g" "$HERE/templat
     put_once "$HOME/recover/CLAUDE.md"
 
 step "Telas de primeira vez do Claude Code"
-# A confiança na pasta, o aviso do Remote Control e o do bypass travariam o serviço na subida,
-# esperando uma tecla que ninguém aperta.
+# A escolha de tema, a confiança na pasta, o aviso do Remote Control e o do bypass travariam o
+# serviço na subida, esperando uma tecla que ninguém aperta.
 if python3 - "$CHECK" "$HOME/$ORCHESTRATOR" "$HOME/recover" <<'EOF'
 import json, os, sys
 from pathlib import Path
@@ -184,10 +184,14 @@ def save(p, data):
 cfg_path, settings_path = home / ".claude.json", home / ".claude" / "settings.json"
 cfg, settings = load(cfg_path), load(settings_path)
 want = [f for f in folders if not cfg.get("projects", {}).get(f, {}).get("hasTrustDialogAccepted")]
-need = want or not cfg.get("remoteDialogSeen") or not settings.get("skipDangerousModePermissionPrompt")
+need = (want or not cfg.get("hasCompletedOnboarding") or not cfg.get("remoteDialogSeen")
+        or not settings.get("skipDangerousModePermissionPrompt"))
 if need and not check:
     for f in want:
         cfg.setdefault("projects", {}).setdefault(f, {})["hasTrustDialogAccepted"] = True
+    # A escolha de tema da primeira abertura também espera uma tecla.
+    cfg["hasCompletedOnboarding"] = True
+    cfg.setdefault("theme", "dark")
     cfg["remoteDialogSeen"] = True
     settings["skipDangerousModePermissionPrompt"] = True
     save(cfg_path, cfg)
@@ -203,11 +207,20 @@ else
 fi
 
 step "Serviços"
+# O linger mantém o /run/user/<uid> sem ninguém logado, e as units esperam o user-runtime-dir@ que o cria. Sem ele, depois de um reboot o socket de
+# mensagens das sessões não tem onde ficar, e o orquestrador não enxerga os agentes.
+if [ -f "/var/lib/systemd/linger/$USER" ]; then
+    ok "linger ligado para $USER"
+elif [ "$CHECK" = 1 ]; then
+    missing "linger desligado para $USER"
+else
+    sudo loginctl enable-linger "$USER" && done_ "linger ligado para $USER"
+fi
 put "$UNITS/$ORCHESTRATOR.service" root 644 <<EOF
 [Unit]
 Description=Orquestrador dos agentes do Claude Code
-After=network-online.target
-Wants=network-online.target
+After=network-online.target user-runtime-dir@$(id -u).service
+Wants=network-online.target user-runtime-dir@$(id -u).service
 
 [Service]
 Type=forking
@@ -227,8 +240,8 @@ EOF
 put "$UNITS/recover-rc.service" root 644 <<EOF
 [Unit]
 Description=Remote Control do Claude Code para o agente de recover
-After=network-online.target
-Wants=network-online.target
+After=network-online.target user-runtime-dir@$(id -u).service
+Wants=network-online.target user-runtime-dir@$(id -u).service
 
 [Service]
 Type=forking
@@ -334,6 +347,66 @@ if [ "$COCKPIT" = 1 ]; then
         done_ "cockpit instalado: rode /cockpit:setup numa sessão de terminal"
     else
         missing "o Cockpit não instalou: rode claude plugin install cockpit@cockpit depois do login"
+    fi
+    # O painel roda como serviço. Aberto por uma sessão, ele ficaria preso no grupo de memória dela.
+    if python3 - "$CHECK" <<'EOF'
+import json, os, sys
+from pathlib import Path
+p = Path.home() / ".claude" / "settings.json"
+try:
+    d = json.loads(p.read_text())
+except (OSError, ValueError):
+    d = {}
+opts = d.setdefault("pluginConfigs", {}).setdefault("panel@cockpit", {}).setdefault("options", {})
+if opts.get("autostart") is False:
+    sys.exit(0)
+if sys.argv[1] == "1":
+    sys.exit(2)
+opts["autostart"] = False
+p.parent.mkdir(parents=True, exist_ok=True)
+tmp = p.with_suffix(".json.install")
+tmp.write_text(json.dumps(d, indent=2))
+os.replace(tmp, p)
+sys.exit(1)
+EOF
+    then ok "painel sem subida automática pela sessão"
+    else
+        case $? in
+            2) missing "o painel ainda sobe pela sessão" ;;
+            *) done_ "painel sem subida automática pela sessão" ;;
+        esac
+    fi
+    put "$UNITS/cockpit-panel.service" root 644 <<EOF
+[Unit]
+Description=Painel do Cockpit, um cartão por sessão do Claude Code, em 127.0.0.1:7777
+After=network-online.target user-runtime-dir@$(id -u).service
+Wants=network-online.target user-runtime-dir@$(id -u).service
+
+[Service]
+Type=simple
+User=$USER
+Slice=$SLICE.slice
+MemoryHigh=1G
+MemoryMax=1536M
+Environment=PANEL_PORT=7777
+Environment=PANEL_GROUPS=$SLICE.slice,recover.slice
+Environment=PANEL_CLAUDE=$BIN/claude
+Environment=PATH=$BIN:/usr/local/bin:/usr/bin:/bin
+ExecStart=$BIN/cockpit-panel
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    [ "$CHECK" = 0 ] && sudo systemctl daemon-reload
+    if systemctl is-active -q cockpit-panel; then ok "cockpit-panel rodando"
+    elif [ "$CHECK" = 1 ]; then missing "cockpit-panel parado"
+    elif [ -f "$HOME/.claude/plugins/installed_plugins.json" ]; then
+        sudo systemctl enable -q --now cockpit-panel && done_ "cockpit-panel rodando"
+    else
+        sudo systemctl enable -q cockpit-panel
+        missing "cockpit-panel ligado no boot, mas parado até o Cockpit instalar"
     fi
 fi
 

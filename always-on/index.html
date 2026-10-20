@@ -62,7 +62,7 @@ a { color: var(--link); text-underline-offset: 3px; }
 a:hover { text-decoration-thickness: 2px; }
 :focus-visible { outline: 2px solid var(--led); outline-offset: 2px; border-radius: 4px; }
 code, kbd, pre { font-family: var(--f-mono); }
-:not(pre) > code { font-size: .86em; background: var(--sunken); border: 1px solid var(--line); padding: .08em .38em; border-radius: 5px; overflow-wrap: anywhere; }
+:not(pre) > code { font-size: max(13px, .86em); background: var(--sunken); border: 1px solid var(--line); padding: .08em .38em; border-radius: 5px; overflow-wrap: anywhere; }
 
 /* topo */
 .topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; height: var(--header-h); background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 16px; padding-inline: 16px; }
@@ -98,7 +98,7 @@ code, kbd, pre { font-family: var(--f-mono); }
 .nav-group h4 { margin: 0 0 6px 10px; font: 600 11.5px/1 var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .nav-group a { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; color: var(--ink); text-decoration: none; font-size: 14.5px; line-height: 1.35; }
 .nav-group a:hover { background: var(--sunken); }
-.nav-group a.active { background: var(--led-soft); color: var(--ink); font-weight: 600; box-shadow: inset 2px 0 0 var(--led); }
+.nav-group a.active { background: var(--led-soft); color: var(--ink); box-shadow: inset 2px 0 0 var(--led); }
 .nav-group a .tag { margin-left: auto; font: 600 10.5px/1 var(--f-body); letter-spacing: .04em; color: var(--ok); background: var(--ok-soft); padding: 3px 6px; border-radius: 999px; }
 .nav-group a .num { font: 500 12px/1 var(--f-mono); color: var(--muted); width: 1.4em; }
 
@@ -138,8 +138,8 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 40px 0; }
 .callout.danger > svg { stroke: var(--danger); }
 
 .code { margin: 16px 0; border: 1px solid var(--line); border-radius: 12px; background: var(--code-bg); overflow: hidden; }
-.code-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 8px 6px 14px; border-bottom: 1px solid var(--line); font: 500 12px var(--f-mono); color: var(--muted); }
-.copy { border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); border-radius: 7px; font: 600 12.5px var(--f-body); padding: 5px 10px; cursor: pointer; }
+.code-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 8px 6px 14px; border-bottom: 1px solid var(--line); font: 500 13px var(--f-mono); color: var(--muted); }
+.copy { border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); border-radius: 7px; font: 600 13px var(--f-body); padding: 5px 10px; cursor: pointer; }
 .copy:hover { border-color: var(--led); }
 .copy.done { color: var(--ok); border-color: var(--ok); }
 .code pre { margin: 0; padding: 14px 16px; overflow-x: auto; font-size: 13.4px; line-height: 1.6; color: var(--code-ink); tab-size: 4; }
@@ -163,7 +163,7 @@ tr:last-child th[scope="row"] { border-bottom: 0; }
 td code { overflow-wrap: anywhere; }
 td:first-child code, th code { white-space: nowrap; overflow-wrap: normal; }
 tr.rec td:first-child { box-shadow: inset 3px 0 0 var(--led); }
-.pill { display: inline-block; font: 600 11.5px/1 var(--f-body); padding: 4px 8px; border-radius: 999px; white-space: nowrap; }
+.pill { display: inline-block; font: 600 13px/1 var(--f-body); padding: 4px 8px; border-radius: 999px; white-space: nowrap; }
 .pill.ok { background: var(--ok-soft); color: var(--ok); }
 .pill.led { background: var(--led-soft); color: var(--warn); }
 .pill.no { background: var(--danger-soft); color: var(--danger); }
@@ -487,7 +487,7 @@ body.menu-open { overflow: hidden; }
 .progress { display: flex; align-items: center; gap: 12px; margin: 4px 0 14px; font-size: 14px; color: var(--muted); }
 .progress-bar { flex: 1; max-width: 320px; height: 8px; border-radius: 99px; background: var(--sunken); overflow: hidden; }
 .progress-bar span { display: block; height: 100%; width: 0; background: var(--ok); transition: width .3s; }
-.nav-group a.is-done .lbl::after { content: " ✓"; color: var(--ok); font-weight: 700; }
+
 .nav-group a.is-done .num { background: var(--ok); color: var(--surface); }
 .ng-toggle { display: flex; align-items: center; gap: 8px; width: 100%; border: 0; background: none; padding: 0; color: inherit; font: inherit; letter-spacing: inherit; cursor: pointer; text-align: left; }
 .ng-caret { margin-left: auto; margin-right: 6px; width: 7px; height: 7px; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted); transform: rotate(45deg); transition: transform .15s; }
@@ -548,9 +548,15 @@ td code.cp.ok { background: var(--ok-soft); }
 .mod { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 14px 16px; }
 .mod-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
 .mod-h code { font-weight: 600; font-size: 14px; white-space: nowrap; background: none; padding: 0; }
-.mod-cmd { font: 500 12.5px/1 var(--f-mono); color: var(--muted); border: 1px solid var(--line-strong); border-radius: 6px; padding: 4px 7px; white-space: nowrap; }
+.mod-cmd { font: 500 13px/1 var(--f-mono); color: var(--muted); border: 1px solid var(--line-strong); border-radius: 6px; padding: 4px 7px; white-space: nowrap; }
 .mod p { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--ink); }
 .mod p code { overflow-wrap: normal; }
+/* O item da lateral não muda de largura ao ficar ativo ou feito: o texto quebra sempre no mesmo lugar. */
+.nav-group a { position: relative; padding-right: 26px; }
+.nav-group a.is-done::after { content: "✓"; position: absolute; right: 9px; top: 7px; color: var(--ok); font-weight: 700; font-size: 13px; }
+.site-home { margin-left: auto; color: var(--muted); font-size: 14px; text-decoration: none; }
+.site-home:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 640px) { .table-wrap.stack td:first-child code { white-space: normal; overflow-wrap: anywhere; } }
 </style>
 <style>[hidden]:not([hidden=until-found i]) { display: none !important; }</style>
 </head>
@@ -562,6 +568,7 @@ td code.cp.ok { background: var(--ok-soft); }
     <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 7 5 5-5 5"/><path d="M13 17h6"/></svg></span>
     <span class="wordmark">Claude Code Always-On</span>
   </a>
+  <a class="site-home" href="../">joaosavi</a>
 </header>
 
 <div class="shell">
@@ -1018,10 +1025,10 @@ docker run -d --name vaultwarden \
   </ul>
 
   <h2>O cartão</h2>
-  <div class="table-wrap"><table>
+  <div class="table-wrap stack"><table>
     <tr><th>Momento</th><th>Pré-autorização</th><th>Cobrança</th></tr>
-    <tr><td>Cadastro da conta grátis</td><td>US$ 1, cerca de R$ 5, para testar o cartão</td><td>Nenhuma. A pré-autorização é estornada</td></tr>
-    <tr><td>Upgrade para Pay As You Go</td><td>US$ 100, cerca de R$ 500, para provar que o cartão é real e tem limite</td><td>Nenhuma enquanto a VM ficar na cota grátis. A pré-autorização é estornada</td></tr>
+    <tr><td data-label="Momento">Cadastro da conta grátis</td><td data-label="Pré-autorização">US$ 1, cerca de R$ 5, para testar o cartão</td><td data-label="Cobrança">Nenhuma. A pré-autorização é estornada</td></tr>
+    <tr><td data-label="Momento">Upgrade para Pay As You Go</td><td data-label="Pré-autorização">US$ 100, cerca de R$ 500, para provar que o cartão é real e tem limite</td><td data-label="Cobrança">Nenhuma enquanto a VM ficar na cota grátis. A pré-autorização é estornada</td></tr>
   </table></div>
   <ul>
     <li>O nome da conta tem que ser igual ao nome impresso no cartão, e o cartão tem que ser seu. Com nome diferente, ou com cartão de outra pessoa, o antifraude da Oracle recusa o cadastro.</li>
@@ -1137,16 +1144,16 @@ sudo iptables -I INPUT &lt;linha-do-REJECT&gt; -p tcp --dport 80 -j ACCEPT</pre>
   <p>Para a regra sobreviver ao reboot, acrescente a mesma linha <code>-A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT</code> em <code>/etc/iptables/rules.v4</code>, logo antes da linha de REJECT. Com Docker instalado, não rode <code>netfilter-persistent save</code>. Ele grava as regras do Docker junto, e elas duplicam no reboot.</p>
 
   <h2>Onde a montagem trava</h2>
-  <div class="table-wrap"><table>
+  <div class="table-wrap stack"><table>
     <tr><th>Sintoma</th><th>Causa e saída</th></tr>
-    <tr><td>O cadastro é recusado na etapa do cartão</td><td>Nome da conta diferente do nome do cartão, ou cartão de outra pessoa. Refaça com os dados do titular</td></tr>
-    <tr><td>"Out of host capacity" ao criar a VM</td><td>Conta ainda só Always Free, ou upgrade sem aprovação. Faça o upgrade e espere o e-mail</td></tr>
-    <tr><td>Na Pay As You Go, ainda "Out of host capacity"</td><td>Falta máquina ARM livre naquele availability domain, um dos data centers da região. Troque o domain em Placement, ou tente mais tarde</td></tr>
-    <tr><td>A VM está Running e o Public IP aparece vazio</td><td>A Oracle não designou o IP. Designe o efêmero, como em O IP público</td></tr>
-    <tr><td>Nenhum IP público disponível para escolher</td><td>A VM nasceu numa sub-rede privada. Apague e crie de novo com <b>Create new public subnet</b></td></tr>
-    <tr><td>O <code>ssh</code> fica parado e dá timeout</td><td>Sem IP público, ou sem a ingress rule da porta 22. Confira os dois</td></tr>
-    <tr><td><code>Permission denied (publickey)</code></td><td>Usuário diferente de <code>ubuntu</code>, ou a chave usada não é o par do <code>.pub</code> enviado. Teste com <code>ssh -i ~/.ssh/id_ed25519 ubuntu@&lt;ip&gt;</code>. Chave errada na criação pede recriar a VM</td></tr>
-    <tr><td>Porta nova, como a 80, não responde</td><td>Falta a ingress rule na security list ou o ACCEPT no iptables</td></tr>
+    <tr><td data-label="Sintoma">O cadastro é recusado na etapa do cartão</td><td data-label="Causa e saída">Nome da conta diferente do nome do cartão, ou cartão de outra pessoa. Refaça com os dados do titular</td></tr>
+    <tr><td data-label="Sintoma">"Out of host capacity" ao criar a VM</td><td data-label="Causa e saída">Conta ainda só Always Free, ou upgrade sem aprovação. Faça o upgrade e espere o e-mail</td></tr>
+    <tr><td data-label="Sintoma">Na Pay As You Go, ainda "Out of host capacity"</td><td data-label="Causa e saída">Falta máquina ARM livre naquele availability domain, um dos data centers da região. Troque o domain em Placement, ou tente mais tarde</td></tr>
+    <tr><td data-label="Sintoma">A VM está Running e o Public IP aparece vazio</td><td data-label="Causa e saída">A Oracle não designou o IP. Designe o efêmero, como em O IP público</td></tr>
+    <tr><td data-label="Sintoma">Nenhum IP público disponível para escolher</td><td data-label="Causa e saída">A VM nasceu numa sub-rede privada. Apague e crie de novo com <b>Create new public subnet</b></td></tr>
+    <tr><td data-label="Sintoma">O <code>ssh</code> fica parado e dá timeout</td><td data-label="Causa e saída">Sem IP público, ou sem a ingress rule da porta 22. Confira os dois</td></tr>
+    <tr><td data-label="Sintoma"><code>Permission denied (publickey)</code></td><td data-label="Causa e saída">Usuário diferente de <code>ubuntu</code>, ou a chave usada não é o par do <code>.pub</code> enviado. Teste com <code>ssh -i ~/.ssh/id_ed25519 ubuntu@&lt;ip&gt;</code>. Chave errada na criação pede recriar a VM</td></tr>
+    <tr><td data-label="Sintoma">Porta nova, como a 80, não responde</td><td data-label="Causa e saída">Falta a ingress rule na security list ou o ACCEPT no iptables</td></tr>
   </table></div>
   <p>Com o SSH funcionando, siga para <a href="#preparar">Como fazer a config inicial da VPS</a>.</p>
   <button type="button" class="done-btn" data-done="oracle">Marquei como feito</button>
@@ -1440,15 +1447,15 @@ sudo systemctl restart docker</pre></div>
 
   <h2>O que levar do seu computador</h2>
   <p>Nada do seu computador vai sozinho para a máquina. Leve item por item, só o que escolher. Para quem começa, o Ubuntu padrão e o login do Claude bastam. Quem já tem um ambiente montado escolhe na tabela o que poupa trabalho:</p>
-  <div class="table-wrap"><table>
+  <div class="table-wrap stack"><table>
     <tr><th>Item</th><th>Vale levar quando</th><th>Como levar</th></tr>
-    <tr><td>Configuração do git</td><td>Sempre</td><td>O nome e o e-mail, em <a href="#logins">Como fazer login no Claude e no GitHub</a></td></tr>
-    <tr><td><code>~/.claude/settings.json</code></td><td>Você já ajustou permissões, modelo ou hooks</td><td>Copiando o arquivo, e conferindo os caminhos absolutos dele</td></tr>
-    <tr><td>Skills e agents</td><td>Você usa skills suas no dia a dia</td><td>O comando abaixo, que leva <code>~/.claude/skills</code>, <code>~/.claude/agents</code> e <code>~/.agents</code></td></tr>
-    <tr><td>Plugins</td><td>Você usa plugins além do Cockpit, o pacote de mods que o guia instala</td><td>Instalando de novo lá, com <code>/plugin</code></td></tr>
-    <tr><td>Servidores MCP</td><td>O projeto depende de um MCP que não está no <code>.mcp.json</code> do repo</td><td><code>claude mcp list</code> aqui e <code>claude mcp add</code> lá. Os que pedem OAuth pedem login de novo</td></tr>
-    <tr><td>Shell, aliases e dotfiles</td><td>Você vai trabalhar muito pelo terminal da máquina</td><td>A aba Meus dotfiles, acima, só com o que serve num servidor</td></tr>
-    <tr><td><code>.credentials.json</code></td><td><span class="pill no">nunca</span></td><td>Cada máquina faz o próprio login</td></tr>
+    <tr><td data-label="Item">Configuração do git</td><td data-label="Vale levar quando">Sempre</td><td data-label="Como levar">O nome e o e-mail, em <a href="#logins">Como fazer login no Claude e no GitHub</a></td></tr>
+    <tr><td data-label="Item"><code>~/.claude/settings.json</code></td><td data-label="Vale levar quando">Você já ajustou permissões, modelo ou hooks</td><td data-label="Como levar">Copiando o arquivo, e conferindo os caminhos absolutos dele</td></tr>
+    <tr><td data-label="Item">Skills e agents</td><td data-label="Vale levar quando">Você usa skills suas no dia a dia</td><td data-label="Como levar">O comando abaixo, que leva <code>~/.claude/skills</code>, <code>~/.claude/agents</code> e <code>~/.agents</code></td></tr>
+    <tr><td data-label="Item">Plugins</td><td data-label="Vale levar quando">Você usa plugins além do Cockpit, o pacote de mods que o guia instala</td><td data-label="Como levar">Instalando de novo lá, com <code>/plugin</code></td></tr>
+    <tr><td data-label="Item">Servidores MCP</td><td data-label="Vale levar quando">O projeto depende de um MCP que não está no <code>.mcp.json</code> do repo</td><td data-label="Como levar"><code>claude mcp list</code> aqui e <code>claude mcp add</code> lá. Os que pedem OAuth pedem login de novo</td></tr>
+    <tr><td data-label="Item">Shell, aliases e dotfiles</td><td data-label="Vale levar quando">Você vai trabalhar muito pelo terminal da máquina</td><td data-label="Como levar">A aba Meus dotfiles, acima, só com o que serve num servidor</td></tr>
+    <tr><td data-label="Item"><code>.credentials.json</code></td><td data-label="Vale levar quando"><span class="pill no">nunca</span></td><td data-label="Como levar">Cada máquina faz o próprio login</td></tr>
   </table></div>
   <div class="code"><div class="code-head"><span>bash, na sua máquina</span><button class="copy">Copiar</button></div><pre>cd ~ &amp;&amp; ls -d .claude/skills .claude/agents .agents 2&gt;/dev/null | tar czf - -T - | ssh agente 'tar xzf - -C ~'</pre></div>
   <p>Trazer o shell inteiro de um WSL ou de um Mac costuma trazer junto o que não serve num servidor: caminhos de Windows, ferramentas de interface gráfica e binários de outra arquitetura.</p>
@@ -1633,12 +1640,12 @@ O `recover-rc.service` é o seu próprio servidor. Me peça antes de mexer nele.
 
 O que ocupava a memória (processo, sessão, MB), o que você matou, e a saída de `memstat` no fim.
 EOF</pre></div>
-  <p>Na pasta, rode uma vez à mão o mesmo comando do script. Responda <code>y</code> à confiança na pasta e ao Remote Control, aceite o aviso do bypass, o modo em que a sessão roda comandos sem pedir permissão, e saia com Ctrl+C. Para usar o bypass, rode antes também <code>claude --dangerously-skip-permissions</code> uma vez e saia com <code>/exit</code>. Depois grave o serviço. Troque <code>voce</code> pelo seu usuário e, se o seu shell de login é zsh, troque <code>bash -lic</code> por <code>zsh -lic</code>:</p>
+  <p>Na pasta, rode uma vez à mão o mesmo comando do script. Escolha o tema, responda <code>y</code> à confiança na pasta e ao Remote Control, aceite o aviso do bypass, o modo em que a sessão roda comandos sem pedir permissão, e saia com Ctrl+C. Para usar o bypass, rode antes também <code>claude --dangerously-skip-permissions</code> uma vez e saia com <code>/exit</code>. Depois grave o serviço. Troque <code>voce</code> pelo seu usuário, <code>&lt;uid&gt;</code> pela saída de <code>id -u</code> e, se o seu shell de login é zsh, troque <code>bash -lic</code> por <code>zsh -lic</code>. O <code>enable-linger</code> mantém a pasta <code>/run/user/&lt;uid&gt;</code> sem ninguém logado, e é nela que as sessões se acham: sem ele, depois de um reboot o orquestrador não enxerga os agentes.</p>
   <div class="code prose"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>sudo tee /etc/systemd/system/recover-rc.service &gt; /dev/null &lt;&lt;'EOF'
 [Unit]
 Description=Remote Control do Claude Code para o agente de recover
-After=network-online.target
-Wants=network-online.target
+After=network-online.target user-runtime-dir@&lt;uid&gt;.service
+Wants=network-online.target user-runtime-dir@&lt;uid&gt;.service
 
 [Service]
 Type=forking
@@ -1654,6 +1661,7 @@ RestartSec=10
 [Install]
 WantedBy=multi-user.target
 EOF
+sudo loginctl enable-linger $USER
 sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now recover-rc</pre></div>
   <p>Confira com <code>tmux -L recover capture-pane -p -t recover</code>, que mostra <code>Capacity: 0/2</code>. No app, a sessão aparece com o título <code>recover</code>.</p>
   <div class="callout note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><strong class="label">Se o app não abrir a sessão do recover</strong><p>Entre pelo SSH e abra uma sessão de terminal já ligada ao app: <code>cd ~/recover &amp;&amp; tmux new -s recover2 'claude --remote-control recover2'</code>. Ela aparece pronta no app, sem passar pelo modo servidor. É o plano B quando o recover falha, e é também o jeito como o comando <code>agent</code> abre os agentes.</p></div></div>
@@ -1732,10 +1740,10 @@ EOF</pre></div>
   </ul>
 
   <h2>Duas formas de pôr uma sessão no app</h2>
-  <div class="table-wrap"><table>
+  <div class="table-wrap stack"><table>
     <tr><th>Forma</th><th>Como</th><th>Quem usa</th></tr>
-    <tr><td>Modo servidor</td><td><code>claude remote-control</code> espera, e abre uma sessão nova cada vez que você pede pelo app</td><td>O recover, a sessão de socorro</td></tr>
-    <tr><td>Sessão de terminal ligada ao app</td><td><code>claude --remote-control &lt;nome&gt;</code> num tmux. A sessão aparece pronta no app, com a pasta, o teto e a tarefa com que nasceu</td><td>O orquestrador e os agentes</td></tr>
+    <tr><td data-label="Forma">Modo servidor</td><td data-label="Como"><code>claude remote-control</code> espera, e abre uma sessão nova cada vez que você pede pelo app</td><td data-label="Quem usa">O recover, a sessão de socorro</td></tr>
+    <tr><td data-label="Forma">Sessão de terminal ligada ao app</td><td data-label="Como"><code>claude --remote-control &lt;nome&gt;</code> num tmux. A sessão aparece pronta no app, com a pasta, o teto e a tarefa com que nasceu</td><td data-label="Quem usa">O orquestrador e os agentes</td></tr>
   </table></div>
   <p>Se o app não conseguir abrir uma sessão, use a segunda forma: entre pelo SSH, abra um tmux e rode <code>claude --remote-control &lt;nome&gt;</code> na pasta.</p>
 
@@ -1764,7 +1772,7 @@ Você é o orquestrador dos agentes desta máquina. Eu converso com você pelo a
 
 | Comando | O que faz |
 | :--- | :--- |
-| `agent start &lt;projeto&gt; [--name NOME] "&lt;tarefa&gt;"` | Abre o agente na pasta do projeto, em bypass, com o teto do projeto e já com a tarefa. Devolve o nome e o link no app |
+| `agent start &lt;projeto&gt; [--worktree BRANCH] [--name NOME] "&lt;tarefa&gt;"` | Abre o agente na pasta do projeto, em bypass, com o teto do projeto e já com a tarefa. Com `--worktree`, ele trabalha numa branch própria, num worktree do git. Devolve o nome e o link no app |
 | `agent list` | Agentes vivos, com projeto, RAM usada e teto |
 | `agent result &lt;nome&gt;` | A última resposta do agente, lida do transcript |
 | `agent stop &lt;nome&gt;` | Encerra o agente e devolve a RAM |
@@ -1775,7 +1783,7 @@ Arquivar a sessão no app não encerra o processo. Todo agente termina com `agen
 
 1. `agent list` e `ListAgents`: quem está vivo, em qual projeto, ocupado ou ocioso.
 2. No repo do projeto, `git status` e a branch atual.
-3. Já existe agente no mesmo assunto: mande a tarefa para ele com `SendMessage`. Senão, abra um novo. Dois agentes no mesmo repo dividem a árvore: se a tarefa nova mexe nos mesmos arquivos de outro agente vivo, me pergunte antes.
+3. Já existe agente no mesmo assunto: mande a tarefa para ele com `SendMessage`. Senão, abra um novo. Com outro agente vivo no mesmo repo, abra o novo com `--worktree &lt;branch&gt;`, para os dois não mexerem na mesma árvore.
 
 ## Enquanto o agente trabalha
 
@@ -1788,12 +1796,12 @@ EOF</pre></div>
 
   <h2>O comando agent</h2>
   <p>Este comando abre, lista e encerra os agentes. Cada agente roda num tmux próprio, um terminal que segue rodando sem o SSH, dentro de um scope do systemd, um grupo de processos criado na hora, no slice dos agentes e com o teto do projeto. O comando usa <code>sudo -n systemd-run</code>, então o usuário precisa do sudo sem senha configurado em <a href="#preparar">Como fazer a config inicial da VPS</a>.</p>
-  <details class="long-code"><summary>Ver o script do comando agent (246 linhas)</summary>
+  <details class="long-code"><summary>Ver o script do comando agent (271 linhas)</summary>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>cat &gt; ~/.local/bin/agent &lt;&lt;'EOF'
 #!/usr/bin/env python3
 """Abre, lista e encerra os agentes do orquestrador, cada um com teto de RAM próprio.
 
-  agent start &lt;projeto&gt; [--name NOME] [--resume SESSAO] "&lt;tarefa&gt;"
+  agent start &lt;projeto&gt; [--worktree BRANCH] [--role PAPEL] [--name NOME] [--resume SESSAO] [--chrome] "&lt;tarefa&gt;"
   agent list
   agent result &lt;nome&gt;
   agent stop &lt;nome&gt;
@@ -1832,9 +1840,12 @@ PROJECTS = Path(os.environ.get("AGENT_PROJECTS", HOME / ORCHESTRATOR / "projects
 SLICE = setting("AGENT_SLICE", "agents.slice")
 STATE = HOME / ".local" / "state" / "agents"
 RUNTIME_DIR = f"/run/user/{os.getuid()}"
+# O orquestrador encerra o agente quando recebe o aviso. Numa conversa direta com a pessoa, o aviso
+# antes da hora derrubaria a sessão no meio da conversa.
 DONE_PROMPT = ("Você é o agente {name}, aberto pelo {orch}. Quando concluir o trabalho e não houver mais "
                "nada pendente, mande SendMessage para {orch} com \"{name} terminou, pode encerrar\" e uma "
-               "linha do que entregou.")
+               "linha do que entregou. Se alguém estiver conversando direto com você, avise só quando a "
+               "pessoa disser que acabou.")
 
 
 def die(msg):
@@ -1889,12 +1900,15 @@ def start(argv):
     opts, rest = {}, []
     it = iter(argv)
     for a in it:
-        if a in ("--name", "--resume"):
+        if a in ("--worktree", "--role", "--name", "--resume"):
             opts[a[2:]] = next(it, None) or die(f"{a} precisa de um valor")
+        elif a == "--chrome":
+            opts["chrome"] = True
         else:
             rest.append(a)
     if len(rest) != 2:
-        die('uso: agent start &lt;projeto&gt; [--name NOME] [--resume SESSAO] "&lt;tarefa&gt;"')
+        die('uso: agent start &lt;projeto&gt; [--worktree BRANCH] [--role PAPEL] [--name NOME] [--resume SESSAO] '
+            '[--chrome] "&lt;tarefa&gt;"')
     project, task = rest
     try:
         cfg = json.loads(PROJECTS.read_text()).get(project) or die(f"projeto {project} fora de {PROJECTS}")
@@ -1904,13 +1918,17 @@ def start(argv):
     if not path.is_dir():
         die(f"{path} não existe")
     trust(path)
-    name = opts.get("name") or f"{project}-{uuid.uuid4().hex[:4]}"
+    role = opts.get("role")
+    if role and not any((d / ".claude" / "agents" / f"{role}.md").is_file() for d in (path, HOME)):
+        die(f"papel {role} não existe; crie {path}/.claude/agents/{role}.md")
+    name = opts.get("name") or f"{project}-{role or uuid.uuid4().hex[:4]}"
     if agent_pid(name) or tmux(name, "has-session").returncode == 0:
         die(f"{name} já está rodando")
 
     STATE.mkdir(parents=True, exist_ok=True)
     spec = {"name": name, "project": project, "path": str(path), "task": task, "memory": cfg["memory"],
             "session": opts.get("resume") or str(uuid.uuid4()), "resume": bool(opts.get("resume")),
+            "worktree": opts.get("worktree"), "role": role, "chrome": bool(opts.get("chrome")),
             "orchestrator": ORCHESTRATOR,
             "started": time.strftime("%Y-%m-%dT%H:%M:%S")}
     (STATE / f"{name}.json").write_text(json.dumps(spec, indent=2))
@@ -1932,7 +1950,11 @@ def start(argv):
         if tmux(name, "has-session").returncode != 0:
             (STATE / f"{name}.json").unlink(missing_ok=True)
             die(f"{name} saiu na subida; veja o erro com: agent _run {name}")
-        if "bypass permissions on" in pane(name):
+        screen = pane(name)
+        if "trust this folder" in screen:
+            stop([name])
+            die(f"{path} não está marcada como confiável; abra o claude nela uma vez e aceite")
+        if "bypass permissions on" in screen:
             break
         time.sleep(1)
     else:
@@ -1952,7 +1974,16 @@ def run(name):
     spec = json.loads((STATE / f"{name}.json").read_text())
     cmd = ["claude", "--permission-mode", "bypassPermissions", "--remote-control", name, "--name", name,
            "--resume" if spec["resume"] else "--session-id", spec["session"],
-           "--append-system-prompt", DONE_PROMPT.format(name=name, orch=spec["orchestrator"]), spec["task"]]
+           "--append-system-prompt", DONE_PROMPT.format(name=name, orch=spec["orchestrator"])]
+    # O --worktree abre o agente num worktree do git, numa branch própria: dois agentes no mesmo repo
+    # não mexem na mesma árvore.
+    if spec.get("worktree"):
+        cmd += ["--worktree", spec["worktree"]]
+    if spec.get("role"):
+        cmd += ["--agent", spec["role"]]
+    if spec.get("chrome"):
+        cmd += ["--chrome"]
+    cmd.append(spec["task"])
     # O sudo limpa o ambiente, então o nome do orquestrador vem do spec gravado no start.
     # Sem XDG_RUNTIME_DIR, o socket de mensagens cai em /tmp e o orquestrador não enxerga o agente.
     os.environ["XDG_RUNTIME_DIR"] = RUNTIME_DIR
@@ -1968,13 +1999,15 @@ def list_():
             f.unlink()
             continue
         cg = cgroup(pid) or ""
-        rows.append((spec["name"], spec["project"], f"{mib(cg + '/memory.current')}/{mib(cg + '/memory.max')}",
-                     spec["started"]))
+        branch = subprocess.run(["git", "-C", spec["path"], "branch", "--show-current"],
+                                capture_output=True, text=True).stdout.strip() or "-"
+        rows.append((spec["name"], spec["project"], spec.get("worktree") or branch,
+                     f"{mib(cg + '/memory.current')}/{mib(cg + '/memory.max')}", spec["started"]))
     if not rows:
         print("nenhum agente rodando")
         return
-    rows.insert(0, ("NOME", "PROJETO", "MEMÓRIA", "INÍCIO"))
-    widths = [max(len(r[i]) for r in rows) for i in range(4)]
+    rows.insert(0, ("NOME", "PROJETO", "BRANCH", "MEMÓRIA", "INÍCIO"))
+    widths = [max(len(r[i]) for r in rows) for i in range(5)]
     for r in rows:
         print("  ".join(c.ljust(w) for c, w in zip(r, widths)).rstrip())
 
@@ -2011,7 +2044,7 @@ def stop(argv):
         spec = json.loads(spec_file.read_text())
         with open(STATE / "stopped.jsonl", "a") as f:
             f.write(json.dumps({"name": name, "project": spec["project"], "session": spec["session"],
-                                "stopped": time.strftime("%Y-%m-%dT%H:%M:%S")}) + "\n")
+                                "path": spec["path"], "stopped": time.strftime("%Y-%m-%dT%H:%M:%S")}) + "\n")
         spec_file.unlink()
     print(f"{name} encerrado")
 
@@ -2060,6 +2093,11 @@ cd "$HOME/$AGENT_ORCHESTRATOR" || exit 1
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 export PATH="$HOME/.local/bin:$PATH"
 set -- --permission-mode bypassPermissions --remote-control "$AGENT_ORCHESTRATOR" --name "$AGENT_ORCHESTRATOR"
+# Com o bot do Telegram configurado, o orquestrador abre o canal dele. O canal roda em Bun.
+if [ -f "$HOME/.claude/channels/telegram/.env" ]; then
+    export PATH="$HOME/.bun/bin:$PATH"
+    set -- "$@" --channels plugin:telegram@claude-plugins-official
+fi
 while true; do
     t=$(date +%s)
     claude --continue "$@"
@@ -2068,12 +2106,12 @@ while true; do
 done
 EOF
 chmod 755 ~/.local/bin/orchestrator-rc</pre></div>
-  <p>Na pasta, rode uma vez à mão <code>claude --dangerously-skip-permissions --remote-control &lt;orquestrador&gt;</code>. Aceite a confiança na pasta, o Remote Control e o aviso do bypass, o modo em que a sessão roda comandos sem pedir permissão, e saia com <code>/exit</code>. Depois grave o serviço, com <code>voce</code> trocado pelo seu usuário. O orquestrador não roda comando pesado, e 1 GiB de teto basta para ele.</p>
+  <p>Na pasta, rode uma vez à mão <code>claude --dangerously-skip-permissions --remote-control &lt;orquestrador&gt;</code>. Escolha o tema, aceite a confiança na pasta, o Remote Control e o aviso do bypass, o modo em que a sessão roda comandos sem pedir permissão, e saia com <code>/exit</code>. Depois grave o serviço, com <code>voce</code> trocado pelo seu usuário e <code>&lt;uid&gt;</code> pela saída de <code>id -u</code>. O orquestrador não roda comando pesado, e 1 GiB de teto basta para ele.</p>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>sudo tee /etc/systemd/system/&lt;orquestrador&gt;.service &gt; /dev/null &lt;&lt;'EOF'
 [Unit]
 Description=Orquestrador dos agentes do Claude Code
-After=network-online.target
-Wants=network-online.target
+After=network-online.target user-runtime-dir@&lt;uid&gt;.service
+Wants=network-online.target user-runtime-dir@&lt;uid&gt;.service
 
 [Service]
 Type=forking
@@ -2090,6 +2128,7 @@ RestartSec=10
 [Install]
 WantedBy=multi-user.target
 EOF
+sudo loginctl enable-linger $USER
 sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now &lt;orquestrador&gt;</pre></div>
 
   <h2>Falar com os agentes</h2>
@@ -2837,7 +2876,7 @@ claude plugin install cockpit@cockpit</pre></div>
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sidebar.classList.contains('open')) { sidebar.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); } });
 
   // a lateral mostra o item ativo
-  function showActive() { var a = sidebar.querySelector('a.active'); if (a) a.scrollIntoView({ block: 'center' }); }
+  function showActive() { var a = sidebar.querySelector('a.active'); if (!a) return; var top = a.getBoundingClientRect().top - sidebar.getBoundingClientRect().top + sidebar.scrollTop; sidebar.scrollTop = top - sidebar.clientHeight / 2; }
   window.addEventListener('hashchange', function () { setTimeout(showActive, 0); });
   setTimeout(showActive, 0);
 

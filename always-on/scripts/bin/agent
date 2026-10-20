@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Abre, lista e encerra os agentes do orquestrador, cada um com teto de RAM próprio.
 
-  agent start <projeto> [--name NOME] [--resume SESSAO] "<tarefa>"
+  agent start <projeto> [--worktree BRANCH] [--role PAPEL] [--name NOME] [--resume SESSAO] [--chrome] "<tarefa>"
   agent list
   agent result <nome>
   agent stop <nome>
@@ -40,9 +40,12 @@ PROJECTS = Path(os.environ.get("AGENT_PROJECTS", HOME / ORCHESTRATOR / "projects
 SLICE = setting("AGENT_SLICE", "agents.slice")
 STATE = HOME / ".local" / "state" / "agents"
 RUNTIME_DIR = f"/run/user/{os.getuid()}"
+# O orquestrador encerra o agente quando recebe o aviso. Numa conversa direta com a pessoa, o aviso
+# antes da hora derrubaria a sessão no meio da conversa.
 DONE_PROMPT = ("Você é o agente {name}, aberto pelo {orch}. Quando concluir o trabalho e não houver mais "
                "nada pendente, mande SendMessage para {orch} com \"{name} terminou, pode encerrar\" e uma "
-               "linha do que entregou.")
+               "linha do que entregou. Se alguém estiver conversando direto com você, avise só quando a "
+               "pessoa disser que acabou.")
 
 
 def die(msg):
@@ -97,12 +100,15 @@ def start(argv):
     opts, rest = {}, []
     it = iter(argv)
     for a in it:
-        if a in ("--name", "--resume"):
+        if a in ("--worktree", "--role", "--name", "--resume"):
             opts[a[2:]] = next(it, None) or die(f"{a} precisa de um valor")
+        elif a == "--chrome":
+            opts["chrome"] = True
         else:
             rest.append(a)
     if len(rest) != 2:
-        die('uso: agent start <projeto> [--name NOME] [--resume SESSAO] "<tarefa>"')
+        die('uso: agent start <projeto> [--worktree BRANCH] [--role PAPEL] [--name NOME] [--resume SESSAO] '
+            '[--chrome] "<tarefa>"')
     project, task = rest
     try:
         cfg = json.loads(PROJECTS.read_text()).get(project) or die(f"projeto {project} fora de {PROJECTS}")
@@ -112,13 +118,17 @@ def start(argv):
     if not path.is_dir():
         die(f"{path} não existe")
     trust(path)
-    name = opts.get("name") or f"{project}-{uuid.uuid4().hex[:4]}"
+    role = opts.get("role")
+    if role and not any((d / ".claude" / "agents" / f"{role}.md").is_file() for d in (path, HOME)):
+        die(f"papel {role} não existe; crie {path}/.claude/agents/{role}.md")
+    name = opts.get("name") or f"{project}-{role or uuid.uuid4().hex[:4]}"
     if agent_pid(name) or tmux(name, "has-session").returncode == 0:
         die(f"{name} já está rodando")
 
     STATE.mkdir(parents=True, exist_ok=True)
     spec = {"name": name, "project": project, "path": str(path), "task": task, "memory": cfg["memory"],
             "session": opts.get("resume") or str(uuid.uuid4()), "resume": bool(opts.get("resume")),
+            "worktree": opts.get("worktree"), "role": role, "chrome": bool(opts.get("chrome")),
             "orchestrator": ORCHESTRATOR,
             "started": time.strftime("%Y-%m-%dT%H:%M:%S")}
     (STATE / f"{name}.json").write_text(json.dumps(spec, indent=2))
@@ -140,7 +150,11 @@ def start(argv):
         if tmux(name, "has-session").returncode != 0:
             (STATE / f"{name}.json").unlink(missing_ok=True)
             die(f"{name} saiu na subida; veja o erro com: agent _run {name}")
-        if "bypass permissions on" in pane(name):
+        screen = pane(name)
+        if "trust this folder" in screen:
+            stop([name])
+            die(f"{path} não está marcada como confiável; abra o claude nela uma vez e aceite")
+        if "bypass permissions on" in screen:
             break
         time.sleep(1)
     else:
@@ -160,7 +174,16 @@ def run(name):
     spec = json.loads((STATE / f"{name}.json").read_text())
     cmd = ["claude", "--permission-mode", "bypassPermissions", "--remote-control", name, "--name", name,
            "--resume" if spec["resume"] else "--session-id", spec["session"],
-           "--append-system-prompt", DONE_PROMPT.format(name=name, orch=spec["orchestrator"]), spec["task"]]
+           "--append-system-prompt", DONE_PROMPT.format(name=name, orch=spec["orchestrator"])]
+    # O --worktree abre o agente num worktree do git, numa branch própria: dois agentes no mesmo repo
+    # não mexem na mesma árvore.
+    if spec.get("worktree"):
+        cmd += ["--worktree", spec["worktree"]]
+    if spec.get("role"):
+        cmd += ["--agent", spec["role"]]
+    if spec.get("chrome"):
+        cmd += ["--chrome"]
+    cmd.append(spec["task"])
     # O sudo limpa o ambiente, então o nome do orquestrador vem do spec gravado no start.
     # Sem XDG_RUNTIME_DIR, o socket de mensagens cai em /tmp e o orquestrador não enxerga o agente.
     os.environ["XDG_RUNTIME_DIR"] = RUNTIME_DIR
@@ -176,13 +199,15 @@ def list_():
             f.unlink()
             continue
         cg = cgroup(pid) or ""
-        rows.append((spec["name"], spec["project"], f"{mib(cg + '/memory.current')}/{mib(cg + '/memory.max')}",
-                     spec["started"]))
+        branch = subprocess.run(["git", "-C", spec["path"], "branch", "--show-current"],
+                                capture_output=True, text=True).stdout.strip() or "-"
+        rows.append((spec["name"], spec["project"], spec.get("worktree") or branch,
+                     f"{mib(cg + '/memory.current')}/{mib(cg + '/memory.max')}", spec["started"]))
     if not rows:
         print("nenhum agente rodando")
         return
-    rows.insert(0, ("NOME", "PROJETO", "MEMÓRIA", "INÍCIO"))
-    widths = [max(len(r[i]) for r in rows) for i in range(4)]
+    rows.insert(0, ("NOME", "PROJETO", "BRANCH", "MEMÓRIA", "INÍCIO"))
+    widths = [max(len(r[i]) for r in rows) for i in range(5)]
     for r in rows:
         print("  ".join(c.ljust(w) for c, w in zip(r, widths)).rstrip())
 
@@ -219,7 +244,7 @@ def stop(argv):
         spec = json.loads(spec_file.read_text())
         with open(STATE / "stopped.jsonl", "a") as f:
             f.write(json.dumps({"name": name, "project": spec["project"], "session": spec["session"],
-                                "stopped": time.strftime("%Y-%m-%dT%H:%M:%S")}) + "\n")
+                                "path": spec["path"], "stopped": time.strftime("%Y-%m-%dT%H:%M:%S")}) + "\n")
         spec_file.unlink()
     print(f"{name} encerrado")
 

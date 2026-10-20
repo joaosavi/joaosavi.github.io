@@ -127,15 +127,15 @@ O que ocupava a memória (processo, sessão, MB), o que você matou, e a saída 
 EOF
 ```
 
-Na pasta, rode uma vez à mão o mesmo comando do script. Responda `y` à confiança na pasta e ao Remote Control, aceite o aviso do bypass, o modo em que a sessão roda comandos sem pedir permissão, e saia com Ctrl+C. Para usar o bypass, rode antes também `claude --dangerously-skip-permissions` uma vez e saia com `/exit`. Depois grave o serviço. Troque `voce` pelo seu usuário e, se o seu shell de login é zsh, troque `bash -lic` por `zsh -lic`: 
+Na pasta, rode uma vez à mão o mesmo comando do script. Escolha o tema, responda `y` à confiança na pasta e ao Remote Control, aceite o aviso do bypass, o modo em que a sessão roda comandos sem pedir permissão, e saia com Ctrl+C. Para usar o bypass, rode antes também `claude --dangerously-skip-permissions` uma vez e saia com `/exit`. Depois grave o serviço. Troque `voce` pelo seu usuário, `<uid>` pela saída de `id -u` e, se o seu shell de login é zsh, troque `bash -lic` por `zsh -lic`. O `enable-linger` mantém a pasta `/run/user/<uid>` sem ninguém logado, e é nela que as sessões se acham: sem ele, depois de um reboot o orquestrador não enxerga os agentes. 
 
 bash, na máquina
 ```
 sudo tee /etc/systemd/system/recover-rc.service > /dev/null <<'EOF'
 [Unit]
 Description=Remote Control do Claude Code para o agente de recover
-After=network-online.target
-Wants=network-online.target
+After=network-online.target user-runtime-dir@<uid>.service
+Wants=network-online.target user-runtime-dir@<uid>.service
 
 [Service]
 Type=forking
@@ -151,6 +151,7 @@ RestartSec=10
 [Install]
 WantedBy=multi-user.target
 EOF
+sudo loginctl enable-linger $USER
 sudo systemctl daemon-reload && sudo systemctl enable --now recover-rc
 ```
 
