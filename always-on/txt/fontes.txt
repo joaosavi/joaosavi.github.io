@@ -1,4 +1,4 @@
-# Fontes 
+# De onde vem cada informação 
 Consultadas entre 01 e 19/10/2026. Os números de tempo e memória vêm da nossa montagem. 
 
 - Remote Control (https://code.claude.com/docs/en/remote-control) 

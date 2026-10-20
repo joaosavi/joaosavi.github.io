@@ -6,7 +6,6 @@ Confira cada item antes de deixar a máquina sozinha. Na nossa montagem, os test
 - As sessões do app nascem em bypass, o modo que roda comandos sem pedir permissão. Abra uma pelo app e rode na máquina `ps -eo args | grep -- '[-]-print' | grep -c '[b]ypassPermissions'`, que conta as sessões com a flag. Os colchetes tiram da conta o próprio comando. O seletor do app não mostra o bypass. 
 - O orquestrador, a sessão que distribui as tarefas, e o recover, a sessão de socorro, voltam sozinhos depois de reiniciar a máquina, ou o container com `sudo lxc restart agente`, e aparecem no app. 
 - Pelo app, o orquestrador abre um agente, uma sessão só para a tarefa, num projeto, espera, relata o resultado e encerra o agente. O `agent list` fica vazio no fim. 
-- Uma sessão em segundo plano continua com o SSH fechado. Para testar com bypass, rode `claude --dangerously-skip-permissions` uma vez e aceite o aviso. Depois rode `claude --bg --dangerously-skip-permissions "rode sleep 45 e responda ok"`, saia, entre de novo e confira com `claude agents`. Sem bypass, tire a flag e aprove o `sleep` com `claude attach <id>` se ele pedir. 
 - As sessões rodam dentro do teto. O `memstat` mostra o teto que você calculou na linha do slice dos agentes, o grupo do systemd que soma a memória deles, e o teste do `systemd-run` de Como pôr teto de memória e o agente de recover (txt/memoria.txt) termina em `oom-kill`. 
 - A sessão `recover` aparece no app e responde. 
 - O `/ram` do `memory-guard`, mod do Cockpit, o pacote de travas do Claude Code, mostra o slice e o teto numa sessão nova. 

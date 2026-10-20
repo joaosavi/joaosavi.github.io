@@ -24,9 +24,10 @@ Cada linha é um mini-guia. Baixe com: curl -s https://joaosavi.github.io/always
 - mods: Como instalar o Cockpit e o que ele faz
 - manter: Como deixar a máquina se cuidar sozinha
 - provar: Como provar que tudo funciona
-- personalizar: Como personalizar e guardar a configuração
-- baixar: Como baixar um arquivo da máquina
-- dia: Comandos do dia a dia
-- problemas: O que fazer quando algo quebra
-- seguranca: O que custa e o que proteger
-- fontes: Fontes
+- personalizar: Faça o agente trabalhar do seu jeito
+- servicos: Suba seus sites na VPS e saiba na hora quando caem
+- baixar: Pegue qualquer arquivo da VPS, até pelo celular
+- dia: Os comandos que você vai usar todo dia
+- problemas: Algo quebrou? A saída está aqui
+- seguranca: Quanto custa e o que pode dar errado
+- fontes: De onde vem cada informação

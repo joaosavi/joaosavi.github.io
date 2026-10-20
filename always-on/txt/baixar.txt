@@ -1,5 +1,5 @@
-# Como baixar um arquivo da máquina  
-Pelo terminal, com `scp`. Pelo celular, numa página privada do claude.ai. 
+# Pegue qualquer arquivo da VPS, até pelo celular  
+Pelo terminal, com `scp`. Pelo celular, num Artifact privado do claude.ai. 
 
 ## Pelo terminal 
 No terminal do seu computador, com o bloco do `~/.ssh/config` já gravado, rode: 
@@ -10,4 +10,4 @@ scp <maquina>:~/caminho/relatorio.pdf .
 ```
 
 ## Pelo celular 
-Sem terminal à mão, como no celular, peça à sessão do Claude Code para publicar o arquivo numa página privada do claude.ai, com botão de download.
+Sem terminal à mão, como no celular, peça à sessão do Claude Code para publicar o arquivo num Artifact, uma página privada do claude.ai que só você abre, com botão de download.

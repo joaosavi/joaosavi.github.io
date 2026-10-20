@@ -1,4 +1,4 @@
-# O que custa e o que proteger  
+# Quanto custa e o que pode dar errado  
 Uma máquina que trabalha sozinha 24 horas faz tudo o que as chaves dela permitem. Dê a ela só o necessário. 
 
 - Dê ao agente, a sessão do Claude Code que trabalha na máquina, só as chaves que ele usa, cada uma revogável sem afetar as suas. 
@@ -6,5 +6,4 @@ Uma máquina que trabalha sozinha 24 horas faz tudo o que as chaves dela permite
 - As sessões gastam a mesma cota da sua conta do Claude, seja no seu computador, na Oracle ou na nuvem da Anthropic. Uma noite inteira de trabalho do agente consome o limite que seria seu de manhã. 
 - Uma máquina com IP público recebe tentativas de login no SSH o tempo todo. Desligue o login por senha e mantenha a atualização automática. O Tailscale tira a porta 22 da internet. 
 - Num host compartilhado, um build pesado do agente deixa os outros serviços mais lentos. O peso de CPU dá prioridade ao host, mas não zera a disputa. 
-- Um reboot interrompe as sessões em segundo plano. Por até 48 horas, elas aparecem como `failed` e voltam de onde pararam quando você entra nelas. Depois disso aparecem como `stopped`. 
 - Na Oracle Pay As You Go, nada é cobrado dentro da cota, e o orçamento com alerta avisa se algo sair dela. Uma VPS paga custa a mensalidade mesmo parada.

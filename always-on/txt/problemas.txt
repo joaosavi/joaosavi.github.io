@@ -1,4 +1,4 @@
-# O que fazer quando algo quebra  
+# Algo quebrou? A saída está aqui  
 Procure pelo sintoma na primeira coluna. Quase todos estes problemas aconteceram na nossa montagem. Na tabela, o orquestrador é a sessão do Claude Code que distribui as tarefas, o agente é a sessão que trabalha numa tarefa, o recover é a sessão de socorro, e o Cockpit é o pacote de mods que barra erros comuns. 
 
 | Sintoma | Causa | Conserto |

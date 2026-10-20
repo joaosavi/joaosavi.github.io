@@ -1,0 +1,47 @@
+# Suba seus sites na VPS e saiba na hora quando caem  
+A VPS que roda o agente também hospeda os seus sites e serviços. Três ferramentas gratuitas fazem isso sem você configurar servidor web: o Coolify sobe cada serviço em Docker com HTTPS, o Uptime Kuma avisa no Telegram quando um site cai, e o Beszel mostra a CPU, a memória e o disco da máquina ao longo do tempo. 
+
+## Quanto de memória cada um gasta 
+
+| Ferramenta | Memória |
+| --- | --- | 
+| Coolify, com o banco, o Redis e o proxy | 270 MB | 
+| Uptime Kuma | 240 MB | 
+| Beszel, com o painel e o agente que mede a máquina | 30 MB |  
+Medido numa VM da Oracle com os três rodando, em 20/10/2026. Some a isso o que os seus sites gastam. A memória sai da folga fora do slice dos agentes, o grupo com o teto das sessões do Claude Code. 
+
+## Abrir espaço na memória 
+O instalador reserva 1 GB para o sistema e o Docker. Com os três rodando, reserve 2 GB. Troque a linha no `~/always-on/config.env` e rode o instalador de novo, que recalcula o teto dos agentes: 
+
+bash, na máquina
+```
+sed -i 's/^SYSTEM_MB=.*/SYSTEM_MB=2048/' ~/always-on/config.env
+~/always-on/install.sh
+```
+
+## Instalar o Coolify 
+
+bash, na máquina
+```
+curl -fsSL https://cdn.coollabs.io/coolify/install.sh | sudo bash
+```
+
+O painel abre na porta 8000. Na Oracle, a security list já fecha essa porta para a internet. Abra o painel pelo túnel SSH e crie a conta de administrador logo no primeiro acesso: 
+
+bash, no seu computador
+```
+ssh -N -L 8000:127.0.0.1:8000 <usuario>@<ip>
+```
+
+Depois abra `http://localhost:8000` no navegador. 
+
+## Subir o Uptime Kuma e o Beszel 
+
+- No Coolify, abra Projects, crie um projeto e clique em + New. 
+- Em Services, escolha Uptime Kuma e clique em Deploy. 
+- Repita com Beszel. O modelo do Coolify já sobe o painel e o agente que mede a máquina. 
+- No Kuma, crie um monitor para cada site e ligue a notificação do Telegram com o token do seu bot. O Kuma só envia mensagem, então ele divide o bot com o orquestrador sem conflito.  
+
+## Pôr um site no ar com HTTPS 
+Aponte o domínio para o IP da VPS e abra as portas 80 e 443. Na Oracle, abra as duas na security list e no `iptables`, do mesmo jeito que a porta 22 em Como conseguir a VPS grátis na Oracle (txt/oracle.txt). No Coolify, ponha o domínio no serviço, e ele tira o certificado sozinho. 
+Painel com dado real, como o do Coolify, o do Kuma e o do Beszel, fica sem domínio público e abre só pelo túnel.
