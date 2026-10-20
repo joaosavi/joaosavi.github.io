@@ -10,6 +10,7 @@ Cada linha é um mini-guia. Baixe com: curl -s https://joaosavi.github.io/always
 - cofre: Como dar senhas ao agente sem ele ver o valor
 - navegador: Como deixar o agente usar um navegador
 - ferramentas: Como dar ao agente e-mail, conectores e ferramentas
+- google: Como deixar a conta Google do agente logada na VPS
 - oracle: Como conseguir a VPS grátis na Oracle
 - caminhos: Quando usar outra máquina
 - vps: Como contratar uma VPS paga

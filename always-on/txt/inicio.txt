@@ -55,7 +55,8 @@ Para conferir se a conta pode usar o Remote Control, rode `claude remote-control
 - Como ligar o Telegram e o WhatsApp à máquina (txt/canais-ligar.txt)
 - Como dar senhas ao agente sem ele ver o valor (txt/cofre.txt)
 - Como deixar o agente usar um navegador (txt/navegador.txt)
-- Como dar ao agente e-mail, conectores e ferramentas (txt/ferramentas.txt) 
+- Como dar ao agente e-mail, conectores e ferramentas (txt/ferramentas.txt)
+- Como deixar a conta Google do agente logada na VPS (txt/google.txt) 
 
 ### Conseguir a máquina 
 
