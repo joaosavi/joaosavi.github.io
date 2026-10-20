@@ -1,0 +1,211 @@
+#!/usr/bin/env python3
+"""Reinicia o orquestrador e o recover quando ficam com biblioteca do sistema apagada, e retoma as sessões.
+
+Roda pelo sessions-restart.timer, depois do unattended-upgrade. O needrestart deixa os dois serviços
+de fora (/etc/needrestart/conf.d/always-on.conf), porque o reinício dele derruba a sessão no meio do
+turno. Aqui o reinício vem com a volta: o orquestrador volta na mesma conversa pelo --continue, e
+cada sessão aberta do recover volta pelo id na mesma pasta. A que estava no meio de um turno recebe
+a mensagem para seguir.
+  sessions-restart            reinicia o que estiver com biblioteca apagada
+  sessions-restart --dry-run  só lista
+"""
+
+import json
+import os
+import shlex
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+HOME = Path.home()
+SESSIONS = HOME / ".claude" / "sessions"
+
+
+def setting(key):
+    """O valor do ambiente ou de ~/.config/always-on/env, o mesmo arquivo que o comando agent lê."""
+    if os.environ.get(key):
+        return os.environ[key]
+    try:
+        for line in (HOME / ".config" / "always-on" / "env").read_text().splitlines():
+            k, _, v = line.partition("=")
+            if k.strip() == key:
+                return v.strip()
+    except OSError:
+        pass
+    return ""
+
+
+ORCHESTRATOR = setting("AGENT_ORCHESTRATOR")
+SERVICES = [s for s in (ORCHESTRATOR, "recover-rc") if s]
+# O orquestrador volta sozinho na mesma conversa pelo orchestrator-rc; retomar aqui abriria uma segunda.
+RETURNS_ALONE = {ORCHESTRATOR}
+READY_TIMEOUT = 120
+
+MESSAGE = (
+    "Esta sessão foi reiniciada às {time} UTC porque o serviço {service} estava com uma "
+    "biblioteca do sistema desatualizada. O comando que estava rodando morreu no reinício. "
+    "Confira o git status e o último passo, e continue de onde parou."
+)
+
+
+def log(msg):
+    print(msg, flush=True)
+
+
+def proc_start(pid):
+    try:
+        return Path(f"/proc/{pid}/stat").read_text().rsplit(")", 1)[1].split()[19]
+    except (OSError, IndexError):
+        return None
+
+
+def deleted_libs(maps):
+    """Os caminhos de sistema que o processo mapeia e que já sumiram do disco."""
+    found = set()
+    for line in maps.splitlines():
+        if not line.endswith(" (deleted)"):
+            continue
+        path = line.split(None, 5)[-1][: -len(" (deleted)")]
+        if path.startswith(("/usr/", "/lib")):
+            found.add(path)
+    return found
+
+
+def service_pids(service):
+    group = subprocess.run(["systemctl", "show", "-P", "ControlGroup", f"{service}.service"],
+                           capture_output=True, text=True).stdout.strip()
+    try:
+        return [int(p) for p in Path(f"/sys/fs/cgroup{group}/cgroup.procs").read_text().split()]
+    except (OSError, ValueError):
+        return []
+
+
+def stale(pids):
+    found = set()
+    for pid in pids:
+        try:
+            found |= deleted_libs(Path(f"/proc/{pid}/maps").read_text())
+        except OSError:
+            continue
+    return found
+
+
+def live_sessions(pids=None):
+    """As sessões cujo processo ainda é o que gravou o registro."""
+    live = []
+    for f in SESSIONS.glob("*.json"):
+        try:
+            s = json.loads(f.read_text())
+        except (ValueError, OSError):
+            continue
+        if pids is not None and s.get("pid") not in pids:
+            continue
+        if s.get("sessionId") and proc_start(s.get("pid")) == str(s.get("procStart")):
+            live.append(s)
+    return live
+
+
+def tmux(socket, *args):
+    return subprocess.run(["tmux", "-L", socket, *args], capture_output=True, text=True)
+
+
+def wait(condition, timeout):
+    end = time.time() + timeout
+    while time.time() < end:
+        found = condition()
+        if found:
+            return found
+        time.sleep(2)
+    return None
+
+
+def transcript_of(session_id):
+    return next((HOME / ".claude" / "projects").glob(f"*/{session_id}.jsonl"), None)
+
+
+def turn_open(transcript):
+    """A última fala é um pedido de ferramenta ou o resultado dela, e o turno não fechou.
+
+    O status do registro atrasa: num teste ele ficou idle por 60 s com o turno rodando. O transcript
+    grava end_turn quando o turno fecha, e é ele que decide."""
+    last = None
+    with open(transcript, encoding="utf-8", errors="replace") as f:
+        for line in f:
+            try:
+                e = json.loads(line)
+            except ValueError:
+                continue
+            if e.get("type") in ("user", "assistant") and not e.get("isSidechain"):
+                last = e
+    if not last or last.get("isApiErrorMessage"):
+        return False
+    if last["type"] == "assistant":
+        return last.get("message", {}).get("stop_reason") == "tool_use"
+    content = last.get("message", {}).get("content")
+    return isinstance(content, list) and any(
+        isinstance(c, dict) and c.get("type") == "tool_result" for c in content)
+
+
+def resume(socket, s, message):
+    """Abre a sessão pelo id numa janela nova do tmux do serviço e, se o turno ficou aberto, manda seguir.
+
+    A mensagem vai como argumento do claude, e não por send-keys: a caixa de texto de uma sessão
+    recém-aberta perdeu tecla mesmo 18 s depois de a tela aparecer."""
+    name = s.get("name") or s["sessionId"][:8]
+    transcript = transcript_of(s["sessionId"])
+    is_open = bool(transcript) and turn_open(transcript)
+    mark = f"[restart {s['sessionId'][:8]} {int(time.time())}]"
+    cmd = ["claude", "--resume", s["sessionId"], "--permission-mode", "bypassPermissions",
+           "--remote-control", name]
+    if is_open:
+        cmd.append(f"{message} {mark}")
+    pane = tmux(socket, "new-window", "-d", "-P", "-F", "#{pane_id}", "-n", name[:20], "-c", s["cwd"],
+                shlex.join(cmd)).stdout.strip()
+    if not wait(lambda: any(v["sessionId"] == s["sessionId"] for v in live_sessions()), READY_TIMEOUT):
+        screen = [l for l in tmux(socket, "capture-pane", "-p", "-t", pane).stdout.splitlines() if l.strip()]
+        log(f"  {name}: não voltou em {READY_TIMEOUT} s. A tela:\n    " + "\n    ".join(screen[-12:]))
+        return False
+    if not is_open:
+        log(f"  {name}: voltou parada, como estava")
+        return True
+    if wait(lambda: mark in transcript.read_text(errors="replace"), 60):
+        log(f"  {name}: voltou e recebeu a mensagem para seguir")
+        return True
+    log(f"  {name}: voltou, mas a mensagem não chegou ao transcript")
+    return False
+
+
+def restart(service, dry_run):
+    pids = service_pids(service)
+    libs = stale(pids)
+    if not libs:
+        log(f"{service}: nenhuma biblioteca apagada")
+        return
+    sessions = live_sessions(set(pids))
+    log(f"{service}: {len(libs)} bibliotecas apagadas ({', '.join(sorted(libs)[:3])}), "
+        f"{len(sessions)} sessões abertas")
+    for s in sessions:
+        log(f"  {s.get('name')}: {s['sessionId']} {s.get('status')}")
+    if dry_run:
+        return
+    # O tmux de cada serviço tem o nome dele sem o -rc: o do orquestrador é o nome dele, o do recover é recover.
+    socket = service.removesuffix("-rc")
+    subprocess.run(["sudo", "-n", "systemctl", "restart", f"{service}.service"], check=True)
+    if not wait(lambda: tmux(socket, "has-session").returncode == 0, 60):
+        log(f"{service}: o tmux não voltou, as sessões ficam para o app")
+        return
+    if service in RETURNS_ALONE:
+        return
+    message = MESSAGE.format(time=time.strftime("%H:%M", time.gmtime()), service=service)
+    for s in sessions:
+        resume(socket, s, message)
+
+
+def main():
+    for service in SERVICES:
+        restart(service, "--dry-run" in sys.argv)
+
+
+if __name__ == "__main__":
+    main()

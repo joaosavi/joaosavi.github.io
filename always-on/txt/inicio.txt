@@ -10,7 +10,7 @@ No Claude Code do seu computador, cole o pedido. Ele faz as perguntas da montage
 - 3
 Peça uma tarefa pelo celular. 
 Abra o claude.ai/code (https://claude.ai/code) ou a aba Code do app, escolha a sessão do orquestrador e escreva a tarefa. Ele abre um agente na pasta do projeto e avisa você quando o agente termina.  
-Para montar à mão, siga Montar a máquina (txt/preparar.txt), do passo 1 ao 10. Se a Oracle não servir, veja Quando usar outra máquina (txt/caminhos.txt). 
+Para montar à mão, siga Montar a máquina (txt/preparar.txt), do passo 1 ao 10. Os passos 6 a 9 têm um instalador (txt/instalador.txt) de um comando. Se a Oracle não servir, veja Quando usar outra máquina (txt/caminhos.txt). 
 
 ## Como fica no fim 
 

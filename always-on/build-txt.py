@@ -120,3 +120,11 @@ for block, pid, title in pages:
     index.append(f"- {pid}: {html.unescape(title)}")
 (HERE / "txt" / "index.txt").write_text("\n".join(index) + "\n")
 print(f"{len(pages)} mini-guias em {HERE / 'txt'}")
+
+# O get.sh baixa os scripts por uma lista fixa, porque o GitHub Pages não lista pasta.
+scripts = HERE / "scripts"
+listed = set(re.search(r'FILES="([^"]*)"', (scripts / "get.sh").read_text()).group(1).split())
+present = {str(f.relative_to(scripts)) for f in scripts.rglob("*")
+           if f.is_file() and f.name not in ("get.sh", "config.env", "README.md") and "__pycache__" not in f.parts}
+if listed != present:
+    raise SystemExit(f"get.sh fora de sincronia: faltam {sorted(present - listed)}, sobram {sorted(listed - present)}")

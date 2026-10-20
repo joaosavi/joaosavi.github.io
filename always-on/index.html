@@ -572,6 +572,7 @@ td code.cp.ok { background: var(--ok-soft); }
   <div class="nav-group"><h4><button type="button" class="ng-toggle" aria-expanded="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Começar</button></h4>
     <a href="#inicio" data-id="inicio"><span class="lbl">Quickstart</span></a>
     <a href="#setup" data-id="setup"><span class="lbl">Como deixar o Claude Code montar tudo</span></a>
+    <a href="#instalador" data-id="instalador"><span class="lbl">Como montar a infra com um comando</span></a>
   </div>
   <div class="nav-group"><h4><button type="button" class="ng-toggle" aria-expanded="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Canais e ferramentas<span class="ng-caret" aria-hidden="true"></span></button></h4>
     <a href="#canais-conseguir" data-id="canais-conseguir"><span class="nav-ic"><svg class="brand-ic" viewBox="0 0 24 24" aria-hidden="true" style="fill:#26A5E4"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg><svg class="brand-ic" viewBox="0 0 24 24" aria-hidden="true" style="fill:#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></span><span class="lbl">Como conseguir o bot do Telegram e o número do WhatsApp</span></a>
@@ -620,7 +621,7 @@ td code.cp.ok { background: var(--ok-soft); }
     <li><span class="q-n">2</span><div><b>Cole o pedido no Claude Code</b><p>No Claude Code do seu computador, cole o pedido. Ele faz as perguntas da montagem e monta a VPS passo a passo, e só para nos passos que precisam de você.</p><button type="button" class="q-copy" data-copy-target="prompt-text">Copiar o pedido</button> <a class="q-go" href="#setup">Ver o pedido e o que ele pergunta</a></div></li>
     <li><span class="q-n">3</span><div><b>Peça uma tarefa pelo celular</b><p>Abra o <a href="https://claude.ai/code">claude.ai/code</a> ou a aba Code do app, escolha a sessão do orquestrador e escreva a tarefa. Ele abre um agente na pasta do projeto e avisa você quando o agente termina.</p></div></li>
   </ol>
-  <p class="q-alt">Para montar à mão, siga <a href="#preparar">Montar a máquina</a>, do passo 1 ao 10. Se a Oracle não servir, veja <a href="#caminhos">Quando usar outra máquina</a>.</p>
+  <p class="q-alt">Para montar à mão, siga <a href="#preparar">Montar a máquina</a>, do passo 1 ao 10. Os passos 6 a 9 têm um <a href="#instalador">instalador</a> de um comando. Se a Oracle não servir, veja <a href="#caminhos">Quando usar outra máquina</a>.</p>
 
 
   <h2>Como fica no fim</h2>
@@ -771,10 +772,7 @@ Siga estes mini-guias, nesta ordem, um por vez. Antes de cada um, diga em uma ou
 - ambiente: só as ferramentas do roteiro. Leve do meu computador só o que somar ao trabalho: as skills e os agents de ~/.claude, os plugins e os servidores MCP que não estão no .mcp.json dos repos. Mostre a lista do que achou e leve o que eu não recusar.
 - logins: o Claude e o GitHub, com as respostas de B e C.
 - codigo: as pastas de E, cada uma com um CLAUDE.md curto do contexto dela, os repos de D e os arquivos ignorados que cada repo precisa, um por um, com a minha confirmação de cada arquivo.
-- memoria: swap, o slice dos agentes e o recover. O teto do slice é a memória total menos 512 MB do recover e 1 GB do sistema e do Docker. Numa VPS de 12 GB, isso dá uns 10,5 GB. Só desconte mais se um repo meu sobe container pesado. O teto de cada projeto é o comando mais pesado dele mais uns 500 MB.
-- orquestrador: o projects.json com os repos, o CLAUDE.md, o comando agent, o serviço. O nome dele é o de A.
-- mods: o pacote do Cockpit. Explique em uma linha cada um dos três que mais pesam: secret-guard, memory-guard e usage-limit.
-- manter: a volta depois da atualização e o encerramento de agente esquecido. É infra, entra sem pergunta.
+- memoria, orquestrador, mods e manter: rode o instalador, que monta os quatro de uma vez. Baixe txt/instalador.txt e siga: get.sh, ORCHESTRATOR com o nome de A no config.env, install.sh, e install.sh --check sem nenhum "falta". Antes, explique em uma linha cada peça, com txt/memoria.txt, txt/orquestrador.txt, txt/mods.txt e txt/manter.txt. O teto do slice é a memória total menos 512 MB do recover e 1 GB do sistema e do Docker, e numa VPS de 12 GB dá uns 10,5 GB; só aumente SYSTEM_MB se um repo meu sobe container pesado. Depois, preencha o projects.json com os repos de D, cada um com o teto do comando mais pesado dele mais uns 500 MB. Dos mods, explique em uma linha os três que mais pesam: secret-guard, memory-guard e usage-limit. Se o instalador falhar num passo, monte esse passo à mão pelo mini-guia dele e me conte o erro.
 - provar: a lista inteira de provas, com o reboot depois da minha confirmação.
 
 ETAPA 5 DE 6: CANAIS E FERRAMENTAS
@@ -798,6 +796,41 @@ Comece pela etapa 1.</pre><button type="button" class="unfold" id="unfold">Ver o
   <h2>Se a conversa cair</h2>
   <p>O Claude Code grava o progresso em <code>~/claude-always-on/progresso.md</code>, no seu computador. Para retomar, abra o Claude Code de novo, cole o pedido outra vez e acrescente:</p>
   <div class="code prose"><div class="code-head"><span>retomar</span><button class="copy">Copiar</button></div><pre>Já começamos. Leia ~/claude-always-on/progresso.md e retome do próximo passo.</pre></div>
+</article>
+
+<article class="page" id="instalador" data-title="Como montar a infra com um comando" hidden>
+  <div class="crumb">Começar</div>
+  <h1>Como montar a infra com um comando</h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="instalador">Copiar para o agente</button><a href="txt/instalador.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
+  <p class="lead">O instalador faz numa VPS Ubuntu os passos 6, 7, 8 e 9 de Montar a máquina: o swap, o teto de memória dos agentes, o recover, o orquestrador, o comando <code>agent</code>, o Cockpit e a manutenção automática. Rode na VPS depois dos passos 1 a 5, com o login do Claude Code já feito.</p>
+
+  <h2>Rodar</h2>
+  <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>curl -fsSL https://joaosavi.github.io/always-on/scripts/get.sh | sh
+sed -i 's/^ORCHESTRATOR=.*/ORCHESTRATOR=&lt;orquestrador&gt;/' ~/always-on/config.env
+~/always-on/install.sh</pre></div>
+  <p>O <code>get.sh</code> baixa os scripts para <code>~/always-on</code>. O <code>config.env</code> guarda o nome do orquestrador, que vira o nome da sessão no app, e mais quatro valores com padrão: o nome do slice, o tamanho do swap, a memória reservada ao sistema e se o Cockpit entra. Cada linha mostra <code>ok</code>, <code>feito</code> ou <code>falta</code>.</p>
+
+  <h2>O que ele monta</h2>
+  <div class="table-wrap stack"><table>
+    <tr><th>Peça</th><th>Como fica</th></tr>
+    <tr><td data-label="Peça">Swap</td><td data-label="Como fica">8 GB em <code>/swapfile</code>, só se a máquina não tiver swap. Num container, o swap vem do host</td></tr>
+    <tr><td data-label="Peça">Slice dos agentes</td><td data-label="Como fica">Teto da memória total menos 512 MB do recover e 1 GB do sistema, e metade do swap. Ver <a href="#memoria">Como pôr teto de memória</a></td></tr>
+    <tr><td data-label="Peça">Recover</td><td data-label="Como fica">O <code>recover.slice</code>, com 256 MB reservados e teto de 512 MB, e o serviço <code>recover-rc</code></td></tr>
+    <tr><td data-label="Peça">Orquestrador</td><td data-label="Como fica">A pasta <code>~/&lt;orquestrador&gt;</code> com o <code>CLAUDE.md</code> e o <code>projects.json</code>, o comando <code>agent</code> e o serviço. Ver <a href="#orquestrador">Como montar o orquestrador</a></td></tr>
+    <tr><td data-label="Peça">Cockpit</td><td data-label="Como fica">O pacote inteiro de mods. Ver <a href="#mods">Como instalar o Cockpit</a></td></tr>
+    <tr><td data-label="Peça">Manutenção</td><td data-label="Como fica">Os timers <code>sessions-restart</code> e <code>sessions-idle</code>, e o needrestart sem reiniciar as sessões. Ver <a href="#manter">Como deixar a máquina se cuidar sozinha</a></td></tr>
+  </table></div>
+  <p>Ele também marca as pastas do orquestrador e do recover como confiáveis e aceita os avisos do Remote Control e do bypass. Sem isso, o serviço travaria na subida, esperando uma tecla.</p>
+
+  <h2>Depois de rodar</h2>
+  <ol class="steps">
+    <li>Ponha os seus projetos em <code>~/&lt;orquestrador&gt;/projects.json</code>, cada um com a pasta e o teto. O teto é o comando mais pesado do projeto mais uns 500 MB.</li>
+    <li>Rode <code>/cockpit:setup</code> numa sessão de terminal para escolher a status line.</li>
+    <li>Confira com <code>~/always-on/install.sh --check</code>. Ele só olha, e sai com erro quando falta alguma coisa.</li>
+    <li>Siga para <a href="#provar">Como provar que tudo funciona</a>.</li>
+  </ol>
+  <p>O instalador pode rodar de novo. Ele grava só o arquivo que falta ou mudou, e o <code>CLAUDE.md</code> e o <code>projects.json</code> ficam como você deixou. Os scripts estão no <a href="https://github.com/joaosavi/joaosavi.github.io/tree/main/always-on/scripts">GitHub</a>.</p>
+  <button type="button" class="done-btn" data-done="instalador">Marquei como feito</button>
 </article>
 
 <article class="page" id="canais-conseguir" data-title="Como conseguir o bot do Telegram e o número do WhatsApp" hidden>
@@ -1490,6 +1523,7 @@ git config --global user.email 12345678+voce@users.noreply.github.com</pre></div
   <h1>Como pôr teto de memória e o agente de recover</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="memoria">Copiar para o agente</button><a href="txt/memoria.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
   <p class="lead">Os agentes são as sessões do Claude Code que trabalham na máquina, uma por tarefa. Sem limite, um comando pesado de uma sessão enche a memória da máquina, e as outras sessões e o SSH param junto. Com swap, uma área do disco que serve de memória extra, e um teto de memória para os agentes, só o comando pesado morre. O recover, uma sessão de socorro com memória reservada, continua respondendo pelo celular.</p>
+  <p>O <a href="#instalador">instalador</a> faz esta página com um comando. Ela fica para quem monta à mão ou quer entender cada peça.</p>
   <p>Na nossa montagem, num container com 2 núcleos e 7 GB e sem swap, um typecheck com dois <code>tsc</code> de 1 GB cada levou a memória ao limite. Cada conexão SSH passou de 1 segundo para 20 a 77 segundos, e as sessões do app pararam de responder.</p>
 
   <div class="membar" id="membar" data-search="skip">
@@ -1559,10 +1593,12 @@ EOF</pre></div>
   <p>O script roda o Remote Control, o recurso que liga o Claude Code da máquina ao app do Claude, no modo servidor, que abre uma sessão nova cada vez que você pede pelo app:</p>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>mkdir -p ~/recover ~/.local/bin &amp;&amp; cat &gt; ~/.local/bin/recover-rc &lt;&lt;'EOF'
 #!/bin/sh
-# O modo servidor sai depois de uns 10 minutos sem rede, e o laço o devolve.
+# O recover roda o Remote Control no modo servidor, que abre uma sessão nova cada vez que você pede
+# pelo app. O modo servidor sai depois de uns 10 minutos sem rede, e o laço o devolve.
 cd "$HOME/recover" || exit 1
 # Sem XDG_RUNTIME_DIR, o socket de mensagens cai em /tmp e a sessão não alcança os agentes.
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export PATH="$HOME/.local/bin:$PATH"
 while true; do
     claude remote-control --name recover --remote-control-session-name-prefix recover \
         --spawn same-dir --capacity 2 --permission-mode bypassPermissions
@@ -1578,13 +1614,13 @@ Você é a sessão que eu abro pelo celular quando a máquina trava. Ache o que 
 
 ## Diagnóstico
 
-1. Rode `memoria`. Pressão full acima de 10% é travamento, e um grupo perto do teto é o culpado.
+1. Rode `memstat`. Pressão full acima de 10% é travamento, e um grupo perto do teto é o culpado.
 2. Liste os maiores processos: `ps -eo pid,ppid,rss,etime,args --sort=-rss | head -20`. O grupo de um processo está em `/proc/&lt;pid&gt;/cgroup`.
 3. Suba pela cadeia de `ppid` até a sessão do Claude Code que disparou o comando.
 
 ## Como liberar
 
-Do menos destrutivo ao mais destrutivo, com `memoria` depois de cada passo:
+Do menos destrutivo ao mais destrutivo, com `memstat` depois de cada passo:
 
 1. Mate o comando pesado (`tsc`, testes, build, navegador) com `kill &lt;pid&gt;`. A sessão que o rodou continua viva.
 2. Mate a sessão que sozinha passa de 1 GiB.
@@ -1595,7 +1631,7 @@ O `recover-rc.service` é o seu próprio servidor. Me peça antes de mexer nele.
 
 ## O relato
 
-O que ocupava a memória (processo, sessão, MB), o que você matou, e a saída de `memoria` no fim.
+O que ocupava a memória (processo, sessão, MB), o que você matou, e a saída de `memstat` no fim.
 EOF</pre></div>
   <p>Na pasta, rode uma vez à mão o mesmo comando do script. Responda <code>y</code> à confiança na pasta e ao Remote Control, aceite o aviso do bypass, o modo em que a sessão roda comandos sem pedir permissão, e saia com Ctrl+C. Para usar o bypass, rode antes também <code>claude --dangerously-skip-permissions</code> uma vez e saia com <code>/exit</code>. Depois grave o serviço. Troque <code>voce</code> pelo seu usuário e, se o seu shell de login é zsh, troque <code>bash -lic</code> por <code>zsh -lic</code>:</p>
   <div class="code prose"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>sudo tee /etc/systemd/system/recover-rc.service &gt; /dev/null &lt;&lt;'EOF'
@@ -1622,24 +1658,27 @@ sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now recover-rc</
   <p>Confira com <code>tmux -L recover capture-pane -p -t recover</code>, que mostra <code>Capacity: 0/2</code>. No app, a sessão aparece com o título <code>recover</code>.</p>
   <div class="callout note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><strong class="label">Se o app não abrir a sessão do recover</strong><p>Entre pelo SSH e abra uma sessão de terminal já ligada ao app: <code>cd ~/recover &amp;&amp; tmux new -s recover2 'claude --remote-control recover2'</code>. Ela aparece pronta no app, sem passar pelo modo servidor. É o plano B quando o recover falha, e é também o jeito como o comando <code>agent</code> abre os agentes.</p></div></div>
 
-  <h2>O comando memoria</h2>
+  <h2>O comando memstat</h2>
   <p>Este comando mostra quanto cada grupo usa, o alto e o teto de cada um, e a pressão de memória da máquina. Com a nossa máquina travada, a pressão estava em 45%. Em uso normal, ela fica perto de 0%.</p>
-  <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>cat &gt; ~/.local/bin/memoria &lt;&lt;'EOF'
+  <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>cat &gt; ~/.local/bin/memstat &lt;&lt;'EOF'
 #!/bin/sh
 # Mostra quanto cada grupo de memória usa, os limites dele e a pressão de memória da máquina.
+# Lista os slices com teto, como o dos agentes e o recover.slice, e o system.slice.
 mb() { case "$1" in max) echo "sem teto" ;; *) echo "$(( $1 / 1048576 )) MB" ;; esac; }
-for cg in &lt;slice&gt;.slice recover.slice system.slice; do
-    p=/sys/fs/cgroup/$cg
-    [ -d "$p" ] || continue
-    printf '%-34s usa %-8s swap %-8s alto %-9s teto %s\n' "$cg" "$(mb "$(cat $p/memory.current)")" \
-        "$(mb "$(cat $p/memory.swap.current)")" "$(mb "$(cat $p/memory.high)")" "$(mb "$(cat $p/memory.max)")"
+for p in /sys/fs/cgroup/*.slice; do
+    cg=${p##*/}
+    [ -f "$p/memory.max" ] || continue
+    [ "$(cat "$p/memory.max")" = max ] &amp;&amp; [ "$cg" != system.slice ] &amp;&amp; continue
+    printf '%-24s usa %-8s swap %-8s alto %-9s teto %s\n' "$cg" "$(mb "$(cat "$p/memory.current")")" \
+        "$(mb "$(cat "$p/memory.swap.current" 2&gt;/dev/null || echo 0)")" "$(mb "$(cat "$p/memory.high")")" \
+        "$(mb "$(cat "$p/memory.max")")"
 done
 echo
 free -m | sed -n '1,3p'
 echo
 printf 'pressão de memória (full avg10): %s%%\n' "$(sed -n 's/^full avg10=\([0-9.]*\).*/\1/p' /sys/fs/cgroup/memory.pressure)"
 EOF
-chmod 755 ~/.local/bin/memoria &amp;&amp; memoria</pre></div>
+chmod 755 ~/.local/bin/memstat &amp;&amp; memstat</pre></div>
 
   <h2>Os limites no CLAUDE.md</h2>
   <p>As sessões não enxergam o teto sozinhas. Escreva os números no <code>~/.claude/CLAUDE.md</code> da máquina, que toda sessão lê ao começar, para elas conferirem a folga antes de um comando pesado.</p>
@@ -1657,7 +1696,7 @@ Cada sessão roda dentro de um teto de memória. O teto vale para a sessão e pa
 
 Passou do alto, o grupo inteiro fica lento e empurra memória para o swap. Bateu no teto, o kernel mata o maior processo do grupo, que quase sempre é o comando pesado.
 
-Antes de typecheck, suíte de teste, build ou Playwright, rode `memoria` e confira a folga do grupo. Um comando que morre com exit 137 bateu no teto: rode de novo com menos paralelismo.
+Antes de typecheck, suíte de teste, build ou Playwright, rode `memstat` e confira a folga do grupo. Um comando que morre com exit 137 bateu no teto: rode de novo com menos paralelismo.
 EOF</pre></div>
   <p>O <a href="#mods">Cockpit</a>, um pacote de mods para o Claude Code, traz o mod <code>memory-guard</code>, que faz essa conferência sozinho antes de cada comando pesado.</p>
 
@@ -1674,6 +1713,7 @@ EOF</pre></div>
   <h1>Como montar o orquestrador e os agentes</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="orquestrador">Copiar para o agente</button><a href="txt/orquestrador.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
   <p class="lead">O orquestrador é uma sessão do Claude Code que fica sempre aberta no app. Você pede a tarefa a ele, e ele abre um agente por tarefa, na pasta do projeto, com teto de RAM próprio. O agente é outra sessão do Claude Code, que faz o trabalho. O orquestrador distribui as tarefas, acompanha os agentes e relata o resultado.</p>
+  <p>O <a href="#instalador">instalador</a> faz esta página com um comando. Ela fica para quem monta à mão ou quer entender cada peça.</p>
 
   <ol class="flow" aria-label="O caminho de uma tarefa">
     <li><span>Você pede<small>pelo celular</small></span></li>
@@ -1708,6 +1748,8 @@ EOF</pre></div>
   "api":  { "path": "~/repos/api",  "memory": "3G" }
 }
 EOF</pre></div>
+  <p>O nome do orquestrador e o slice ficam num arquivo que o comando <code>agent</code>, o script do serviço e os timers leem, também numa sessão aberta pelo SSH:</p>
+  <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>mkdir -p ~/.config/always-on &amp;&amp; printf 'AGENT_ORCHESTRATOR=%s\nAGENT_SLICE=%s.slice\n' &lt;orquestrador&gt; &lt;slice&gt; &gt; ~/.config/always-on/env</pre></div>
   <p>O <code>CLAUDE.md</code> da pasta diz ao orquestrador o que ele faz e o que ele não faz:</p>
   <div class="code prose"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>cat &gt; ~/&lt;orquestrador&gt;/CLAUDE.md &lt;&lt;'EOF'
 # Orquestrador
@@ -1746,7 +1788,7 @@ EOF</pre></div>
 
   <h2>O comando agent</h2>
   <p>Este comando abre, lista e encerra os agentes. Cada agente roda num tmux próprio, um terminal que segue rodando sem o SSH, dentro de um scope do systemd, um grupo de processos criado na hora, no slice dos agentes e com o teto do projeto. O comando usa <code>sudo -n systemd-run</code>, então o usuário precisa do sudo sem senha configurado em <a href="#preparar">Como fazer a config inicial da VPS</a>.</p>
-  <details class="long-code"><summary>Ver o script do comando agent (232 linhas)</summary>
+  <details class="long-code"><summary>Ver o script do comando agent (246 linhas)</summary>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>cat &gt; ~/.local/bin/agent &lt;&lt;'EOF'
 #!/usr/bin/env python3
 """Abre, lista e encerra os agentes do orquestrador, cada um com teto de RAM próprio.
@@ -1757,11 +1799,13 @@ EOF</pre></div>
   agent stop &lt;nome&gt;
 
 A pasta e o teto de cada projeto vêm do projects.json do orquestrador. AGENT_ORCHESTRATOR é o nome
-do orquestrador no app, e AGENT_SLICE o slice dos agentes; o serviço do orquestrador exporta os dois.
+do orquestrador no app, e AGENT_SLICE o slice dos agentes. Os dois vêm do ambiente ou, fora dele,
+de ~/.config/always-on/env, que vale também para o SSH.
 """
 
 import json
 import os
+import pwd
 import subprocess
 import sys
 import time
@@ -1769,9 +1813,23 @@ import uuid
 from pathlib import Path
 
 HOME = Path.home()
-ORCHESTRATOR = os.environ.get("AGENT_ORCHESTRATOR", "orquestrador")
+USER = pwd.getpwuid(os.getuid()).pw_name
+
+def setting(key, default):
+    if os.environ.get(key):
+        return os.environ[key]
+    try:
+        for line in (HOME / ".config" / "always-on" / "env").read_text().splitlines():
+            k, _, v = line.partition("=")
+            if k.strip() == key and v.strip():
+                return v.strip()
+    except OSError:
+        pass
+    return default
+
+ORCHESTRATOR = setting("AGENT_ORCHESTRATOR", "orquestrador")
 PROJECTS = Path(os.environ.get("AGENT_PROJECTS", HOME / ORCHESTRATOR / "projects.json"))
-SLICE = os.environ.get("AGENT_SLICE", "agents.slice")
+SLICE = setting("AGENT_SLICE", "agents.slice")
 STATE = HOME / ".local" / "state" / "agents"
 RUNTIME_DIR = f"/run/user/{os.getuid()}"
 DONE_PROMPT = ("Você é o agente {name}, aberto pelo {orch}. Quando concluir o trabalho e não houver mais "
@@ -1866,7 +1924,7 @@ def start(argv):
     subprocess.run(["sudo", "-n", "systemd-run", "--scope", "-q", f"--slice={SLICE}",
                     "-p", f"MemoryMax={cfg['memory']}", f"--working-directory={path}",
                     "setpriv", f"--reuid={os.getuid()}", f"--regid={os.getgid()}", "--init-groups",
-                    "env", f"HOME={HOME}", f"USER={os.environ['USER']}", f"LOGNAME={os.environ['USER']}",
+                    "env", f"HOME={HOME}", f"USER={USER}", f"LOGNAME={USER}",
                     "tmux", "-L", name, "new-session", "-d", "-s", name, f"{shell} -lic '{inner}'"],
                    check=True)
 
@@ -1994,11 +2052,14 @@ chmod 755 ~/.local/bin/agent</pre></div>
 #!/bin/sh
 # O orquestrador sobe pelo terminal, com --remote-control, e volta sempre na última conversa.
 # O --continue sai na hora quando não há conversa, e aí ele abre uma nova.
-cd "$HOME/&lt;orquestrador&gt;" || exit 1
+# O nome do orquestrador e o slice dos agentes vêm de ~/.config/always-on/env, que o comando agent também lê.
+. "$HOME/.config/always-on/env" || exit 1
+export AGENT_ORCHESTRATOR AGENT_SLICE
+cd "$HOME/$AGENT_ORCHESTRATOR" || exit 1
 # Sem XDG_RUNTIME_DIR, o socket de mensagens cai em /tmp e os agentes não acham o orquestrador.
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
-export AGENT_ORCHESTRATOR=&lt;orquestrador&gt; AGENT_SLICE=&lt;slice&gt;.slice
-set -- --permission-mode bypassPermissions --remote-control &lt;orquestrador&gt; --name &lt;orquestrador&gt;
+export PATH="$HOME/.local/bin:$PATH"
+set -- --permission-mode bypassPermissions --remote-control "$AGENT_ORCHESTRATOR" --name "$AGENT_ORCHESTRATOR"
 while true; do
     t=$(date +%s)
     claude --continue "$@"
@@ -2098,18 +2159,19 @@ claude plugin install cockpit@cockpit</pre></div>
   <div class="crumb">Montar a máquina</div>
   <h1>Como deixar a máquina se cuidar sozinha</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="manter">Copiar para o agente</button><a href="txt/manter.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Três timers do systemd, tarefas que rodam sozinhas em horário marcado, mantêm a máquina funcionando sem você olhar. Um reinicia as sessões depois da atualização do sistema, outro encerra o agente esquecido, e o terceiro dispara as tarefas agendadas. O agente é a sessão do Claude Code aberta para uma tarefa.</p>
+  <p class="lead">Timers do systemd, tarefas que rodam sozinhas em horário marcado, mantêm a máquina funcionando sem você olhar. Um reinicia as sessões depois da atualização do sistema, outro encerra o agente esquecido, e os outros disparam as tarefas que você agendar. O agente é a sessão do Claude Code aberta para uma tarefa.</p>
+  <p>O <a href="#instalador">instalador</a> faz esta página com um comando. Ela fica para quem monta à mão ou quer entender cada peça.</p>
 
   <h2>Voltar depois da atualização do sistema</h2>
-  <p>O <code>unattended-upgrades</code> atualiza bibliotecas do sistema de madrugada, e um serviço que segue rodando com a biblioteca antiga apagada pode quebrar dias depois. Um timer diário, rodando logo depois do upgrade, confere com <code>needrestart</code> ou pelos arquivos apagados em <code>/proc/&lt;pid&gt;/maps</code> se o orquestrador, a sessão que distribui as tarefas, ou o recover, a sessão de socorro, estão nessa situação, e reinicia os dois. O orquestrador volta na mesma conversa pelo <code>--continue</code>, e cada agente vivo volta pelo id com <code>--resume</code>. Para o <code>needrestart</code> não derrubar as sessões no meio de um turno, tire esses serviços do reinício automático dele.</p>
+  <p>O <code>unattended-upgrades</code> atualiza bibliotecas do sistema de madrugada, e um serviço que segue rodando com a biblioteca antiga apagada pode quebrar dias depois. Um timer diário, rodando logo depois do upgrade, confere com <code>needrestart</code> ou pelos arquivos apagados em <code>/proc/&lt;pid&gt;/maps</code> se o orquestrador, a sessão que distribui as tarefas, ou o recover, a sessão de socorro, estão nessa situação, e reinicia os dois. O orquestrador volta na mesma conversa pelo <code>--continue</code>, e cada sessão aberta do recover volta pelo id com <code>--resume</code>. A que estava no meio de um turno recebe uma mensagem para seguir. Para o <code>needrestart</code> não derrubar as sessões no meio de um turno, os dois serviços saem do reinício automático dele. O script é o <code>sessions-restart</code>, e o timer roda às 7h40.</p>
 
 
   <h2>Encerrar o que ficou esquecido</h2>
-  <p>Arquivar um agente no app não libera a RAM dele. Um timer de hora em hora pode encerrar com <code>agent stop</code> o agente sem atividade no transcript há mais de 48 horas e avisar o orquestrador. O id fica no <code>stopped.jsonl</code>, e a conversa volta com <code>--resume</code>.</p>
+  <p>Arquivar um agente no app não libera a RAM dele. O <code>sessions-idle</code>, de hora em hora, encerra com <code>agent stop</code> o agente sem atividade no transcript há mais de 48 horas. O id fica em <code>~/.local/state/agents/stopped.jsonl</code>, e a conversa volta com <code>agent start &lt;projeto&gt; --name &lt;nome&gt; --resume &lt;id&gt;</code>. O orquestrador nunca é encerrado.</p>
 
 
   <h2>Tarefas agendadas</h2>
-  <p>Quem agenda é o orquestrador. Um timer do systemd manda a ele, por <code>SendMessage</code>, o pedido do dia, e ele abre o agente no projeto certo. Exemplos de tarefa agendada:</p>
+  <p>Peça ao orquestrador a tarefa e o horário, como "toda noite às 2h, rode os testes do site". Ele grava um timer do systemd que roda <code>agent start</code> na hora marcada, e o agente avisa o orquestrador quando termina. Exemplos de tarefa agendada:</p>
   <ul>
     <li>Rodar a suíte de testes toda noite e abrir uma issue com o que quebrou.</li>
     <li>Atualizar dependências uma vez por semana, num branch, com os testes rodados.</li>
@@ -2131,7 +2193,7 @@ claude plugin install cockpit@cockpit</pre></div>
     <li>O orquestrador, a sessão que distribui as tarefas, e o recover, a sessão de socorro, voltam sozinhos depois de reiniciar a máquina, ou o container com <code>sudo lxc restart agente</code>, e aparecem no app.</li>
     <li>Pelo app, o orquestrador abre um agente, uma sessão só para a tarefa, num projeto, espera, relata o resultado e encerra o agente. O <code>agent list</code> fica vazio no fim.</li>
     <li>Uma sessão em segundo plano continua com o SSH fechado. Para testar com bypass, rode <code>claude --dangerously-skip-permissions</code> uma vez e aceite o aviso. Depois rode <code>claude --bg --dangerously-skip-permissions "rode sleep 45 e responda ok"</code>, saia, entre de novo e confira com <code>claude agents</code>. Sem bypass, tire a flag e aprove o <code>sleep</code> com <code>claude attach &lt;id&gt;</code> se ele pedir.</li>
-    <li>As sessões rodam dentro do teto. O <code>memoria</code> mostra o teto que você calculou na linha do slice dos agentes, o grupo do systemd que soma a memória deles, e o teste do <code>systemd-run</code> de <a href="#memoria">Como pôr teto de memória e o agente de recover</a> termina em <code>oom-kill</code>.</li>
+    <li>As sessões rodam dentro do teto. O <code>memstat</code> mostra o teto que você calculou na linha do slice dos agentes, o grupo do systemd que soma a memória deles, e o teste do <code>systemd-run</code> de <a href="#memoria">Como pôr teto de memória e o agente de recover</a> termina em <code>oom-kill</code>.</li>
     <li>A sessão <code>recover</code> aparece no app e responde.</li>
     <li>O <code>/ram</code> do <code>memory-guard</code>, mod do Cockpit, o pacote de travas do Claude Code, mostra o slice e o teto numa sessão nova.</li>
     <li>No host compartilhado, os outros serviços respondem igual ao início.</li>
@@ -2193,7 +2255,7 @@ claude plugin install cockpit@cockpit</pre></div>
     <tr><td>Deixar trabalhando e desligar o meu PC</td><td><code>/bg</code>, a seta ← no prompt vazio, ou <code>claude --bg "pedido"</code></td></tr>
     <tr><td>Ver as sessões em segundo plano</td><td><code>claude agents</code> lista, <code>claude attach &lt;id&gt;</code> entra, <code>claude logs &lt;id&gt;</code> mostra sem entrar</td></tr>
     <tr><td>Ver a tela do orquestrador</td><td><code>tmux -L &lt;orquestrador&gt; attach</code>, e saio com Ctrl+b e depois d</td></tr>
-    <tr><td>Ver quanto as sessões usam de memória</td><td><code>memoria</code></td></tr>
+    <tr><td>Ver quanto as sessões usam de memória</td><td><code>memstat</code></td></tr>
     <tr><td>Abrir uma sessão com os agentes no teto</td><td>Abro no app a sessão <code>recover</code>, a sessão de socorro, que roda com 256 MB reservados fora do teto</td></tr>
     <tr><td>Atualizar o Claude Code</td><td>Ele baixa a versão nova sozinho, mas cada sessão roda a versão em que nasceu. <code>sudo systemctl restart &lt;orquestrador&gt; recover-rc</code> aplica, e o orquestrador volta na mesma conversa</td></tr>
     <tr><td>Renovar o login do Claude</td><td>Quando o app parar de abrir sessão, entro com <code>ssh agente</code>, rodo <code>tmux new -s login 'claude auth login'</code> e depois <code>sudo systemctl restart &lt;orquestrador&gt; recover-rc</code>. Três dias antes de vencer, uma sessão aberta no terminal avisa</td></tr>
@@ -2619,7 +2681,7 @@ claude plugin install cockpit@cockpit</pre></div>
   var index = {};
   pages.forEach(function (p) {
     // o pedido do setup repete o guia inteiro e ficaria em toda busca
-    var c = p.cloneNode(true); c.querySelectorAll('#prompt-text, [data-search="skip"]').forEach(function (e) { e.remove(); });
+    var c = p.cloneNode(true); c.querySelectorAll('#prompt-text, .page-actions, .done-btn, [data-search="skip"]').forEach(function (e) { e.remove(); });
     // espaço entre os blocos, para o trecho achado não colar palavras vizinhas
     c.querySelectorAll('*').forEach(function (e) { e.prepend(' '); e.append(' '); });
     var raw = c.textContent.replace(/\s+/g, ' ');

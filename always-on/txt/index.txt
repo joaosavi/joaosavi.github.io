@@ -4,6 +4,7 @@ Cada linha é um mini-guia. Baixe com: curl -s https://joaosavi.github.io/always
 
 - inicio: Quickstart
 - setup: Como deixar o Claude Code montar tudo
+- instalador: Como montar a infra com um comando
 - canais-conseguir: Como conseguir o bot do Telegram e o número do WhatsApp
 - canais-ligar: Como ligar o Telegram e o WhatsApp à máquina
 - cofre: Como dar senhas ao agente sem ele ver o valor

@@ -81,10 +81,7 @@ Siga estes mini-guias, nesta ordem, um por vez. Antes de cada um, diga em uma ou
 - ambiente: só as ferramentas do roteiro. Leve do meu computador só o que somar ao trabalho: as skills e os agents de ~/.claude, os plugins e os servidores MCP que não estão no .mcp.json dos repos. Mostre a lista do que achou e leve o que eu não recusar.
 - logins: o Claude e o GitHub, com as respostas de B e C.
 - codigo: as pastas de E, cada uma com um CLAUDE.md curto do contexto dela, os repos de D e os arquivos ignorados que cada repo precisa, um por um, com a minha confirmação de cada arquivo.
-- memoria: swap, o slice dos agentes e o recover. O teto do slice é a memória total menos 512 MB do recover e 1 GB do sistema e do Docker. Numa VPS de 12 GB, isso dá uns 10,5 GB. Só desconte mais se um repo meu sobe container pesado. O teto de cada projeto é o comando mais pesado dele mais uns 500 MB.
-- orquestrador: o projects.json com os repos, o CLAUDE.md, o comando agent, o serviço. O nome dele é o de A.
-- mods: o pacote do Cockpit. Explique em uma linha cada um dos três que mais pesam: secret-guard, memory-guard e usage-limit.
-- manter: a volta depois da atualização e o encerramento de agente esquecido. É infra, entra sem pergunta.
+- memoria, orquestrador, mods e manter: rode o instalador, que monta os quatro de uma vez. Baixe txt/instalador.txt e siga: get.sh, ORCHESTRATOR com o nome de A no config.env, install.sh, e install.sh --check sem nenhum "falta". Antes, explique em uma linha cada peça, com txt/memoria.txt, txt/orquestrador.txt, txt/mods.txt e txt/manter.txt. O teto do slice é a memória total menos 512 MB do recover e 1 GB do sistema e do Docker, e numa VPS de 12 GB dá uns 10,5 GB; só aumente SYSTEM_MB se um repo meu sobe container pesado. Depois, preencha o projects.json com os repos de D, cada um com o teto do comando mais pesado dele mais uns 500 MB. Dos mods, explique em uma linha os três que mais pesam: secret-guard, memory-guard e usage-limit. Se o instalador falhar num passo, monte esse passo à mão pelo mini-guia dele e me conte o erro.
 - provar: a lista inteira de provas, com o reboot depois da minha confirmação.
 
 ETAPA 5 DE 6: CANAIS E FERRAMENTAS

@@ -1,5 +1,6 @@
 # Como pôr teto de memória e o agente de recover  
 Os agentes são as sessões do Claude Code que trabalham na máquina, uma por tarefa. Sem limite, um comando pesado de uma sessão enche a memória da máquina, e as outras sessões e o SSH param junto. Com swap, uma área do disco que serve de memória extra, e um teto de memória para os agentes, só o comando pesado morre. O recover, uma sessão de socorro com memória reservada, continua respondendo pelo celular. 
+O instalador (txt/instalador.txt) faz esta página com um comando. Ela fica para quem monta à mão ou quer entender cada peça. 
 Na nossa montagem, num container com 2 núcleos e 7 GB e sem swap, um typecheck com dois `tsc` de 1 GB cada levou a memória ao limite. Cada conexão SSH passou de 1 segundo para 20 a 77 segundos, e as sessões do app pararam de responder.  
 
 ## Swap 
@@ -79,10 +80,12 @@ bash, na máquina
 ```
 mkdir -p ~/recover ~/.local/bin && cat > ~/.local/bin/recover-rc <<'EOF'
 #!/bin/sh
-# O modo servidor sai depois de uns 10 minutos sem rede, e o laço o devolve.
+# O recover roda o Remote Control no modo servidor, que abre uma sessão nova cada vez que você pede
+# pelo app. O modo servidor sai depois de uns 10 minutos sem rede, e o laço o devolve.
 cd "$HOME/recover" || exit 1
 # Sem XDG_RUNTIME_DIR, o socket de mensagens cai em /tmp e a sessão não alcança os agentes.
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export PATH="$HOME/.local/bin:$PATH"
 while true; do
     claude remote-control --name recover --remote-control-session-name-prefix recover \
         --spawn same-dir --capacity 2 --permission-mode bypassPermissions
@@ -103,13 +106,13 @@ Você é a sessão que eu abro pelo celular quando a máquina trava. Ache o que 
 
 ## Diagnóstico
 
-1. Rode `memoria`. Pressão full acima de 10% é travamento, e um grupo perto do teto é o culpado.
+1. Rode `memstat`. Pressão full acima de 10% é travamento, e um grupo perto do teto é o culpado.
 2. Liste os maiores processos: `ps -eo pid,ppid,rss,etime,args --sort=-rss | head -20`. O grupo de um processo está em `/proc/<pid>/cgroup`.
 3. Suba pela cadeia de `ppid` até a sessão do Claude Code que disparou o comando.
 
 ## Como liberar
 
-Do menos destrutivo ao mais destrutivo, com `memoria` depois de cada passo:
+Do menos destrutivo ao mais destrutivo, com `memstat` depois de cada passo:
 
 1. Mate o comando pesado (`tsc`, testes, build, navegador) com `kill <pid>`. A sessão que o rodou continua viva.
 2. Mate a sessão que sozinha passa de 1 GiB.
@@ -120,7 +123,7 @@ O `recover-rc.service` é o seu próprio servidor. Me peça antes de mexer nele.
 
 ## O relato
 
-O que ocupava a memória (processo, sessão, MB), o que você matou, e a saída de `memoria` no fim.
+O que ocupava a memória (processo, sessão, MB), o que você matou, e a saída de `memstat` no fim.
 EOF
 ```
 
@@ -156,27 +159,30 @@ Confira com `tmux -L recover capture-pane -p -t recover`, que mostra `Capacity: 
 Se o app não abrir a sessão do recover
 Entre pelo SSH e abra uma sessão de terminal já ligada ao app: `cd ~/recover && tmux new -s recover2 'claude --remote-control recover2'`. Ela aparece pronta no app, sem passar pelo modo servidor. É o plano B quando o recover falha, e é também o jeito como o comando `agent` abre os agentes. 
 
-## O comando memoria 
+## O comando memstat 
 Este comando mostra quanto cada grupo usa, o alto e o teto de cada um, e a pressão de memória da máquina. Com a nossa máquina travada, a pressão estava em 45%. Em uso normal, ela fica perto de 0%. 
 
 bash, na máquina
 ```
-cat > ~/.local/bin/memoria <<'EOF'
+cat > ~/.local/bin/memstat <<'EOF'
 #!/bin/sh
 # Mostra quanto cada grupo de memória usa, os limites dele e a pressão de memória da máquina.
+# Lista os slices com teto, como o dos agentes e o recover.slice, e o system.slice.
 mb() { case "$1" in max) echo "sem teto" ;; *) echo "$(( $1 / 1048576 )) MB" ;; esac; }
-for cg in <slice>.slice recover.slice system.slice; do
-    p=/sys/fs/cgroup/$cg
-    [ -d "$p" ] || continue
-    printf '%-34s usa %-8s swap %-8s alto %-9s teto %s\n' "$cg" "$(mb "$(cat $p/memory.current)")" \
-        "$(mb "$(cat $p/memory.swap.current)")" "$(mb "$(cat $p/memory.high)")" "$(mb "$(cat $p/memory.max)")"
+for p in /sys/fs/cgroup/*.slice; do
+    cg=${p##*/}
+    [ -f "$p/memory.max" ] || continue
+    [ "$(cat "$p/memory.max")" = max ] && [ "$cg" != system.slice ] && continue
+    printf '%-24s usa %-8s swap %-8s alto %-9s teto %s\n' "$cg" "$(mb "$(cat "$p/memory.current")")" \
+        "$(mb "$(cat "$p/memory.swap.current" 2>/dev/null || echo 0)")" "$(mb "$(cat "$p/memory.high")")" \
+        "$(mb "$(cat "$p/memory.max")")"
 done
 echo
 free -m | sed -n '1,3p'
 echo
 printf 'pressão de memória (full avg10): %s%%\n' "$(sed -n 's/^full avg10=\([0-9.]*\).*/\1/p' /sys/fs/cgroup/memory.pressure)"
 EOF
-chmod 755 ~/.local/bin/memoria && memoria
+chmod 755 ~/.local/bin/memstat && memstat
 ```
 
 ## Os limites no CLAUDE.md 
@@ -198,7 +204,7 @@ Cada sessão roda dentro de um teto de memória. O teto vale para a sessão e pa
 
 Passou do alto, o grupo inteiro fica lento e empurra memória para o swap. Bateu no teto, o kernel mata o maior processo do grupo, que quase sempre é o comando pesado.
 
-Antes de typecheck, suíte de teste, build ou Playwright, rode `memoria` e confira a folga do grupo. Um comando que morre com exit 137 bateu no teto: rode de novo com menos paralelismo.
+Antes de typecheck, suíte de teste, build ou Playwright, rode `memstat` e confira a folga do grupo. Um comando que morre com exit 137 bateu no teto: rode de novo com menos paralelismo.
 EOF
 ```
 

@@ -1,14 +1,15 @@
 # Como deixar a máquina se cuidar sozinha  
-Três timers do systemd, tarefas que rodam sozinhas em horário marcado, mantêm a máquina funcionando sem você olhar. Um reinicia as sessões depois da atualização do sistema, outro encerra o agente esquecido, e o terceiro dispara as tarefas agendadas. O agente é a sessão do Claude Code aberta para uma tarefa. 
+Timers do systemd, tarefas que rodam sozinhas em horário marcado, mantêm a máquina funcionando sem você olhar. Um reinicia as sessões depois da atualização do sistema, outro encerra o agente esquecido, e os outros disparam as tarefas que você agendar. O agente é a sessão do Claude Code aberta para uma tarefa. 
+O instalador (txt/instalador.txt) faz esta página com um comando. Ela fica para quem monta à mão ou quer entender cada peça. 
 
 ## Voltar depois da atualização do sistema 
-O `unattended-upgrades` atualiza bibliotecas do sistema de madrugada, e um serviço que segue rodando com a biblioteca antiga apagada pode quebrar dias depois. Um timer diário, rodando logo depois do upgrade, confere com `needrestart` ou pelos arquivos apagados em `/proc/<pid>/maps` se o orquestrador, a sessão que distribui as tarefas, ou o recover, a sessão de socorro, estão nessa situação, e reinicia os dois. O orquestrador volta na mesma conversa pelo `--continue`, e cada agente vivo volta pelo id com `--resume`. Para o `needrestart` não derrubar as sessões no meio de um turno, tire esses serviços do reinício automático dele. 
+O `unattended-upgrades` atualiza bibliotecas do sistema de madrugada, e um serviço que segue rodando com a biblioteca antiga apagada pode quebrar dias depois. Um timer diário, rodando logo depois do upgrade, confere com `needrestart` ou pelos arquivos apagados em `/proc/<pid>/maps` se o orquestrador, a sessão que distribui as tarefas, ou o recover, a sessão de socorro, estão nessa situação, e reinicia os dois. O orquestrador volta na mesma conversa pelo `--continue`, e cada sessão aberta do recover volta pelo id com `--resume`. A que estava no meio de um turno recebe uma mensagem para seguir. Para o `needrestart` não derrubar as sessões no meio de um turno, os dois serviços saem do reinício automático dele. O script é o `sessions-restart`, e o timer roda às 7h40. 
 
 ## Encerrar o que ficou esquecido 
-Arquivar um agente no app não libera a RAM dele. Um timer de hora em hora pode encerrar com `agent stop` o agente sem atividade no transcript há mais de 48 horas e avisar o orquestrador. O id fica no `stopped.jsonl`, e a conversa volta com `--resume`. 
+Arquivar um agente no app não libera a RAM dele. O `sessions-idle`, de hora em hora, encerra com `agent stop` o agente sem atividade no transcript há mais de 48 horas. O id fica em `~/.local/state/agents/stopped.jsonl`, e a conversa volta com `agent start <projeto> --name <nome> --resume <id>`. O orquestrador nunca é encerrado. 
 
 ## Tarefas agendadas 
-Quem agenda é o orquestrador. Um timer do systemd manda a ele, por `SendMessage`, o pedido do dia, e ele abre o agente no projeto certo. Exemplos de tarefa agendada: 
+Peça ao orquestrador a tarefa e o horário, como "toda noite às 2h, rode os testes do site". Ele grava um timer do systemd que roda `agent start` na hora marcada, e o agente avisa o orquestrador quando termina. Exemplos de tarefa agendada: 
 
 - Rodar a suíte de testes toda noite e abrir uma issue com o que quebrou. 
 - Atualizar dependências uma vez por semana, num branch, com os testes rodados. 

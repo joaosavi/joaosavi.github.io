@@ -1,0 +1,246 @@
+#!/usr/bin/env python3
+"""Abre, lista e encerra os agentes do orquestrador, cada um com teto de RAM próprio.
+
+  agent start <projeto> [--name NOME] [--resume SESSAO] "<tarefa>"
+  agent list
+  agent result <nome>
+  agent stop <nome>
+
+A pasta e o teto de cada projeto vêm do projects.json do orquestrador. AGENT_ORCHESTRATOR é o nome
+do orquestrador no app, e AGENT_SLICE o slice dos agentes. Os dois vêm do ambiente ou, fora dele,
+de ~/.config/always-on/env, que vale também para o SSH.
+"""
+
+import json
+import os
+import pwd
+import subprocess
+import sys
+import time
+import uuid
+from pathlib import Path
+
+HOME = Path.home()
+USER = pwd.getpwuid(os.getuid()).pw_name
+
+def setting(key, default):
+    if os.environ.get(key):
+        return os.environ[key]
+    try:
+        for line in (HOME / ".config" / "always-on" / "env").read_text().splitlines():
+            k, _, v = line.partition("=")
+            if k.strip() == key and v.strip():
+                return v.strip()
+    except OSError:
+        pass
+    return default
+
+ORCHESTRATOR = setting("AGENT_ORCHESTRATOR", "orquestrador")
+PROJECTS = Path(os.environ.get("AGENT_PROJECTS", HOME / ORCHESTRATOR / "projects.json"))
+SLICE = setting("AGENT_SLICE", "agents.slice")
+STATE = HOME / ".local" / "state" / "agents"
+RUNTIME_DIR = f"/run/user/{os.getuid()}"
+DONE_PROMPT = ("Você é o agente {name}, aberto pelo {orch}. Quando concluir o trabalho e não houver mais "
+               "nada pendente, mande SendMessage para {orch} com \"{name} terminou, pode encerrar\" e uma "
+               "linha do que entregou.")
+
+
+def die(msg):
+    print(f"agent: {msg}", file=sys.stderr)
+    sys.exit(1)
+
+
+def tmux(name, *args):
+    return subprocess.run(["tmux", "-L", name, *args], capture_output=True, text=True)
+
+
+def pane(name):
+    return tmux(name, "capture-pane", "-p", "-S", "-200", "-t", name).stdout
+
+
+def agent_pid(name):
+    out = subprocess.run(["pgrep", "-f", f"^claude .*--remote-control {name}( |$)"],
+                         capture_output=True, text=True).stdout.split()
+    return int(out[0]) if out else None
+
+
+def cgroup(pid):
+    try:
+        return Path(f"/proc/{pid}/cgroup").read_text().split("::", 1)[1].strip()
+    except (OSError, IndexError):
+        return None
+
+
+def mib(path):
+    try:
+        v = Path(f"/sys/fs/cgroup{path}").read_text().strip()
+        return "max" if v == "max" else f"{int(v) // 2**20}M"
+    except OSError:
+        return "?"
+
+
+def trust(path):
+    # A pasta-mãe confiável não cobre um repo com .claude próprio, e a tela "trust this folder"
+    # travaria o agente na subida.
+    cfg = HOME / ".claude.json"
+    data = json.loads(cfg.read_text())
+    entry = data.setdefault("projects", {}).setdefault(str(path), {})
+    if entry.get("hasTrustDialogAccepted"):
+        return
+    entry["hasTrustDialogAccepted"] = True
+    tmp = cfg.with_suffix(".json.agent")
+    tmp.write_text(json.dumps(data, indent=2))
+    os.replace(tmp, cfg)
+
+
+def start(argv):
+    opts, rest = {}, []
+    it = iter(argv)
+    for a in it:
+        if a in ("--name", "--resume"):
+            opts[a[2:]] = next(it, None) or die(f"{a} precisa de um valor")
+        else:
+            rest.append(a)
+    if len(rest) != 2:
+        die('uso: agent start <projeto> [--name NOME] [--resume SESSAO] "<tarefa>"')
+    project, task = rest
+    try:
+        cfg = json.loads(PROJECTS.read_text()).get(project) or die(f"projeto {project} fora de {PROJECTS}")
+    except FileNotFoundError:
+        die(f"{PROJECTS} não existe")
+    path = Path(os.path.expanduser(cfg["path"]))
+    if not path.is_dir():
+        die(f"{path} não existe")
+    trust(path)
+    name = opts.get("name") or f"{project}-{uuid.uuid4().hex[:4]}"
+    if agent_pid(name) or tmux(name, "has-session").returncode == 0:
+        die(f"{name} já está rodando")
+
+    STATE.mkdir(parents=True, exist_ok=True)
+    spec = {"name": name, "project": project, "path": str(path), "task": task, "memory": cfg["memory"],
+            "session": opts.get("resume") or str(uuid.uuid4()), "resume": bool(opts.get("resume")),
+            "orchestrator": ORCHESTRATOR,
+            "started": time.strftime("%Y-%m-%dT%H:%M:%S")}
+    (STATE / f"{name}.json").write_text(json.dumps(spec, indent=2))
+
+    # Um servidor tmux por agente: com um servidor só, o segundo agente nasceria no scope do primeiro.
+    # O tmux nasce sem XDG_RUNTIME_DIR: com ele, o tmux muda o painel para fora do scope.
+    shell = os.environ.get("SHELL", "/bin/bash")
+    inner = f"exec {os.path.realpath(sys.argv[0])} _run {name}"
+    # O setpriv devolve o usuário com todos os grupos dele, como o docker. O --uid do systemd-run
+    # deixaria só o grupo principal, mais o root.
+    subprocess.run(["sudo", "-n", "systemd-run", "--scope", "-q", f"--slice={SLICE}",
+                    "-p", f"MemoryMax={cfg['memory']}", f"--working-directory={path}",
+                    "setpriv", f"--reuid={os.getuid()}", f"--regid={os.getgid()}", "--init-groups",
+                    "env", f"HOME={HOME}", f"USER={USER}", f"LOGNAME={USER}",
+                    "tmux", "-L", name, "new-session", "-d", "-s", name, f"{shell} -lic '{inner}'"],
+                   check=True)
+
+    for _ in range(60):
+        if tmux(name, "has-session").returncode != 0:
+            (STATE / f"{name}.json").unlink(missing_ok=True)
+            die(f"{name} saiu na subida; veja o erro com: agent _run {name}")
+        if "bypass permissions on" in pane(name):
+            break
+        time.sleep(1)
+    else:
+        die(f"{name} não subiu em 60 s; veja com: tmux -L {name} attach")
+
+    link = "?"
+    for _ in range(20):
+        link = next((w for w in pane(name).split() if w.startswith("https://claude.ai/code/session_")), "?")
+        if link != "?":
+            break
+        time.sleep(1)
+    pid = agent_pid(name)
+    print(f"{name}  pid {pid}  {cgroup(pid)}  teto {cfg['memory']}\n{link}")
+
+
+def run(name):
+    spec = json.loads((STATE / f"{name}.json").read_text())
+    cmd = ["claude", "--permission-mode", "bypassPermissions", "--remote-control", name, "--name", name,
+           "--resume" if spec["resume"] else "--session-id", spec["session"],
+           "--append-system-prompt", DONE_PROMPT.format(name=name, orch=spec["orchestrator"]), spec["task"]]
+    # O sudo limpa o ambiente, então o nome do orquestrador vem do spec gravado no start.
+    # Sem XDG_RUNTIME_DIR, o socket de mensagens cai em /tmp e o orquestrador não enxerga o agente.
+    os.environ["XDG_RUNTIME_DIR"] = RUNTIME_DIR
+    os.execvp("claude", cmd)
+
+
+def list_():
+    rows = []
+    for f in sorted(STATE.glob("*.json")):
+        spec = json.loads(f.read_text())
+        pid = agent_pid(spec["name"])
+        if not pid:
+            f.unlink()
+            continue
+        cg = cgroup(pid) or ""
+        rows.append((spec["name"], spec["project"], f"{mib(cg + '/memory.current')}/{mib(cg + '/memory.max')}",
+                     spec["started"]))
+    if not rows:
+        print("nenhum agente rodando")
+        return
+    rows.insert(0, ("NOME", "PROJETO", "MEMÓRIA", "INÍCIO"))
+    widths = [max(len(r[i]) for r in rows) for i in range(4)]
+    for r in rows:
+        print("  ".join(c.ljust(w) for c, w in zip(r, widths)).rstrip())
+
+
+def result(argv):
+    f = STATE / f"{argv[0]}.json" if len(argv) == 1 else die("uso: agent result <nome>")
+    if not f.exists():
+        die(f"{argv[0]} não está rodando")
+    spec = json.loads(f.read_text())
+    found = list((HOME / ".claude" / "projects").glob(f"*/{spec['session']}.jsonl"))
+    if not found:
+        die(f"{argv[0]} ainda não tem transcript")
+    last = None
+    for line in found[0].read_text().splitlines():
+        msg = json.loads(line).get("message") or {}
+        if msg.get("role") == "assistant" and isinstance(msg.get("content"), list):
+            text = "".join(b.get("text", "") for b in msg["content"] if b.get("type") == "text")
+            last = text if text.strip() else last
+    print(last or f"{argv[0]} ainda não respondeu")
+
+
+def stop(argv):
+    name = argv[0] if len(argv) == 1 else die("uso: agent stop <nome>")
+    pid = agent_pid(name)
+    tmux(name, "kill-server")
+    for _ in range(30):
+        if not pid or not Path(f"/proc/{pid}").exists():
+            break
+        time.sleep(1)
+    else:
+        die(f"{name} (pid {pid}) segue vivo depois de 30 s")
+    spec_file = STATE / f"{name}.json"
+    if spec_file.exists():
+        spec = json.loads(spec_file.read_text())
+        with open(STATE / "stopped.jsonl", "a") as f:
+            f.write(json.dumps({"name": name, "project": spec["project"], "session": spec["session"],
+                                "stopped": time.strftime("%Y-%m-%dT%H:%M:%S")}) + "\n")
+        spec_file.unlink()
+    print(f"{name} encerrado")
+
+
+def main():
+    if len(sys.argv) < 2:
+        die(__doc__.split("\n\n")[1])
+    cmd, argv = sys.argv[1], sys.argv[2:]
+    if cmd == "start":
+        start(argv)
+    elif cmd == "list":
+        list_()
+    elif cmd == "result":
+        result(argv)
+    elif cmd == "stop":
+        stop(argv)
+    elif cmd == "_run":
+        run(argv[0])
+    else:
+        die(f"comando desconhecido: {cmd}")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,12 @@
+#!/bin/sh
+# O recover roda o Remote Control no modo servidor, que abre uma sessão nova cada vez que você pede
+# pelo app. O modo servidor sai depois de uns 10 minutos sem rede, e o laço o devolve.
+cd "$HOME/recover" || exit 1
+# Sem XDG_RUNTIME_DIR, o socket de mensagens cai em /tmp e a sessão não alcança os agentes.
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export PATH="$HOME/.local/bin:$PATH"
+while true; do
+    claude remote-control --name recover --remote-control-session-name-prefix recover \
+        --spawn same-dir --capacity 2 --permission-mode bypassPermissions
+    sleep 10
+done

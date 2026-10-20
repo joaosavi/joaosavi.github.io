@@ -1,0 +1,33 @@
+# Como montar a infra com um comando  
+O instalador faz numa VPS Ubuntu os passos 6, 7, 8 e 9 de Montar a máquina: o swap, o teto de memória dos agentes, o recover, o orquestrador, o comando `agent`, o Cockpit e a manutenção automática. Rode na VPS depois dos passos 1 a 5, com o login do Claude Code já feito. 
+
+## Rodar 
+
+bash, na máquina
+```
+curl -fsSL https://joaosavi.github.io/always-on/scripts/get.sh | sh
+sed -i 's/^ORCHESTRATOR=.*/ORCHESTRATOR=<orquestrador>/' ~/always-on/config.env
+~/always-on/install.sh
+```
+
+O `get.sh` baixa os scripts para `~/always-on`. O `config.env` guarda o nome do orquestrador, que vira o nome da sessão no app, e mais quatro valores com padrão: o nome do slice, o tamanho do swap, a memória reservada ao sistema e se o Cockpit entra. Cada linha mostra `ok`, `feito` ou `falta`. 
+
+## O que ele monta 
+
+| Peça | Como fica |
+| --- | --- | 
+| Swap | 8 GB em `/swapfile`, só se a máquina não tiver swap. Num container, o swap vem do host | 
+| Slice dos agentes | Teto da memória total menos 512 MB do recover e 1 GB do sistema, e metade do swap. Ver Como pôr teto de memória (txt/memoria.txt) | 
+| Recover | O `recover.slice`, com 256 MB reservados e teto de 512 MB, e o serviço `recover-rc` | 
+| Orquestrador | A pasta `~/<orquestrador>` com o `CLAUDE.md` e o `projects.json`, o comando `agent` e o serviço. Ver Como montar o orquestrador (txt/orquestrador.txt) | 
+| Cockpit | O pacote inteiro de mods. Ver Como instalar o Cockpit (txt/mods.txt) | 
+| Manutenção | Os timers `sessions-restart` e `sessions-idle`, e o needrestart sem reiniciar as sessões. Ver Como deixar a máquina se cuidar sozinha (txt/manter.txt) |  
+Ele também marca as pastas do orquestrador e do recover como confiáveis e aceita os avisos do Remote Control e do bypass. Sem isso, o serviço travaria na subida, esperando uma tecla. 
+
+## Depois de rodar 
+
+- Ponha os seus projetos em `~/<orquestrador>/projects.json`, cada um com a pasta e o teto. O teto é o comando mais pesado do projeto mais uns 500 MB. 
+- Rode `/cockpit:setup` numa sessão de terminal para escolher a status line. 
+- Confira com `~/always-on/install.sh --check`. Ele só olha, e sai com erro quando falta alguma coisa. 
+- Siga para Como provar que tudo funciona (txt/provar.txt).  
+O instalador pode rodar de novo. Ele grava só o arquivo que falta ou mudou, e o `CLAUDE.md` e o `projects.json` ficam como você deixou. Os scripts estão no GitHub (https://github.com/joaosavi/joaosavi.github.io/tree/main/always-on/scripts).

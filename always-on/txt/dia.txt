@@ -13,7 +13,7 @@ Os comandos de uso diário, com a máquina já montada. O orquestrador é a sess
 | Deixar trabalhando e desligar o meu PC | `/bg`, a seta ← no prompt vazio, ou `claude --bg "pedido"` | 
 | Ver as sessões em segundo plano | `claude agents` lista, `claude attach <id>` entra, `claude logs <id>` mostra sem entrar | 
 | Ver a tela do orquestrador | `tmux -L <orquestrador> attach`, e saio com Ctrl+b e depois d | 
-| Ver quanto as sessões usam de memória | `memoria` | 
+| Ver quanto as sessões usam de memória | `memstat` | 
 | Abrir uma sessão com os agentes no teto | Abro no app a sessão `recover`, a sessão de socorro, que roda com 256 MB reservados fora do teto | 
 | Atualizar o Claude Code | Ele baixa a versão nova sozinho, mas cada sessão roda a versão em que nasceu. `sudo systemctl restart <orquestrador> recover-rc` aplica, e o orquestrador volta na mesma conversa | 
 | Renovar o login do Claude | Quando o app parar de abrir sessão, entro com `ssh agente`, rodo `tmux new -s login 'claude auth login'` e depois `sudo systemctl restart <orquestrador> recover-rc`. Três dias antes de vencer, uma sessão aberta no terminal avisa | 
