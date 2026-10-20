@@ -44,6 +44,7 @@ svg { display: block; }
 .home { font-weight: 600; letter-spacing: -.02em; text-decoration: none; }
 .home:hover { color: var(--accent); }
 .theme {
+  margin-left: auto;
   width: 2.25rem; height: 2.25rem;
   display: grid; place-items: center;
   margin-right: -.5rem;
