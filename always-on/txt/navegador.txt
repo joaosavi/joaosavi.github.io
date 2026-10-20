@@ -1,8 +1,18 @@
 # Como deixar o agente usar um navegador  
-O agente, a sessão do Claude Code que trabalha na máquina, usa um navegador de dois jeitos: o Chrome do seu computador ou um navegador sem tela na própria máquina. 
+O agente pode usar três navegadores. Eles diferem em onde rodam, de quem são os logins e se um site que barra robô deixa entrar. Comece pelo primeiro e só monte o terceiro se precisar. 
 
-## Chrome do seu computador 
-Use o seu Chrome na maioria dos casos. Com a extensão Claude in Chrome instalada nele, uma sessão da máquina aberta com `--chrome` usa o seu navegador pela ponte do claude.ai, com os seus logins, e você acompanha ao vivo o que ela clica. O computador precisa estar ligado, com o Chrome aberto. 
+| Navegador | Onde roda e com que login | Serve para | Não serve para |
+| --- | --- | --- | --- | 
+| O seu Chrome, com a extensão Claude in Chrome | No seu computador, com os seus logins | Tarefa que você acompanha, em qualquer site em que você já entra, Google incluso | Trabalho com o seu computador desligado | 
+| Navegador sem tela | Na VPS, com as senhas do agente no cofre | Trabalho sozinho, 24 horas, em site comum: testar o seu app, preencher formulário, ler página | Site que barra robô, como o login do Google | 
+| Chrome com tela na VPS | Na VPS, com uma conta do agente logada uma vez e guardada em disco | Site que barra o navegador sem tela, como a conta Google do agente | Uso geral: gasta uns 410 MB e o login é montado à mão |  
 
-## Navegador na máquina 
-O `@playwright/mcp` roda na máquina um Chromium headless, um navegador sem tela, para o agente navegar sozinho, sem supervisão. Ligado ao cofre, o gerenciador de senhas do agente, ele digita a senha pelo nome do segredo, e o Playwright mascara o valor em tudo que devolve. Muitos sites, como o Google, barram o login de um navegador headless que vem de um IP de nuvem.
+## O seu Chrome 
+Instale no seu Chrome a extensão Claude in Chrome (https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn). Uma sessão da máquina aberta com `--chrome` usa o seu navegador pela ponte do claude.ai, com os seus logins, e você acompanha ao vivo o que ela clica. O computador precisa estar ligado, com o Chrome aberto. 
+
+## O navegador sem tela 
+O Playwright MCP (https://github.com/microsoft/playwright-mcp) roda na VPS um Chromium headless, um navegador sem tela, para o agente navegar sozinho, sem supervisão. Ligado ao cofre (txt/cofre.txt), ele digita a senha pelo nome do segredo, e o valor não aparece no que ele devolve. 
+
+## Por que o Google barra o navegador sem tela 
+O Chromium headless se denuncia. O navegador se apresenta como `HeadlessChrome`, liga a marca de automação que os sites leem, e a conexão vem de um IP de nuvem. No login, o Google lê esses sinais e responde "This browser or app may not be secure", antes mesmo da senha. 
+O Chrome com tela na VPS é o mesmo Chrome do Playwright, rodando de outro jeito: com uma tela virtual, sem a marca de automação, e com a senha digitada por um programa que imita o teclado. Depois do login, a sessão fica guardada na pasta de perfil, e o agente controla esse Chrome pelo mesmo Playwright MCP. Ele é mais pesado e mais trabalhoso de montar, e só vale para site que barra o sem tela. A montagem está em Como deixar a conta Google do agente logada na VPS (txt/google.txt).

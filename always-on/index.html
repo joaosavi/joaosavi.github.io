@@ -554,14 +554,19 @@ td code.cp.ok { background: var(--ok-soft); }
 /* O item da lateral não muda de largura ao ficar ativo ou feito: o texto quebra sempre no mesmo lugar. */
 .nav-group a { position: relative; padding-right: 26px; }
 .nav-group a.is-done::after { content: "✓"; position: absolute; right: 9px; top: 7px; color: var(--ok); font-weight: 700; font-size: 13px; }
-.site-home { margin-left: auto; color: var(--muted); font-size: 14px; text-decoration: none; }
-.site-home:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 @media (max-width: 640px) { .table-wrap.stack td:first-child code { white-space: normal; overflow-wrap: anywhere; } }
 /* Todo item da lateral tem o mesmo espaço de ícone, então o texto começa sempre no mesmo lugar. */
 .nav-group a .nav-ic, .tm-group a .nav-ic { width: 36px; justify-content: flex-start; }
 .gen-ic { width: 16px; height: 16px; stroke: var(--muted); flex-shrink: 0; }
 .nav-group a.active .gen-ic { stroke: var(--ink); }
 @media (max-width: 640px) { .table-wrap.stack tr.rec td:first-child { box-shadow: none; } .table-wrap.stack tr.rec { box-shadow: inset 3px 0 0 var(--led); } }
+/* Topo: o site vem antes do guia, como uma migalha. */
+.site-home { margin-left: 0; color: color-mix(in srgb, var(--ink) 82%, transparent); font: 500 14.5px var(--f-body); text-decoration: none; padding: 6px 8px; margin-right: -8px; border-radius: 8px; }
+.site-home:hover { color: var(--ink); background: var(--sunken); text-decoration: none; }
+.site-sep { color: var(--line-strong); font-size: 18px; margin: 0 -4px; }
+/* Rolagem da lateral: fina e só aparece com o mouse em cima. */
+.sidebar { scrollbar-width: thin; scrollbar-color: transparent transparent; scrollbar-gutter: stable; }
+.sidebar:hover, .sidebar:focus-within { scrollbar-color: var(--line-strong) transparent; }
 </style>
 <style>[hidden]:not([hidden=until-found i]) { display: none !important; }</style>
 </head>
@@ -569,11 +574,11 @@ td code.cp.ok { background: var(--ok-soft); }
 
 <header class="topbar">
   <button class="menu-btn" id="menuBtn" aria-controls="sidebar" aria-expanded="false" aria-label="Abrir o menu"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="site-home" href="../">joaosavi</a><span class="site-sep" aria-hidden="true">/</span>
   <a class="brand" href="#inicio" aria-label="Claude Code Always-On, documentação">
     <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 7 5 5-5 5"/><path d="M13 17h6"/></svg></span>
     <span class="wordmark">Claude Code Always-On</span>
   </a>
-  <a class="site-home" href="../">joaosavi</a>
 </header>
 
 <div class="shell">
@@ -996,14 +1001,24 @@ sudo systemctl reload caddy</pre></div>
   <div class="crumb">Canais e ferramentas</div>
   <h1>Como deixar o agente usar um navegador</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="navegador">Copiar para o agente</button><a href="txt/navegador.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">O agente, a sessão do Claude Code que trabalha na máquina, usa um navegador de dois jeitos: o Chrome do seu computador ou um navegador sem tela na própria máquina.</p>
+  <p class="lead">O agente pode usar três navegadores. Eles diferem em onde rodam, de quem são os logins e se um site que barra robô deixa entrar. Comece pelo primeiro e só monte o terceiro se precisar.</p>
 
-  <h2>Chrome do seu computador</h2>
-  <p>Use o seu Chrome na maioria dos casos. Com a extensão Claude in Chrome instalada nele, uma sessão da máquina aberta com <code>--chrome</code> usa o seu navegador pela ponte do claude.ai, com os seus logins, e você acompanha ao vivo o que ela clica. O computador precisa estar ligado, com o Chrome aberto.</p>
+  <div class="table-wrap stack"><table>
+    <tr><th>Navegador</th><th>Onde roda e com que login</th><th>Serve para</th><th>Não serve para</th></tr>
+    <tr class="rec"><td data-label="Navegador">O seu Chrome, com a extensão Claude in Chrome</td><td data-label="Onde roda e com que login">No seu computador, com os seus logins</td><td data-label="Serve para">Tarefa que você acompanha, em qualquer site em que você já entra, Google incluso</td><td data-label="Não serve para">Trabalho com o seu computador desligado</td></tr>
+    <tr><td data-label="Navegador">Navegador sem tela</td><td data-label="Onde roda e com que login">Na VPS, com as senhas do agente no cofre</td><td data-label="Serve para">Trabalho sozinho, 24 horas, em site comum: testar o seu app, preencher formulário, ler página</td><td data-label="Não serve para">Site que barra robô, como o login do Google</td></tr>
+    <tr><td data-label="Navegador">Chrome com tela na VPS</td><td data-label="Onde roda e com que login">Na VPS, com uma conta do agente logada uma vez e guardada em disco</td><td data-label="Serve para">Site que barra o navegador sem tela, como a conta Google do agente</td><td data-label="Não serve para">Uso geral: gasta uns 410 MB e o login é montado à mão</td></tr>
+  </table></div>
 
+  <h2>O seu Chrome</h2>
+  <p>Instale no seu Chrome a extensão <a href="https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn">Claude in Chrome</a>. Uma sessão da máquina aberta com <code>--chrome</code> usa o seu navegador pela ponte do claude.ai, com os seus logins, e você acompanha ao vivo o que ela clica. O computador precisa estar ligado, com o Chrome aberto.</p>
 
-  <h2>Navegador na máquina</h2>
-  <p>O <code>@playwright/mcp</code> roda na máquina um Chromium headless, um navegador sem tela, para o agente navegar sozinho, sem supervisão. Ligado ao cofre, o gerenciador de senhas do agente, ele digita a senha pelo nome do segredo, e o Playwright mascara o valor em tudo que devolve. Muitos sites, como o Google, barram o login de um navegador headless que vem de um IP de nuvem.</p>
+  <h2>O navegador sem tela</h2>
+  <p>O <a href="https://github.com/microsoft/playwright-mcp">Playwright MCP</a> roda na VPS um Chromium headless, um navegador sem tela, para o agente navegar sozinho, sem supervisão. Ligado ao <a href="#cofre">cofre</a>, ele digita a senha pelo nome do segredo, e o valor não aparece no que ele devolve.</p>
+
+  <h2>Por que o Google barra o navegador sem tela</h2>
+  <p>O Chromium headless se denuncia. O navegador se apresenta como <code>HeadlessChrome</code>, liga a marca de automação que os sites leem, e a conexão vem de um IP de nuvem. No login, o Google lê esses sinais e responde "This browser or app may not be secure", antes mesmo da senha.</p>
+  <p>O Chrome com tela na VPS é o mesmo Chrome do Playwright, rodando de outro jeito: com uma tela virtual, sem a marca de automação, e com a senha digitada por um programa que imita o teclado. Depois do login, a sessão fica guardada na pasta de perfil, e o agente controla esse Chrome pelo mesmo Playwright MCP. Ele é mais pesado e mais trabalhoso de montar, e só vale para site que barra o sem tela. A montagem está em <a href="#google">Como deixar a conta Google do agente logada na VPS</a>.</p>
   <button type="button" class="done-btn" data-done="navegador">Marquei como feito</button>
 </article>
 
@@ -1034,7 +1049,7 @@ sudo systemctl reload caddy</pre></div>
   <div class="crumb">Canais e ferramentas</div>
   <h1>Como deixar a conta Google do agente logada na VPS</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="google">Copiar para o agente</button><a href="txt/google.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">A API do Gmail cobre ler e mandar e-mail. Para o resto da conta Google do agente, como a página da conta, a foto e os serviços sem API, o agente precisa de um navegador logado. Esta página monta um Chrome que fica logado na VPS e que os agentes usam pelo MCP.</p>
+  <p class="lead">Este é o terceiro navegador de <a href="#navegador">Como deixar o agente usar um navegador</a>. A API do Gmail cobre ler e mandar e-mail. Para o resto da conta Google do agente, como a página da conta, a foto e os serviços sem API, o agente precisa de um navegador logado. Esta página monta um Chrome que fica logado na VPS e que os agentes usam pelo MCP.</p>
 
   <h2>Por que o navegador sem tela não serve</h2>
   <p>No login, o Google lê os sinais de automação do navegador. O Chromium headless do <a href="#navegador">navegador da máquina</a> leva "This browser or app may not be secure" já na tela do e-mail. Passa um Chrome com tela, sem flag de automação, digitando como uma pessoa.</p>

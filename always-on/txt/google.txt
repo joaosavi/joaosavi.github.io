@@ -1,5 +1,5 @@
 # Como deixar a conta Google do agente logada na VPS  
-A API do Gmail cobre ler e mandar e-mail. Para o resto da conta Google do agente, como a página da conta, a foto e os serviços sem API, o agente precisa de um navegador logado. Esta página monta um Chrome que fica logado na VPS e que os agentes usam pelo MCP. 
+Este é o terceiro navegador de Como deixar o agente usar um navegador (txt/navegador.txt). A API do Gmail cobre ler e mandar e-mail. Para o resto da conta Google do agente, como a página da conta, a foto e os serviços sem API, o agente precisa de um navegador logado. Esta página monta um Chrome que fica logado na VPS e que os agentes usam pelo MCP. 
 
 ## Por que o navegador sem tela não serve 
 No login, o Google lê os sinais de automação do navegador. O Chromium headless do navegador da máquina (txt/navegador.txt) leva "This browser or app may not be secure" já na tela do e-mail. Passa um Chrome com tela, sem flag de automação, digitando como uma pessoa. 
