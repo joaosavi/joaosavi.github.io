@@ -1,8 +1,8 @@
 # Como conseguir o bot do Telegram e o número do WhatsApp  
-O bot do Telegram se cria em dois minutos pelo BotFather, o bot do próprio Telegram que cria outros bots. O WhatsApp pede um número que receba um SMS uma vez, e um número de ativação, alugado por alguns minutos, resolve. 
+O bot do Telegram (https://telegram.org/) se cria em dois minutos pelo BotFather (https://t.me/BotFather), o bot do próprio Telegram que cria outros bots. O WhatsApp (https://www.whatsapp.com/) pede um número que receba um SMS uma vez, e um número de ativação, alugado por alguns minutos, resolve. 
 
 ## Para que servem os dois canais 
-Os dois canais levam arquivo e aviso entre você e a máquina, a VPS onde o Claude Code roda. Pelo WhatsApp, você encaminha um PDF à máquina sem baixar e subir no chat. Pelo Telegram, o orquestrador, a sessão que recebe os pedidos e distribui as tarefas, avisa que um teste quebrou ou que um relatório ficou pronto, e manda o arquivo junto. Conversa e pedido de trabalho vão pelo app do Claude, que chega à máquina pelo Remote Control, o recurso que liga uma sessão do Claude Code ao app. 
+Os dois canais levam arquivo e aviso entre você e a máquina, a VPS onde o Claude Code (https://claude.com/product/claude-code) roda. Pelo WhatsApp, você encaminha um PDF à máquina sem baixar e subir no chat. Pelo Telegram, o orquestrador, a sessão que recebe os pedidos e distribui as tarefas, avisa que um teste quebrou ou que um relatório ficou pronto, e manda o arquivo junto. Conversa e pedido de trabalho vão pelo app do Claude, que chega à máquina pelo Remote Control (https://code.claude.com/docs/en/remote-control), o recurso que liga uma sessão do Claude Code ao app. 
 
 Qualquer pessoa pode mandar mensagem ao número e ao bot
 Quem descobre o número ou o bot pode tentar mandar ordens ao agente, a sessão do Claude Code que executa as tarefas. Roubar uma conta de WhatsApp ou de Telegram também dá menos trabalho que roubar a sua conta do Claude. Por isso cada canal só aceita as contas de uma lista, e o agente confirma pelo app antes de agir sobre um pedido que chegue por ali. Não configure os canais como chat, embora seja possível. 

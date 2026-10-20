@@ -1,8 +1,8 @@
 # Como rodar num container de uma VPS sua  
-Uma VPS é um servidor virtual alugado, ligado 24 horas, e nesta página ela se chama host. Se você já tem uma com folga rodando outros serviços, um container LXD dá ao agente um Linux próprio dentro dela, com Docker próprio. O agente é a sessão do Claude Code que trabalha nesse Linux. O `docker ps` do container não mostra os seus serviços, e limites de memória, CPU e disco protegem o resto do host. 
+Uma VPS é um servidor virtual alugado, ligado 24 horas, e nesta página ela se chama host. Se você já tem uma com folga rodando outros serviços, um container LXD (https://canonical.com/lxd) dá ao agente um Linux próprio dentro dela, com Docker (https://www.docker.com/) próprio. O agente é a sessão do Claude Code (https://claude.com/product/claude-code) que trabalha nesse Linux. O `docker ps` do container não mostra os seus serviços, e limites de memória, CPU e disco protegem o resto do host. 
 
 Não faça no host
-Não rode os passos de Como fazer a config inicial da VPS (txt/preparar.txt) no host. Eles mudam o hostname e ligam o ufw, o firewall do Ubuntu, que bloqueia os serviços. Não rode `netfilter-persistent save`. Não reinicie o host nem o Docker. Meça os serviços antes e depois de cada mudança de rede. 
+Não rode os passos de Como fazer a config inicial da VPS (txt/preparar.txt) no host. Eles mudam o hostname e ligam o ufw (https://documentation.ubuntu.com/server/how-to/security/firewalls/), o firewall do Ubuntu (https://ubuntu.com/), que bloqueia os serviços. Não rode `netfilter-persistent save`. Não reinicie o host nem o Docker. Meça os serviços antes e depois de cada mudança de rede. 
 
 ## Antes de começar 
 O host precisa de pelo menos 4 GB de memória e 30 GB de disco livres. Anote como os serviços respondem hoje: 

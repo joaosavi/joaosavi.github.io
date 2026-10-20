@@ -1,5 +1,5 @@
 # Como organizar pastas, repos e segredos  
-Clone os repos e leve à mão só os arquivos fora do git que o agente usa. O agente é a sessão do Claude Code que trabalha na máquina. 
+Clone os repos e leve à mão só os arquivos fora do git (https://git-scm.com/) que o agente usa. O agente é a sessão do Claude Code (https://claude.com/product/claude-code) que trabalha na máquina. 
 
 ## Separar os ambientes 
 Antes de clonar, decida como as pastas se dividem. A divisão sugerida separa pelo que cada pasta guarda: 
@@ -36,7 +36,7 @@ tar czf - .env | ssh agente 'tar xzf - -C ~/projeto && chmod 600 ~/projeto/.env'
 ```
 
 ## Dependências e serviços 
-Na máquina, dentro de `~/projeto`, instale o que o projeto pede pelo lockfile, como `npm ci` ou `uv sync`. Se o projeto usa Playwright, rode em seguida `npx playwright install --with-deps chromium`, que tem versão para Linux ARM. Depois suba os serviços com `docker compose up -d`. Os testes de Como provar que tudo funciona (txt/provar.txt) dependem dos dois. 
+Na máquina, dentro de `~/projeto`, instale o que o projeto pede pelo lockfile, como `npm ci` ou `uv sync`. Se o projeto usa Playwright (https://playwright.dev/), rode em seguida `npx playwright install --with-deps chromium`, que tem versão para Linux ARM. Depois suba os serviços com `docker compose up -d`. Os testes de Como provar que tudo funciona (txt/provar.txt) dependem dos dois. 
 
 ## Cuidados 
 

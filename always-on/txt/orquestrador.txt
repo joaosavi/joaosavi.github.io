@@ -1,5 +1,5 @@
 # Como montar o orquestrador e os agentes  
-O orquestrador é uma sessão do Claude Code que fica sempre aberta no app. Você pede a tarefa a ele, e ele abre um agente por tarefa, na pasta do projeto, com teto de RAM próprio. O agente é outra sessão do Claude Code, que faz o trabalho. O orquestrador distribui as tarefas, acompanha os agentes e relata o resultado. 
+O orquestrador é uma sessão do Claude Code (https://claude.com/product/claude-code) que fica sempre aberta no app. Você pede a tarefa a ele, e ele abre um agente por tarefa, na pasta do projeto, com teto de RAM próprio. O agente é outra sessão do Claude Code, que faz o trabalho. O orquestrador distribui as tarefas, acompanha os agentes e relata o resultado. 
 O instalador (txt/instalador.txt) faz esta página com um comando. Ela fica para quem monta à mão ou quer entender cada peça. 
 
 - Você pede, pelo celular 
@@ -11,8 +11,8 @@ O instalador (txt/instalador.txt) faz esta página com um comando. Ela fica para
 
 ## Por que um orquestrador 
 
-- O Remote Control liga uma sessão da máquina ao app do Claude. Sem orquestrador, cada projeto novo pede um serviço do Remote Control próprio, criado à mão. Com o orquestrador, projeto novo é uma linha no `projects.json`. 
-- Cada agente nasce dentro do slice dos agentes, o grupo do systemd com um teto de memória para todos eles somados, com o teto do projeto, e um projeto pesado não derruba os outros. 
+- O Remote Control (https://code.claude.com/docs/en/remote-control) liga uma sessão da máquina ao app do Claude. Sem orquestrador, cada projeto novo pede um serviço do Remote Control próprio, criado à mão. Com o orquestrador, projeto novo é uma linha no `projects.json`. 
+- Cada agente nasce dentro do slice dos agentes, o grupo do systemd (https://systemd.io/) com um teto de memória para todos eles somados, com o teto do projeto, e um projeto pesado não derruba os outros. 
 - O agente abre na pasta do projeto e carrega o `CLAUDE.md`, a memória e os hooks dele.  
 
 ## Duas formas de pôr uma sessão no app 
@@ -20,7 +20,7 @@ O instalador (txt/instalador.txt) faz esta página com um comando. Ela fica para
 | Forma | Como | Quem usa |
 | --- | --- | --- | 
 | Modo servidor | `claude remote-control` espera, e abre uma sessão nova cada vez que você pede pelo app | O recover, a sessão de socorro | 
-| Sessão de terminal ligada ao app | `claude --remote-control <nome>` num tmux. A sessão aparece pronta no app, com a pasta, o teto e a tarefa com que nasceu | O orquestrador e os agentes |  
+| Sessão de terminal ligada ao app | `claude --remote-control <nome>` num tmux (https://github.com/tmux/tmux). A sessão aparece pronta no app, com a pasta, o teto e a tarefa com que nasceu | O orquestrador e os agentes |  
 Se o app não conseguir abrir uma sessão, use a segunda forma: entre pelo SSH, abra um tmux e rode `claude --remote-control <nome>` na pasta. 
 
 ## O nome e a pasta 

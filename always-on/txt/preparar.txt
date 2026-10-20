@@ -1,6 +1,6 @@
 # Como fazer a config inicial da VPS  
-Na VPS, o servidor virtual alugado onde o Claude Code vai rodar, crie o seu usuário, feche o login por senha e confira as atualizações automáticas. Esta página vale para a Oracle e para a VPS dedicada. No container, pule esta página. 
-Se o seu computador usa Linux ou WSL, crie na VPS o mesmo nome de usuário. Assim os caminhos absolutos das suas configurações, como `/home/voce/...`, valem lá sem mudança. Se você vem do macOS, troque `/Users/voce` por `/home/voce` nas configurações que você levar. 
+Na VPS, o servidor virtual alugado onde o Claude Code (https://claude.com/product/claude-code) vai rodar, crie o seu usuário, feche o login por senha e confira as atualizações automáticas. Esta página vale para a Oracle (https://www.oracle.com/cloud/free/) e para a VPS dedicada. No container, pule esta página. 
+Se o seu computador usa Linux ou WSL (https://learn.microsoft.com/windows/wsl/), crie na VPS o mesmo nome de usuário. Assim os caminhos absolutos das suas configurações, como `/home/voce/...`, valem lá sem mudança. Se você vem do macOS, troque `/Users/voce` por `/home/voce` nas configurações que você levar. 
 
 ## Usuário com sudo 
 Entre com o usuário que o provedor criou, como `ubuntu`, e rode: 
@@ -25,9 +25,9 @@ sudo systemctl reload ssh
 
 ## Atualizações e firewall 
 
-- `systemctl is-active unattended-upgrades` deve responder `active`. No Ubuntu Server ele já vem ligado. 
+- `systemctl is-active unattended-upgrades` deve responder `active`. No Ubuntu (https://ubuntu.com/) Server ele já vem ligado. 
 - Numa VPS comum, feche a entrada a tudo menos o SSH com `sudo ufw allow OpenSSH && sudo ufw --force enable`. 
-- Na Oracle, não ligue o ufw. A imagem e a security list da VCN, a rede virtual da Oracle, já fecham a entrada.  
+- Na Oracle, não ligue o ufw (https://documentation.ubuntu.com/server/how-to/security/firewalls/). A imagem e a security list da VCN, a rede virtual da Oracle, já fecham a entrada.  
 
 O Docker passa por cima do ufw
-Porta publicada por container entra por regra própria de iptables, mesmo com o ufw fechado. Publique porta só no loopback, o endereço que só a própria máquina alcança, como `127.0.0.1:5432:5432`.
+Porta publicada por container entra por regra própria de iptables (https://www.netfilter.org/projects/iptables/), mesmo com o ufw fechado. Publique porta só no loopback, o endereço que só a própria máquina alcança, como `127.0.0.1:5432:5432`.

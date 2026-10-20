@@ -1,14 +1,14 @@
 # Como dar ao agente e-mail, conectores e ferramentas  
-Depois da montagem básica, ligue os conectores da sua conta do Claude, um e-mail só do agente e as ferramentas de linha de comando. O agente é a sessão do Claude Code que trabalha na máquina. 
+Depois da montagem básica, ligue os conectores da sua conta do Claude, um e-mail só do agente e as ferramentas de linha de comando. O agente é a sessão do Claude Code (https://claude.com/product/claude-code) que trabalha na máquina. 
 
 ## Conectores do claude.ai 
-Os conectores que você liga em claude.ai/settings/connectors (https://claude.ai/settings/connectors), como Gmail, Drive, Slack e Notion, aparecem nas sessões da máquina, porque elas entram com a sua conta, e agem em seu nome. Para impedir um agente de ler o seu e-mail, bloqueie o conector na sessão dele com `--disallowedTools`. 
+Os conectores que você liga em claude.ai/settings/connectors (https://claude.ai/settings/connectors), como Gmail (https://www.google.com/gmail/about/), Drive (https://www.google.com/drive/), Slack (https://slack.com/) e Notion (https://www.notion.com/), aparecem nas sessões da máquina, porque elas entram com a sua conta, e agem em seu nome. Para impedir um agente de ler o seu e-mail, bloqueie o conector na sessão dele com `--disallowedTools`. 
 
 ## E-mail do agente 
-Uma conta Gmail só do agente recebe confirmação de cadastro e código de login sem passar pelo seu e-mail. O Google barra o login headless, feito por um navegador sem tela, então o acesso é por OAuth: um app seu no Google Cloud, um login feito uma vez pelo navegador, e o refresh token, a credencial que renova o acesso, guardado no cofre de senhas do agente. Um CLI como o gws (https://github.com/googleworkspace/cli) lê e envia com o token e encerra. Para o resto da conta, como a página da conta e os serviços sem API, veja Como deixar a conta Google do agente logada na VPS (txt/google.txt). 
+Uma conta Gmail só do agente recebe confirmação de cadastro e código de login sem passar pelo seu e-mail. O Google barra o login headless, feito por um navegador sem tela, então o acesso é por OAuth: um app seu no Google Cloud (https://cloud.google.com/), um login feito uma vez pelo navegador, e o refresh token, a credencial que renova o acesso, guardado no cofre de senhas do agente. Um CLI como o gws (https://github.com/googleworkspace/cli) lê e envia com o token e encerra. Para o resto da conta, como a página da conta e os serviços sem API, veja Como deixar a conta Google do agente logada na VPS (txt/google.txt). 
 
 ## Ferramentas úteis 
 
-- `gh`, `jq`, `tmux` e Docker, que o guia já instala. 
-- Um gerenciador de linguagem para cada stack, como `uv` para Python e `nvm` para Node. Peça ao agente para instalar o que o projeto pedir. 
+- `gh`, `jq`, `tmux` e Docker (https://www.docker.com/), que o guia já instala. 
+- Um gerenciador de linguagem para cada stack, como `uv` para Python (https://www.python.org/) e `nvm` para Node (https://nodejs.org/). Peça ao agente para instalar o que o projeto pedir. 
 - O MCP do Context7 (https://context7.com), que dá ao agente a documentação atual das bibliotecas.

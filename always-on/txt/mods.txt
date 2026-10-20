@@ -1,5 +1,5 @@
 # Como instalar o Cockpit e o que ele faz  
-O Cockpit é um pacote de 11 mods, extensões que mudam o comportamento do Claude Code. Os guardas barram os erros comuns de um agente, a sessão que trabalha sozinha numa tarefa. Os instrumentos mostram em que ponto cada sessão está. Instale o pacote inteiro. 
+O Cockpit é um pacote de 11 mods, extensões que mudam o comportamento do Claude Code (https://claude.com/product/claude-code). Os guardas barram os erros comuns de um agente, a sessão que trabalha sozinha numa tarefa. Os instrumentos mostram em que ponto cada sessão está. Instale o pacote inteiro. 
 
 ## Instalar 
 
@@ -18,13 +18,13 @@ Barram o erro antes de ele acontecer.
 Troca o valor de todo segredo por `<hidden:NOME>` na saída das ferramentas, antes de o agente ler. Quando o agente escreve o marcador num `.env` ou num comando, o mod põe o valor real no lugar. 
 
 `collision-guard`
-Avisa quando duas sessões editam o mesmo arquivo, e segura uma vez o comando git que levaria junto a edição ainda não commitada de outra sessão. 
+Avisa quando duas sessões editam o mesmo arquivo, e segura uma vez o comando git (https://git-scm.com/) que levaria junto a edição ainda não commitada de outra sessão. 
 
 `pipefail`
 Liga o `set -o pipefail` quando o agente passa um teste ou typecheck por `tail`, `head` ou `grep`. Sem ele, um teste que falha sai com código 0 e parece aprovado. 
 
 `memory-guard` /ram
-Antes de typecheck, build, teste e Playwright, confere a folga do teto de memória: roda com um processo só, espera ou recusa. Repete com um processo o comando morto por falta de memória (exit 137). 
+Antes de typecheck, build, teste e Playwright (https://playwright.dev/), confere a folga do teto de memória: roda com um processo só, espera ou recusa. Repete com um processo o comando morto por falta de memória (exit 137). 
 
 `loop-breaker`
 Percebe quando o agente anda em círculo, com a mesma correção no mesmo arquivo ou o mesmo erro voltando, e manda ele parar e mudar de abordagem. 
@@ -51,7 +51,7 @@ Carrega a skill certa na hora certa, como a de escrita técnica num commit ou a 
 
 `global-memory`
 Cria uma pasta de memória da máquina, ao lado da memória de cada projeto. O que o agente aprende sobre a VPS chega a toda sessão, de qualquer pasta.  
-Todo comando do Cockpit também responde em texto, então funciona pelo Remote Control, no app do celular. 
+Todo comando do Cockpit também responde em texto, então funciona pelo Remote Control (https://code.claude.com/docs/en/remote-control), no app do celular. 
 
 ## Abrir o painel no seu computador 
 O `panel` escuta só no `127.0.0.1` da VPS. Para abrir no navegador do seu computador, ligue um túnel SSH e acesse `http://localhost:7777`: 

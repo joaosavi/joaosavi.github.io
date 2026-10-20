@@ -1,5 +1,5 @@
 # Os comandos que você vai usar todo dia  
-Os comandos de uso diário, com a máquina já montada. O orquestrador é a sessão do Claude Code que distribui as tarefas, e cada agente é uma sessão aberta só para uma tarefa. 
+Os comandos de uso diário, com a máquina já montada. O orquestrador é a sessão do Claude Code (https://claude.com/product/claude-code) que distribui as tarefas, e cada agente é uma sessão aberta só para uma tarefa. 
 
 | Quero | Faço |
 | --- | --- | 

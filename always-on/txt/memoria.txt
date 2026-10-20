@@ -1,5 +1,5 @@
 # Como pôr teto de memória e o agente de recover  
-Os agentes são as sessões do Claude Code que trabalham na máquina, uma por tarefa. Sem limite, um comando pesado de uma sessão enche a memória da máquina, e as outras sessões e o SSH param junto. Com swap, uma área do disco que serve de memória extra, e um teto de memória para os agentes, só o comando pesado morre. O recover, uma sessão de socorro com memória reservada, continua respondendo pelo celular. 
+Os agentes são as sessões do Claude Code (https://claude.com/product/claude-code) que trabalham na máquina, uma por tarefa. Sem limite, um comando pesado de uma sessão enche a memória da máquina, e as outras sessões e o SSH param junto. Com swap, uma área do disco que serve de memória extra, e um teto de memória para os agentes, só o comando pesado morre. O recover, uma sessão de socorro com memória reservada, continua respondendo pelo celular. 
 O instalador (txt/instalador.txt) faz esta página com um comando. Ela fica para quem monta à mão ou quer entender cada peça. 
 Na nossa montagem, num container com 2 núcleos e 7 GB e sem swap, um typecheck com dois `tsc` de 1 GB cada levou a memória ao limite. Cada conexão SSH passou de 1 segundo para 20 a 77 segundos, e as sessões do app pararam de responder.  
 
@@ -18,7 +18,7 @@ cat /proc/swaps
 
 O `cat /proc/swaps` mostra o `/swapfile` com 8388604 KB. A linha do `/etc/fstab` liga o swap de novo depois de um reboot.  
 
-O container não tem swap próprio e usa o do host, sem configuração extra no LXD. Rode no host os mesmos comandos da aba VM ou VPS. Depois, confira de dentro do container quanto swap ele pode usar, em bytes. Na nossa montagem, o valor foi igual ao `limits.memory`. 
+O container não tem swap próprio e usa o do host, sem configuração extra no LXD (https://canonical.com/lxd). Rode no host os mesmos comandos da aba VM ou VPS. Depois, confira de dentro do container quanto swap ele pode usar, em bytes. Na nossa montagem, o valor foi igual ao `limits.memory`. 
 
 bash, na máquina
 ```
@@ -29,12 +29,12 @@ O swap do host vale para todos
 Os outros serviços do host passam a usar o mesmo swap. Crie o arquivo com a confirmação de quem cuida do host, e meça os serviços antes e depois, como na página do container (txt/container.txt).   
 
 ## O slice dos agentes 
-Um slice do systemd é um grupo de processos com um teto de memória que vale para tudo que roda dentro dele, somado. O orquestrador, a sessão que recebe os pedidos e abre os agentes, fica no mesmo slice que todos os agentes. Cada agente ganha, ao nascer, um teto próprio abaixo do teto do grupo, e um projeto pesado não come a memória dos outros. 
+Um slice do systemd (https://systemd.io/) é um grupo de processos com um teto de memória que vale para tudo que roda dentro dele, somado. O orquestrador, a sessão que recebe os pedidos e abre os agentes, fica no mesmo slice que todos os agentes. Cada agente ganha, ao nascer, um teto próprio abaixo do teto do grupo, e um projeto pesado não come a memória dos outros. 
 Escolha o nome do slice e calcule os números a partir da memória da máquina: 
 
 | Valor | Como calcular |
 | --- | --- | 
-| `<teto>` | O total do `free -m` menos 512 MB do recover e 1 GiB do sistema e do Docker. Desconte mais se os containers do projeto usam mais que isso | 
+| `<teto>` | O total do `free -m` menos 512 MB do recover e 1 GiB do sistema e do Docker (https://www.docker.com/). Desconte mais se os containers do projeto usam mais que isso | 
 | `<alto>` | `<teto>` menos uns 512 MB. Acima dele, o grupo fica lento e empurra memória para o swap antes de bater no teto | 
 | `<swap-agentes>` | Até metade do swap, para sobrar swap ao resto da máquina | 
 | Teto de cada projeto | Quanto o comando mais pesado do projeto usa, mais uns 500 MB da sessão. Um typecheck grande de TypeScript passa de 1 GB |  
@@ -74,7 +74,7 @@ CPUWeight=1000
 EOF
 ```
 
-O script roda o Remote Control, o recurso que liga o Claude Code da máquina ao app do Claude, no modo servidor, que abre uma sessão nova cada vez que você pede pelo app: 
+O script roda o Remote Control (https://code.claude.com/docs/en/remote-control), o recurso que liga o Claude Code da máquina ao app do Claude, no modo servidor, que abre uma sessão nova cada vez que você pede pelo app: 
 
 bash, na máquina
 ```

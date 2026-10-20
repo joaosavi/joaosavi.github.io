@@ -1,5 +1,5 @@
 # Como deixar a máquina se cuidar sozinha  
-Timers do systemd, tarefas que rodam sozinhas em horário marcado, mantêm a máquina funcionando sem você olhar. Um reinicia as sessões depois da atualização do sistema, outro encerra o agente esquecido, e os outros disparam as tarefas que você agendar. O agente é a sessão do Claude Code aberta para uma tarefa. 
+Timers do systemd (https://systemd.io/), tarefas que rodam sozinhas em horário marcado, mantêm a máquina funcionando sem você olhar. Um reinicia as sessões depois da atualização do sistema, outro encerra o agente esquecido, e os outros disparam as tarefas que você agendar. O agente é a sessão do Claude Code (https://claude.com/product/claude-code) aberta para uma tarefa. 
 O instalador (txt/instalador.txt) faz esta página com um comando. Ela fica para quem monta à mão ou quer entender cada peça. 
 
 ## Voltar depois da atualização do sistema 

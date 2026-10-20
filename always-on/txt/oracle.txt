@@ -1,5 +1,5 @@
 # Como conseguir a VPS grátis na Oracle  
-Uma VPS é um servidor virtual alugado, ligado 24 horas. A Oracle dá uma de graça, sem prazo: uma VM ARM com 2 núcleos e 12 GB de memória, até 200 GB de disco e 10 TB de tráfego de saída por mês. Com a conta Pay As You Go, você continua sem pagar nada dentro desses limites, consegue criar a VM, e ela não é recolhida por ociosidade. 
+Uma VPS é um servidor virtual alugado, ligado 24 horas. A Oracle (https://www.oracle.com/cloud/free/) dá uma de graça, sem prazo: uma VM ARM com 2 núcleos e 12 GB de memória, até 200 GB de disco e 10 TB de tráfego de saída por mês. Com a conta Pay As You Go, você continua sem pagar nada dentro desses limites, consegue criar a VM, e ela não é recolhida por ociosidade. 
 
 ## O vídeo 
 
@@ -12,7 +12,7 @@ Como ter um servidor VPS grátis pra sempre sem gambiarra (https://www.youtube.c
 | Recurso | Limite |
 | --- | --- | 
 | VM ARM, `VM.Standard.A1.Flex` | 1.500 OCPU-hora e 9.000 GB-hora por mês, o que dá 2 OCPU e 12 GB ligados o mês inteiro | 
-| VM AMD, `VM.Standard.E2.1.Micro` | Até duas, com 1/8 de OCPU e 1 GB cada. Pequenas demais para o Claude Code | 
+| VM AMD, `VM.Standard.E2.1.Micro` | Até duas, com 1/8 de OCPU e 1 GB cada. Pequenas demais para o Claude Code (https://claude.com/product/claude-code) | 
 | Disco | 200 GB somando todos os volumes de boot e de bloco, com mínimo de 47 GB por VM, e 5 backups de volume | 
 | Tráfego de saída | 10 TB por mês | 
 | IP público | O efêmero, um por VM |  
@@ -46,7 +46,7 @@ Até 15/06/2026 a cota ARM era de 4 OCPU e 24 GB, e muitos tutoriais, inclusive 
 - Orçamento com alerta. Em Billing & Cost Management, Budgets, crie um orçamento de US$ 1 com alerta por e-mail. Se algo sair da cota grátis, você fica sabendo no mesmo dia.   
 
 ## A chave SSH 
-A chave SSH é o par de arquivos que faz o login na VM sem senha. Se você ainda não tem uma, gere no seu computador e aperte Enter para aceitar o caminho padrão. No Windows, os mesmos comandos funcionam no PowerShell. 
+A chave SSH é o par de arquivos que faz o login na VM sem senha. Se você ainda não tem uma, gere no seu computador e aperte Enter para aceitar o caminho padrão. No Windows, os mesmos comandos funcionam no PowerShell (https://learn.microsoft.com/powershell/). 
 
 bash, na sua máquina
 ```
@@ -62,7 +62,7 @@ Em Compute, Instances, clique em Create instance.  e preencha na ordem da págin
 | Campo | Valor |
 | --- | --- | 
 | Name | O nome da máquina, como `agente` | 
-| Image | Change image. , Ubuntu, `Canonical Ubuntu 24.04` na versão `aarch64`. A shape troca sozinha para Ampere | 
+| Image | Change image. , Ubuntu (https://ubuntu.com/), `Canonical Ubuntu 24.04` na versão `aarch64`. A shape troca sozinha para Ampere | 
 | Shape | Change shape. , Ampere, `VM.Standard.A1.Flex`, 2 OCPU e 12 GB de memória | 
 | Security | O padrão | 
 | Primary VNIC, rede | Create new virtual cloud network.  | 
@@ -90,7 +90,7 @@ ssh ubuntu@<ip-publico>
 O usuário da imagem Ubuntu é `ubuntu`. Na primeira conexão, responda `yes` à pergunta da impressão digital. 
 
 ## A rede da Oracle 
-Duas camadas filtram o tráfego que chega à VM. A security list, a lista de regras de rede da sub-rede, filtra antes de o pacote chegar à VM. Dentro da VM, a imagem Ubuntu da Oracle traz regras de iptables que recusam tudo menos o SSH. A máquina só precisa da porta 22, que as duas já liberam. 
+Duas camadas filtram o tráfego que chega à VM. A security list, a lista de regras de rede da sub-rede, filtra antes de o pacote chegar à VM. Dentro da VM, a imagem Ubuntu da Oracle traz regras de iptables (https://www.netfilter.org/projects/iptables/) que recusam tudo menos o SSH. A máquina só precisa da porta 22, que as duas já liberam. 
 A regra da porta 22 fica em Networking, Virtual cloud networks, a sua VCN, a sub-rede pública, aba Security, Default Security List. , aba Security rules. Ela é a linha de Ingress, a regra de entrada, com origem `0.0.0.0/0`, protocolo TCP e porta de destino 22. Se ela não estiver lá, clique em Add Ingress Rules.  e preencha: 
 
 | Campo | Valor |
@@ -107,7 +107,7 @@ sudo iptables -L INPUT --line-numbers
 sudo iptables -I INPUT <linha-do-REJECT> -p tcp --dport 80 -j ACCEPT
 ```
 
-Para a regra sobreviver ao reboot, acrescente a mesma linha `-A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT` em `/etc/iptables/rules.v4`, logo antes da linha de REJECT. Com Docker instalado, não rode `netfilter-persistent save`. Ele grava as regras do Docker junto, e elas duplicam no reboot. 
+Para a regra sobreviver ao reboot, acrescente a mesma linha `-A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT` em `/etc/iptables/rules.v4`, logo antes da linha de REJECT. Com Docker (https://www.docker.com/) instalado, não rode `netfilter-persistent save`. Ele grava as regras do Docker junto, e elas duplicam no reboot. 
 
 ## Onde a montagem trava 
 

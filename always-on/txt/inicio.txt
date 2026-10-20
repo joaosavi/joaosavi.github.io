@@ -1,9 +1,9 @@
 # Quickstart 
-Este guia põe o Claude Code numa VPS, um servidor virtual alugado que fica ligado 24 horas. Nela roda o orquestrador, uma sessão do Claude Code que recebe os seus pedidos e abre um agente por tarefa. O agente é outra sessão do Claude Code, que trabalha sozinha na pasta do projeto. Você fala com o orquestrador pelo terminal, pelo VS Code e pelo app do Claude, no celular ou no navegador. O app chega à VPS pelo Remote Control, o recurso do Claude Code que liga uma sessão ao app. 
+Este guia põe o Claude Code (https://claude.com/product/claude-code) numa VPS, um servidor virtual alugado que fica ligado 24 horas. Nela roda o orquestrador, uma sessão do Claude Code que recebe os seus pedidos e abre um agente por tarefa. O agente é outra sessão do Claude Code, que trabalha sozinha na pasta do projeto. Você fala com o orquestrador pelo terminal, pelo VS Code (https://code.visualstudio.com/) e pelo app do Claude, no celular ou no navegador. O app chega à VPS pelo Remote Control (https://code.claude.com/docs/en/remote-control), o recurso do Claude Code que liga uma sessão ao app. 
 
 - 1
 Consiga a VPS. 
-A Oracle dá de graça uma VM ARM, uma máquina virtual com 2 núcleos e 12 GB de memória. O cadastro leva uns 30 minutos, e o cartão só é pré-autorizado, sem cobrança. O pedido do passo 2 faz o cadastro com você, no seu Chrome.Como conseguir a VPS grátis na Oracle (txt/oracle.txt) 
+A Oracle (https://www.oracle.com/cloud/free/) dá de graça uma VM ARM, uma máquina virtual com 2 núcleos e 12 GB de memória. O cadastro leva uns 30 minutos, e o cartão só é pré-autorizado, sem cobrança. O pedido do passo 2 faz o cadastro com você, no seu Chrome (https://www.google.com/chrome/).Como conseguir a VPS grátis na Oracle (txt/oracle.txt) 
 - 2
 Cole o pedido no Claude Code. 
 No Claude Code do seu computador, cole o pedido. Ele faz as perguntas da montagem e monta a VPS passo a passo, e só para nos passos que precisam de você. Ver o pedido e o que ele pergunta (txt/setup.txt) 
@@ -34,7 +34,7 @@ Recover, sessão que responde se a máquina travar (txt/memoria.txt) Travas de s
 | Você pede e acompanha pelo celular |  |  |  | 
 | Várias tarefas ao mesmo tempo, cada uma com teto de memória |  |  |  | 
 | Trabalha sem pedir permissão a cada passo |  |  |  | 
-| Avisa e manda arquivo pelo Telegram |  |  |  | 
+| Avisa e manda arquivo pelo Telegram (https://telegram.org/) |  |  |  | 
 | Usa senha sem o valor passar pela conversa |  |  |  |  
 em parte: o PC precisa estar ligado e você por perto. 
 A montagem leva de 1 a 2 horas e é feita uma vez. Depois, cuidar da máquina fica com você, e a manutenção automática faz quase tudo. 
@@ -43,7 +43,7 @@ A montagem leva de 1 a 2 horas e é feita uma vez. Depois, cuidar da máquina fi
 
 - Plano Pro, Max, Team ou Enterprise do Claude. O Remote Control não funciona com chave de API, e no Team e no Enterprise um Owner precisa ligar o Remote Control nas configurações de admin do Claude Code. 
 - O Claude Code instalado na máquina que você usa hoje. 
-- Uma chave SSH, o par de arquivos que faz o login no servidor sem senha, e o seu código num repositório git, de preferência no GitHub. 
+- Uma chave SSH, o par de arquivos que faz o login no servidor sem senha, e o seu código num repositório git (https://git-scm.com/), de preferência no GitHub (https://github.com/). 
 - Para a Oracle, um cartão no seu nome com US$ 100 de limite. A Oracle pré-autoriza esse valor quando a conta passa para Pay As You Go, o plano pago que mantém a cota grátis sem cobrança. Cartão virtual temporário serve.  
 Para conferir se a conta pode usar o Remote Control, rode `claude remote-control --help`. O comando lista as opções quando pode e responde com erro quando não pode. 
 

@@ -1,14 +1,14 @@
 # Como ligar o Telegram e o WhatsApp à máquina  
-O WhatsApp vira uma caixa de entrada de arquivos e mensagens na máquina, a VPS onde o Claude Code roda. O Telegram vira o canal em que o orquestrador avisa você e manda arquivos. O orquestrador é a sessão do Claude Code que recebe os pedidos e distribui as tarefas. 
+O WhatsApp (https://www.whatsapp.com/) vira uma caixa de entrada de arquivos e mensagens na máquina, a VPS onde o Claude Code (https://claude.com/product/claude-code) roda. O Telegram (https://telegram.org/) vira o canal em que o orquestrador avisa você e manda arquivos. O orquestrador é a sessão do Claude Code que recebe os pedidos e distribui as tarefas. 
 
 ## WhatsApp 
-O wacli (https://github.com/openclaw/wacli) liga um número descartável à máquina como aparelho vinculado do WhatsApp. Você encaminha mensagem, áudio e arquivo para esse número, e um serviço grava cada mensagem num `.md` numa pasta da máquina, com a mídia ao lado. O serviço só grava as mensagens dos números da lista e ignora o resto. O agente, a sessão do Claude Code que faz o trabalho, lê dessa pasta quando você pedir. Uma API de Whisper pode transcrever os áudios. O serviço só recebe e não responde, então ninguém conversa com o Claude pelo WhatsApp. 
+O wacli (https://github.com/openclaw/wacli) liga um número descartável à máquina como aparelho vinculado do WhatsApp. Você encaminha mensagem, áudio e arquivo para esse número, e um serviço grava cada mensagem num `.md` numa pasta da máquina, com a mídia ao lado. O serviço só grava as mensagens dos números da lista e ignora o resto. O agente, a sessão do Claude Code que faz o trabalho, lê dessa pasta quando você pedir. Uma API de Whisper (https://github.com/openai/whisper) pode transcrever os áudios. O serviço só recebe e não responde, então ninguém conversa com o Claude pelo WhatsApp. 
 
 ## Telegram 
 O plugin oficial de canal do Telegram entrega ao orquestrador o que você manda ao bot, e o orquestrador usa o mesmo bot para avisar você e mandar arquivos. O bot só aceita as contas da lista. 
 
 - Ter o bot. Crie o bot e guarde o token, a senha do bot, como em Como conseguir o bot do Telegram e o número do WhatsApp (txt/canais-conseguir.txt). 
-- Instalar. O plugin roda em Bun, um runtime de JavaScript. Instale o Bun e o plugin, e grave o token: 
+- Instalar. O plugin roda em Bun (https://bun.com/), um runtime de JavaScript. Instale o Bun e o plugin, e grave o token: 
 
 bash, na máquina
 ```

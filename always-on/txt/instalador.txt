@@ -1,5 +1,5 @@
 # Como montar a infra com um comando  
-O instalador faz numa VPS Ubuntu os passos 6, 7, 8 e 9 de Montar a máquina: o swap, o teto de memória dos agentes, o recover, o orquestrador, o comando `agent`, o Cockpit e a manutenção automática. Rode na VPS depois dos passos 1 a 5, com o login do Claude Code já feito. 
+O instalador faz numa VPS Ubuntu (https://ubuntu.com/) os passos 6, 7, 8 e 9 de Montar a máquina: o swap, o teto de memória dos agentes, o recover, o orquestrador, o comando `agent`, o Cockpit (https://github.com/joaosavi/cockpit) e a manutenção automática. Rode na VPS depois dos passos 1 a 5, com o login do Claude Code (https://claude.com/product/claude-code) já feito. 
 
 ## Rodar 
 
@@ -22,7 +22,7 @@ O `get.sh` baixa os scripts para `~/always-on`. O `config.env` guarda o nome do 
 | Orquestrador | A pasta `~/<orquestrador>` com o `CLAUDE.md` e o `projects.json`, o comando `agent` e o serviço. Ver Como montar o orquestrador (txt/orquestrador.txt) | 
 | Cockpit | O pacote inteiro de mods. Ver Como instalar o Cockpit (txt/mods.txt) | 
 | Manutenção | Os timers `sessions-restart` e `sessions-idle`, e o needrestart sem reiniciar as sessões. Ver Como deixar a máquina se cuidar sozinha (txt/manter.txt) |  
-Ele também marca as pastas do orquestrador e do recover como confiáveis e aceita os avisos do Remote Control e do bypass. Sem isso, o serviço travaria na subida, esperando uma tecla. 
+Ele também marca as pastas do orquestrador e do recover como confiáveis e aceita os avisos do Remote Control (https://code.claude.com/docs/en/remote-control) e do bypass. Sem isso, o serviço travaria na subida, esperando uma tecla. 
 
 ## Depois de rodar 
 

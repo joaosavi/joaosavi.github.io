@@ -1,8 +1,8 @@
 # Como acessar a VPS por SSH e VS Code  
-O agente é a sessão do Claude Code que trabalha na máquina, a VPS alugada. O celular fala com ele pelo Remote Control, o recurso que liga uma sessão do Claude Code ao app do Claude, sem SSH. O SSH serve ao terminal, ao VS Code e para abrir no seu navegador o app que roda na máquina. 
+O agente é a sessão do Claude Code (https://claude.com/product/claude-code) que trabalha na máquina, a VPS alugada. O celular fala com ele pelo Remote Control (https://code.claude.com/docs/en/remote-control), o recurso que liga uma sessão do Claude Code ao app do Claude, sem SSH. O SSH serve ao terminal, ao VS Code (https://code.visualstudio.com/) e para abrir no seu navegador o app que roda na máquina. 
 
 ## O bloco do ~/.ssh/config 
-Autorize na máquina todas as chaves de onde você vai entrar. No Windows com WSL, a chave do Windows e a do WSL são arquivos diferentes, então autorize as duas. Na máquina que já entra, mande a chave pública da outra. No WSL, a chave do Windows fica em `/mnt/c/Users/<seu-usuario-windows>/.ssh`. 
+Autorize na máquina todas as chaves de onde você vai entrar. No Windows com WSL (https://learn.microsoft.com/windows/wsl/), a chave do Windows e a do WSL são arquivos diferentes, então autorize as duas. Na máquina que já entra, mande a chave pública da outra. No WSL, a chave do Windows fica em `/mnt/c/Users/<seu-usuario-windows>/.ssh`. 
 
 bash, na máquina que já entra
 ```
@@ -33,7 +33,7 @@ No Windows, o arquivo é `C:\Users\voce\.ssh\config`, e é ele que o VS Code lê
 
 ## VS Code 
 
-- Instale a extensão Remote-SSH. Instale pelo painel de extensões do VS Code. No Windows, instale na janela do Windows, porque o `code --install-extension` chamado de dentro do WSL instala no lado WSL, e a janela do Windows não enxerga a extensão. 
+- Instale a extensão Remote-SSH (https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh). Instale pelo painel de extensões do VS Code. No Windows, instale na janela do Windows, porque o `code --install-extension` chamado de dentro do WSL instala no lado WSL, e a janela do Windows não enxerga a extensão. 
 - Conecte. F1, "Remote-SSH: Connect to Host", `agente`, Linux. 
 - Abra uma pasta. Na primeira vez, abra a pasta pessoal, porque o repo só chega em Como organizar pastas, repos e segredos (txt/codigo.txt). A primeira conexão instala o servidor do VS Code na máquina, em cerca de 1 minuto. Quando um servidor de desenvolvimento abre uma porta lá, o VS Code encaminha a porta para o seu computador sozinho.  
 
@@ -47,7 +47,7 @@ ssh -L 3000:localhost:3000 agente
 Com o túnel aberto, abra `http://localhost:3000`. O endereço continua localhost, então login e callback de OAuth funcionam sem mudar configuração. 
 
 ## Fechar a porta 22 
-Este passo é opcional. O Tailscale põe a máquina numa rede privada sua, e a porta 22 deixa de ficar aberta para a internet. O plano Personal é grátis para até 6 usuários. 
+Este passo é opcional. O Tailscale (https://tailscale.com/) põe a máquina numa rede privada sua, e a porta 22 deixa de ficar aberta para a internet. O plano Personal é grátis para até 6 usuários. 
 
 bash, na máquina
 ```
@@ -63,4 +63,4 @@ sudo ufw allow in on tailscale0 to any port 22
 sudo ufw delete allow OpenSSH
 ```
 
-Na Oracle, pule o bloco acima e apague a regra da porta 22 na security list da VCN, a rede virtual da Oracle.
+Na Oracle (https://www.oracle.com/cloud/free/), pule o bloco acima e apague a regra da porta 22 na security list da VCN, a rede virtual da Oracle.

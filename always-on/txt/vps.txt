@@ -1,22 +1,22 @@
 # Como contratar uma VPS paga  
-Uma VPS é um servidor virtual alugado, ligado 24 horas. Contrate uma paga, só para o Claude Code, quando você aceita pagar ou quando a Oracle está sem capacidade na sua região. A opção sugerida é a Hostinger, que cobra em reais, usa processador AMD EPYC (x86) e tem data center na América do Sul. 
+Uma VPS é um servidor virtual alugado, ligado 24 horas. Contrate uma paga, só para o Claude Code (https://claude.com/product/claude-code), quando você aceita pagar ou quando a Oracle (https://www.oracle.com/cloud/free/) está sem capacidade na sua região. A opção sugerida é a Hostinger (https://www.hostinger.com/br/servidor-vps), que cobra em reais, usa processador AMD EPYC (x86) e tem data center na América do Sul. 
 
 ## Qual plano 
 
 | Plano Hostinger | Máquina | Preço no contrato de 24 meses | Renovação | Para quê |
 | --- | --- | --- | --- | --- | 
 | KVM 1 | 1 vCPU, 4 GB, 50 GB NVMe | R$ 29,99 por mês | R$ 59,99 por mês | Insuficiente. Com um núcleo só, o build e os testes travam | 
-| KVM 2.  | 2 vCPU, 8 GB, 100 GB NVMe | R$ 43,99 por mês | R$ 77,99 por mês | Claude Code, git, Docker e testes. Próximo da máquina medida neste guia | 
+| KVM 2.  | 2 vCPU, 8 GB, 100 GB NVMe | R$ 43,99 por mês | R$ 77,99 por mês | Claude Code, git (https://git-scm.com/), Docker (https://www.docker.com/) e testes. Próximo da máquina medida neste guia | 
 | KVM 4 | 4 vCPU, 16 GB, 200 GB NVMe | R$ 59,99 por mês | R$ 149,99 por mês | App web pesado, várias sessões em paralelo e suíte grande de testes de tela |  
 
 O preço depende do contrato
 Os valores da tabela são os da página da Hostinger em 01/10/2026, para contrato de 24 meses. Na renovação, o KVM 2 passa de R$ 43,99 para R$ 77,99 por mês. Confira o preço do dia antes de contratar. 
-A máquina da Hostinger é x86, então binário e imagem Docker feitos para PC comum rodam sem ajuste. Qualquer outro provedor serve, desde que ofereça Ubuntu 24.04 e chave SSH. 
+A máquina da Hostinger é x86, então binário e imagem Docker feitos para PC comum rodam sem ajuste. Qualquer outro provedor serve, desde que ofereça Ubuntu (https://ubuntu.com/) 24.04 e chave SSH. 
 
 ## Criar 
 
 - Plano e contrato. Escolha o KVM 2. O contrato mais longo baixa a mensalidade. 
 - Sistema. No painel da VPS, escolha o modelo Ubuntu 24.04, sem painel de controle instalado. 
-- Local. Se o data center da América do Sul aparecer na lista, escolha esse. O Claude Code na VPS não sente a latência, mas o seu terminal e o VS Code sentem. 
+- Local. Se o data center da América do Sul aparecer na lista, escolha esse. O Claude Code na VPS não sente a latência, mas o seu terminal e o VS Code (https://code.visualstudio.com/) sentem. 
 - Acesso. Cadastre a sua chave SSH pública no painel e defina uma senha de root longa. Você não vai digitar essa senha depois que o login por senha for desligado. 
 - Entrar. Com o IP do painel, rode `ssh root@<ip>` e siga para Como fazer a config inicial da VPS (txt/preparar.txt). Lá, os comandos com `sudo` funcionam igual como root.

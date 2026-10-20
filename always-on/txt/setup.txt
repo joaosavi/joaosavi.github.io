@@ -1,5 +1,5 @@
 # Como deixar o Claude Code montar tudo  
-Abra o Claude Code no seu computador, cole o pedido abaixo e responda às perguntas. O Claude Code monta com você, do começo ao fim, a VPS, o servidor virtual alugado que fica ligado 24 horas. Antes de cada parte da montagem, ele baixa o mini-guia dela neste site. 
+Abra o Claude Code (https://claude.com/product/claude-code) no seu computador, cole o pedido abaixo e responda às perguntas. O Claude Code monta com você, do começo ao fim, a VPS, o servidor virtual alugado que fica ligado 24 horas. Antes de cada parte da montagem, ele baixa o mini-guia dela neste site. 
 
 pedido para o Claude Code
 ```

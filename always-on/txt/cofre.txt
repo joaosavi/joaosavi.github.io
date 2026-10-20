@@ -1,8 +1,8 @@
 # Como dar senhas ao agente sem ele ver o valor  
-Um cofre é um gerenciador de senhas. Aqui ele ganha uma conta só do agente, a sessão do Claude Code que trabalha na máquina. O agente usa cada senha pelo nome, e o valor não passa pela conversa. 
+Um cofre é um gerenciador de senhas. Aqui ele ganha uma conta só do agente, a sessão do Claude Code (https://claude.com/product/claude-code) que trabalha na máquina. O agente usa cada senha pelo nome, e o valor não passa pela conversa. 
 
 ## Como funciona 
-O cofre pode ser o Bitwarden ou um Vaultwarden seu. A conta do agente enxerga só uma organização, com os itens que você compartilhar com ela. Um comando pequeno destrava o cofre, entrega o valor ao processo e trava de novo: 
+O cofre pode ser o Bitwarden (https://bitwarden.com/) ou um Vaultwarden (https://github.com/dani-garcia/vaultwarden) seu. A conta do agente enxerga só uma organização, com os itens que você compartilhar com ela. Um comando pequeno destrava o cofre, entrega o valor ao processo e trava de novo: 
 
 bash, na máquina
 ```
@@ -17,7 +17,7 @@ O valor fica só no ambiente do comando. O Cockpit (txt/mods.txt) é um pacote d
 | Cofre | Onde as senhas ficam | Quem mantém |
 | --- | --- | --- | 
 | Bitwarden | Na nuvem do Bitwarden, de graça para uma pessoa | O Bitwarden | 
-| Vaultwarden | Na sua VPS, num container Docker | Você: atualizar a imagem e guardar cópia da pasta de dados |  
+| Vaultwarden | Na sua VPS, num container Docker (https://www.docker.com/) | Você: atualizar a imagem e guardar cópia da pasta de dados |  
 O Vaultwarden é um servidor compatível com o Bitwarden: os mesmos apps, a mesma extensão e o mesmo comando `bw` funcionam com ele. Para quem começa, o Bitwarden na nuvem dá menos trabalho. 
 
 ## O que o Bitwarden grátis não faz 
@@ -32,10 +32,10 @@ O plano grátis do Bitwarden na nuvem basta para o que este guia monta, com este
 O Vaultwarden libera todos esses recursos de graça, inclusive o código de 6 dígitos e organizações sem limite de pessoas. Os limites do Bitwarden estão na página de preços (https://bitwarden.com/pricing/) e na documentação das organizações (https://bitwarden.com/help/about-organizations/), consultadas em 20/10/2026. 
 
 ## Como subir o Vaultwarden na VPS 
-O Vaultwarden e a extensão do Bitwarden só aceitam endereço com HTTPS, até em `localhost`. Testamos o Vaultwarden 1.37.4 e a extensão 2026.10.0: por `http`, o cofre web recusa o login e a extensão recusa o endereço. O HTTPS precisa de um domínio, e o DuckDNS dá um de graça, no formato `<nome>.duckdns.org`. O Caddy, um servidor web, fica na frente do cofre e tira o certificado sozinho. 
+O Vaultwarden e a extensão do Bitwarden só aceitam endereço com HTTPS, até em `localhost`. Testamos o Vaultwarden 1.37.4 e a extensão 2026.10.0: por `http`, o cofre web recusa o login e a extensão recusa o endereço. O HTTPS precisa de um domínio, e o DuckDNS (https://www.duckdns.org/) dá um de graça, no formato `<nome>.duckdns.org`. O Caddy (https://caddyserver.com/), um servidor web, fica na frente do cofre e tira o certificado sozinho. 
 
-- Pegue o domínio. Entre em duckdns.org (https://www.duckdns.org) com a conta do GitHub ou do Google, escolha o nome e ponha no campo current ip o IP público da VPS. Guarde o token da página no cofre. 
-- Abra as portas 80 e 443. O Let's Encrypt, que emite o certificado, confere o domínio pela porta 80, e o cofre responde na 443. Na Oracle, abra as duas na security list e no `iptables`, como a porta 22 em Como conseguir a VPS grátis na Oracle (txt/oracle.txt). 
+- Pegue o domínio. Entre em duckdns.org (https://www.duckdns.org) com a conta do GitHub (https://github.com/) ou do Google, escolha o nome e ponha no campo current ip o IP público da VPS. Guarde o token da página no cofre. 
+- Abra as portas 80 e 443. O Let's Encrypt (https://letsencrypt.org/), que emite o certificado, confere o domínio pela porta 80, e o cofre responde na 443. Na Oracle (https://www.oracle.com/cloud/free/), abra as duas na security list e no `iptables`, como a porta 22 em Como conseguir a VPS grátis na Oracle (txt/oracle.txt). 
 - Suba o Vaultwarden. Ele escuta só no `127.0.0.1`, e quem fala com a internet é o Caddy: 
 
 bash, na máquina
@@ -84,5 +84,5 @@ A interface do Vaultwarden é em inglês, e os nomes abaixo são os da tela. Ele
 O cofre inteiro mora em `/srv/vaultwarden`. Copie essa pasta para fora da VPS de vez em quando, porque sem ela as senhas se perdem. 
 
 ## Com o Coolify na máquina 
-O proxy do Coolify (txt/servicos.txt) já ocupa as portas 80 e 443, então o Caddy não sobe. Crie o Vaultwarden como serviço do Coolify, em + New e depois Services, e ponha o domínio do DuckDNS nele. O proxy do Coolify tira o certificado do mesmo jeito. 
-O endereço do GitHub Pages, como `voce.github.io`, não serve: ele é do GitHub, não aponta para a sua VPS e só entrega arquivos estáticos.
+O proxy do Coolify (txt/servicos.txt) já ocupa as portas 80 e 443, então o Caddy não sobe. Crie o Vaultwarden como serviço do Coolify (https://coolify.io/), em + New e depois Services, e ponha o domínio do DuckDNS nele. O proxy do Coolify tira o certificado do mesmo jeito. 
+O endereço do GitHub Pages (https://pages.github.com/), como `voce.github.io`, não serve: ele é do GitHub, não aponta para a sua VPS e só entrega arquivos estáticos.

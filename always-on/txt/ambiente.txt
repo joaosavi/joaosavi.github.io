@@ -1,5 +1,5 @@
 # Como instalar as ferramentas e levar suas configs  
-Instale as ferramentas que todo caminho usa e escolha entre o Ubuntu padrão e os seus dotfiles, os arquivos de configuração do seu shell e das suas ferramentas. Rode os comandos como o seu usuário, na máquina ou dentro do container. 
+Instale as ferramentas que todo caminho usa e escolha entre o Ubuntu (https://ubuntu.com/) padrão e os seus dotfiles, os arquivos de configuração do seu shell e das suas ferramentas. Rode os comandos como o seu usuário, na máquina ou dentro do container. 
 
 ## Ferramentas básicas 
 
@@ -18,7 +18,7 @@ bash, na máquina, depois de entrar de novo
 claude --version && docker ps
 ```
 
-Na Oracle e na VPS dedicada, logo depois de instalar e ainda sem container rodando, faça o Docker publicar portas só no loopback, o endereço que só a própria máquina alcança. O Docker publica por cima do ufw, e um `5432:5432` de compose abriria o banco para a internet. No container de uma VPS compartilhada isso é opcional, porque ele não tem IP público. 
+Na Oracle (https://www.oracle.com/cloud/free/) e na VPS dedicada, logo depois de instalar e ainda sem container rodando, faça o Docker (https://www.docker.com/) publicar portas só no loopback, o endereço que só a própria máquina alcança. O Docker publica por cima do ufw (https://documentation.ubuntu.com/server/how-to/security/firewalls/), e um `5432:5432` de compose abriria o banco para a internet. No container de uma VPS compartilhada isso é opcional, porque ele não tem IP público. 
 
 bash, na máquina
 ```
@@ -28,13 +28,13 @@ sudo systemctl restart docker
 
 ## Ubuntu padrão ou seus dotfiles 
 
-Não exige repo de dotfiles nem leitura de script. O shell é o bash do Ubuntu, e você instala só o que o projeto pede, como Node, Python e o gerenciador de pacotes dele. Serve para uma máquina que você vai usar quase só pelo app.  
+Não exige repo de dotfiles nem leitura de script. O shell é o bash do Ubuntu, e você instala só o que o projeto pede, como Node (https://nodejs.org/), Python (https://www.python.org/) e o gerenciador de pacotes dele. Serve para uma máquina que você vai usar quase só pelo app.  
 
 Traz o seu shell, aliases e o `~/.claude/settings.json`, e deixa o terminal remoto igual ao seu. 
 
 - Se o repo de dotfiles é privado, faça antes o login do GitHub (txt/logins.txt). 
-- Não aplique de uma vez. Com chezmoi, rode `chezmoi init <repo>` sem `--apply`, veja com `chezmoi managed --include=encrypted,scripts` o que é segredo e o que é script, e aplique com `chezmoi apply --exclude=encrypted,scripts`. 
-- Depois, aplique só os scripts e segredos que fazem sentido no servidor. Passo feito para WSL, macOS ou interface gráfica não serve, e a chave SSH pessoal ou credencial de nuvem não precisa estar numa máquina que roda sozinha. 
+- Não aplique de uma vez. Com chezmoi (https://www.chezmoi.io/), rode `chezmoi init <repo>` sem `--apply`, veja com `chezmoi managed --include=encrypted,scripts` o que é segredo e o que é script, e aplique com `chezmoi apply --exclude=encrypted,scripts`. 
+- Depois, aplique só os scripts e segredos que fazem sentido no servidor. Passo feito para WSL (https://learn.microsoft.com/windows/wsl/), macOS ou interface gráfica não serve, e a chave SSH pessoal ou credencial de nuvem não precisa estar numa máquina que roda sozinha. 
 - Se os dotfiles cifram segredos, traga a chave de decifrar à mão, pelo SSH, e apague no fim. 
 - Depois, confira `file ~/.local/bin/*`. Dotfiles que baixam binário x86 fixo falham numa máquina ARM com `exec format error`.    
 
@@ -43,10 +43,10 @@ Nada do seu computador vai sozinho para a máquina. Leve item por item, só o qu
 
 | Item | Vale levar quando | Como levar |
 | --- | --- | --- | 
-| Configuração do git | Sempre | O nome e o e-mail, em Como fazer login no Claude e no GitHub (txt/logins.txt) | 
+| Configuração do git (https://git-scm.com/) | Sempre | O nome e o e-mail, em Como fazer login no Claude e no GitHub (txt/logins.txt) | 
 | `~/.claude/settings.json` | Você já ajustou permissões, modelo ou hooks | Copiando o arquivo, e conferindo os caminhos absolutos dele | 
 | Skills e agents | Você usa skills suas no dia a dia | O comando abaixo, que leva `~/.claude/skills`, `~/.claude/agents` e `~/.agents` | 
-| Plugins | Você usa plugins além do Cockpit, o pacote de mods que o guia instala | Instalando de novo lá, com `/plugin` | 
+| Plugins | Você usa plugins além do Cockpit (https://github.com/joaosavi/cockpit), o pacote de mods que o guia instala | Instalando de novo lá, com `/plugin` | 
 | Servidores MCP | O projeto depende de um MCP que não está no `.mcp.json` do repo | `claude mcp list` aqui e `claude mcp add` lá. Os que pedem OAuth pedem login de novo | 
 | Shell, aliases e dotfiles | Você vai trabalhar muito pelo terminal da máquina | A aba Meus dotfiles, acima, só com o que serve num servidor | 
 | `.credentials.json` | nunca | Cada máquina faz o próprio login |  

@@ -1,18 +1,18 @@
 # Como deixar a conta Google do agente logada na VPS  
-Este é o terceiro navegador de Como deixar o agente usar um navegador (txt/navegador.txt). A API do Gmail cobre ler e mandar e-mail. Para o resto da conta Google do agente, como a página da conta, a foto e os serviços sem API, o agente precisa de um navegador logado. Esta página monta um Chrome que fica logado na VPS e que os agentes usam pelo MCP. 
+Este é o terceiro navegador de Como deixar o agente usar um navegador (txt/navegador.txt). A API do Gmail (https://developers.google.com/workspace/gmail/api) cobre ler e mandar e-mail. Para o resto da conta Google do agente, como a página da conta, a foto e os serviços sem API, o agente precisa de um navegador logado. Esta página monta um Chrome (https://www.google.com/chrome/) que fica logado na VPS e que os agentes usam pelo MCP. 
 
 ## Por que o navegador sem tela não serve 
-No login, o Google lê os sinais de automação do navegador. O Chromium headless do navegador da máquina (txt/navegador.txt) leva "This browser or app may not be secure" já na tela do e-mail. Passa um Chrome com tela, sem flag de automação, digitando como uma pessoa. 
+No login, o Google lê os sinais de automação do navegador. O Chromium (https://www.chromium.org/) headless do navegador da máquina (txt/navegador.txt) leva "This browser or app may not be secure" já na tela do e-mail. Passa um Chrome com tela, sem flag de automação, digitando como uma pessoa. 
 
 ## Como fica 
 
 | Peça | O que faz |
 | --- | --- | 
 | Tela virtual | O `Xvfb` dá ao Chrome uma tela que não existe, numa VPS sem monitor. Nos comandos abaixo, ela é a tela `:77` | 
-| Chrome com perfil em disco | O Chrome for Testing do Playwright, com uma pasta de perfil própria que guarda a sessão entre um uso e outro. O Google não publica Chrome para Linux ARM, e esse binário serve | 
+| Chrome com perfil em disco | O Chrome for Testing (https://googlechromelabs.github.io/chrome-for-testing/) do Playwright (https://playwright.dev/), com uma pasta de perfil própria que guarda a sessão entre um uso e outro. O Google não publica Chrome para Linux ARM, e esse binário serve | 
 | Porta de controle | A porta CDP, que deixa outro programa controlar o Chrome, só em `127.0.0.1` | 
 | MCP para os agentes | O `@playwright/mcp` com `--cdp-endpoint`, ligado a esse Chrome. O agente navega na sessão já logada | 
-| Serviço do systemd | Sobe a tela e o Chrome, e sobe só quando alguém usa. Parado, não gasta memória. Ligado, gasta uns 410 MB |  
+| Serviço do systemd (https://systemd.io/) | Sobe a tela e o Chrome, e sobe só quando alguém usa. Parado, não gasta memória. Ligado, gasta uns 410 MB |  
 
 bash, na máquina
 ```
@@ -23,14 +23,14 @@ npx -y playwright install chromium
 ## O login 
 
 - Suba o Chrome sem a porta de controle. A porta CDP é o último sinal de automação que sobra. Durante o login, o Chrome abre sem ela. 
-- Digite pelo xdotool. O `xdotool` digita o e-mail e a senha na tela virtual, como um teclado. A senha sai do cofre (txt/cofre.txt) e chega ao `xdotool` pela entrada padrão, sem aparecer em argumento nem no `ps`. 
+- Digite pelo xdotool (https://github.com/jordansissel/xdotool). O `xdotool` digita o e-mail e a senha na tela virtual, como um teclado. A senha sai do cofre (txt/cofre.txt) e chega ao `xdotool` pela entrada padrão, sem aparecer em argumento nem no `ps`. 
 - Feche e suba de novo com a porta. Depois do login, o Chrome volta com a porta CDP em `127.0.0.1`, e a sessão continua valendo.  
 
 Feche o Chrome pelo CDP, nunca matando o processo
 O Chrome grava os cookies no disco de 30 em 30 segundos e, ao receber SIGTERM, sai sem gravar. Um login seguido de SIGTERM volta deslogado. Feche com o comando `Browser.close` pelo CDP e ponha `KillMode=mixed` na unit, para o sinal do systemd chegar só ao script que fecha o Chrome. 
 
 ## Quando o Google pede um desafio 
-Às vezes o Google pede um código no celular ou um captcha que só você resolve. Exponha a tela virtual pelo noVNC, só em `127.0.0.1`, e abra pelo túnel SSH: 
+Às vezes o Google pede um código no celular ou um captcha que só você resolve. Exponha a tela virtual pelo noVNC (https://novnc.com/), só em `127.0.0.1`, e abra pelo túnel SSH: 
 
 bash, na máquina
 ```
@@ -49,4 +49,4 @@ Abra `http://127.0.0.1:6080/vnc.html`, clique em Connect.  e resolva o desafio n
 Copiar os cookies da sessão para outro navegador não funciona. Os cookies exportados não logam num perfil limpo, e o Google derruba também a sessão do perfil original. Testamos duas vezes, com o mesmo resultado. A sessão mora no perfil em disco, e quando ela cai, o caminho é fazer o login de novo. 
 
 ## Saber quando a sessão cai 
-Sessão do Google parada envelhece. Um timer diário sobe o Chrome, abre o Gmail e a página da conta, confere se o e-mail do agente aparece sem cair na tela de login, e bate o resultado num monitor push do Uptime Kuma. Se a sessão cair, ou se o timer passar 26 horas sem bater, o Kuma avisa no Telegram. O Kuma está em Suba seus sites na VPS e saiba na hora quando caem (txt/servicos.txt).
+Sessão do Google parada envelhece. Um timer diário sobe o Chrome, abre o Gmail (https://www.google.com/gmail/about/) e a página da conta, confere se o e-mail do agente aparece sem cair na tela de login, e bate o resultado num monitor push do Uptime Kuma (https://uptime.kuma.pet/). Se a sessão cair, ou se o timer passar 26 horas sem bater, o Kuma avisa no Telegram (https://telegram.org/). O Kuma está em Suba seus sites na VPS e saiba na hora quando caem (txt/servicos.txt).

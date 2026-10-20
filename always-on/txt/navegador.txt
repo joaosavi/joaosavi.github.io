@@ -8,10 +8,10 @@ O agente pode usar três navegadores. Eles diferem em onde rodam, de quem são o
 | Chrome com tela na VPS | Na VPS, com uma conta do agente logada uma vez e guardada em disco | Site que barra o navegador sem tela, como a conta Google do agente | Uso geral: gasta uns 410 MB e o login é montado à mão |  
 
 ## O seu Chrome 
-Instale no seu Chrome a extensão Claude in Chrome (https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn). Uma sessão da máquina aberta com `--chrome` usa o seu navegador pela ponte do claude.ai, com os seus logins, e você acompanha ao vivo o que ela clica. O computador precisa estar ligado, com o Chrome aberto. 
+Instale no seu Chrome a extensão Claude in Chrome (https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn). Uma sessão da máquina aberta com `--chrome` usa o seu navegador pela ponte do claude.ai (https://claude.ai), com os seus logins, e você acompanha ao vivo o que ela clica. O computador precisa estar ligado, com o Chrome aberto. 
 
 ## O navegador sem tela 
-O Playwright MCP (https://github.com/microsoft/playwright-mcp) roda na VPS um Chromium headless, um navegador sem tela, para o agente navegar sozinho, sem supervisão. Ligado ao cofre (txt/cofre.txt), ele digita a senha pelo nome do segredo, e o valor não aparece no que ele devolve. 
+O Playwright MCP (https://github.com/microsoft/playwright-mcp) roda na VPS um Chromium (https://www.chromium.org/) headless, um navegador sem tela, para o agente navegar sozinho, sem supervisão. Ligado ao cofre (txt/cofre.txt), ele digita a senha pelo nome do segredo, e o valor não aparece no que ele devolve. 
 
 ## Por que o Google barra o navegador sem tela 
 O Chromium headless se denuncia. O navegador se apresenta como `HeadlessChrome`, liga a marca de automação que os sites leem, e a conexão vem de um IP de nuvem. No login, o Google lê esses sinais e responde "This browser or app may not be secure", antes mesmo da senha. 

@@ -1,12 +1,12 @@
 # Quando usar outra máquina  
-Uma VPS é um servidor virtual alugado, ligado 24 horas, onde o Claude Code roda. A opção padrão é a VPS grátis na Oracle (txt/oracle.txt). Use outra máquina quando a Oracle não serve: sem capacidade na sua região, com um projeto que não roda em ARM, ou quando você já tem uma VPS com folga. 
+Uma VPS é um servidor virtual alugado, ligado 24 horas, onde o Claude Code (https://claude.com/product/claude-code) roda. A opção padrão é a VPS grátis na Oracle (txt/oracle.txt). Use outra máquina quando a Oracle (https://www.oracle.com/cloud/free/) não serve: sem capacidade na sua região, com um projeto que não roda em ARM, ou quando você já tem uma VPS com folga. 
 
 ## Comparação 
 
 | Caminho | Custo | Máquina | Serviço privado | Bypass |
 | --- | --- | --- | --- | --- | 
 | Oracle, Pay As You Go.  (txt/oracle.txt) | US$ 0 dentro da cota | ARM, 2 OCPU, 12 GB, até 200 GB |  |  | 
-| VPS dedicada paga.  (txt/vps.txt) | R$ 43,99 por mês na Hostinger KVM 2, em contrato de 24 meses | x86, 2 vCPU, 8 GB, 100 GB |  |  | 
+| VPS dedicada paga.  (txt/vps.txt) | R$ 43,99 por mês na Hostinger (https://www.hostinger.com/br/servidor-vps) KVM 2, em contrato de 24 meses | x86, 2 vCPU, 8 GB, 100 GB |  |  | 
 | Container numa VPS que você já tem.  (txt/container.txt) | Nada a mais | O que sobra da VPS |  |  |  
 
 ## Qual escolher 
@@ -17,10 +17,10 @@ Uma VPS é um servidor virtual alugado, ligado 24 horas, onde o Claude Code roda
 O Claude Code também roda na nuvem da Anthropic, sem VPS. Lá ele não alcança serviço privado, não roda em bypass e some quando a sessão fica parada, então este guia não cobre esse caminho. 
 
 ## Tamanho da máquina 
-Medimos numa máquina com 2 núcleos e 7 GB de memória, num projeto Next.js com Postgres em Docker. A suíte inteira de testes de tela levou 32 minutos, e cada sessão parada do Claude Code ocupou de 200 a 500 MB. Com menos de 4 GB, o build de um app web e o navegador dos testes disputam memória. A conta do teto das sessões está em Como pôr teto de memória e o agente de recover (txt/memoria.txt). 
+Medimos numa máquina com 2 núcleos e 7 GB de memória, num projeto Next.js (https://nextjs.org/) com Postgres (https://www.postgresql.org/) em Docker (https://www.docker.com/). A suíte inteira de testes de tela levou 32 minutos, e cada sessão parada do Claude Code ocupou de 200 a 500 MB. Com menos de 4 GB, o build de um app web e o navegador dos testes disputam memória. A conta do teto das sessões está em Como pôr teto de memória e o agente de recover (txt/memoria.txt). 
 
 Troque os nomes de exemplo
 Os comandos usam três nomes de exemplo. Troque `voce` pelo seu usuário, `agente` pelo nome da máquina e `projeto` pela pasta do repo na máquina. Escolha os três antes de começar, porque eles se repetem em várias páginas. 
 
 ARM ou x86
-A Oracle grátis é ARM. Confira se as imagens Docker e os binários do projeto têm versão `linux/arm64`. Imagem Docker que roda num Mac com Apple Silicon já é `linux/arm64` e serve. Binário que o npm ou o pip baixam no Mac é para macOS e não serve de prova. Se o seu deploy já roda em ARM, o projeto roda.
+A Oracle grátis é ARM. Confira se as imagens Docker e os binários do projeto têm versão `linux/arm64`. Imagem Docker que roda num Mac com Apple Silicon já é `linux/arm64` e serve. Binário que o npm (https://docs.npmjs.com/) ou o pip (https://pip.pypa.io/) baixam no Mac é para macOS e não serve de prova. Se o seu deploy já roda em ARM, o projeto roda.

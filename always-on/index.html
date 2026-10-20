@@ -633,12 +633,12 @@ td code.cp.ok { background: var(--ok-soft); }
 <article class="page" id="inicio" data-title="Quickstart">
   <div class="crumb">Começar</div>
   <h1>Quickstart</h1>
-  <p class="lead">Este guia põe o Claude Code numa VPS, um servidor virtual alugado que fica ligado 24 horas. Nela roda o orquestrador, uma sessão do Claude Code que recebe os seus pedidos e abre um agente por tarefa. O agente é outra sessão do Claude Code, que trabalha sozinha na pasta do projeto. Você fala com o orquestrador pelo terminal, pelo VS Code e pelo app do Claude, no celular ou no navegador. O app chega à VPS pelo Remote Control, o recurso do Claude Code que liga uma sessão ao app.</p>
+  <p class="lead">Este guia põe o <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> numa VPS, um servidor virtual alugado que fica ligado 24 horas. Nela roda o orquestrador, uma sessão do Claude Code que recebe os seus pedidos e abre um agente por tarefa. O agente é outra sessão do Claude Code, que trabalha sozinha na pasta do projeto. Você fala com o orquestrador pelo terminal, pelo <a href="https://code.visualstudio.com/" target="_blank" rel="noopener">VS Code</a> e pelo app do Claude, no celular ou no navegador. O app chega à VPS pelo <a href="https://code.claude.com/docs/en/remote-control" target="_blank" rel="noopener">Remote Control</a>, o recurso do Claude Code que liga uma sessão ao app.</p>
 
   <ol class="quick">
-    <li><span class="q-n">1</span><div><b>Consiga a VPS</b><p>A Oracle dá de graça uma VM ARM, uma máquina virtual com 2 núcleos e 12 GB de memória. O cadastro leva uns 30 minutos, e o cartão só é pré-autorizado, sem cobrança. O pedido do passo 2 faz o cadastro com você, no seu Chrome.</p><a class="q-go" href="#oracle">Como conseguir a VPS grátis na Oracle</a></div></li>
+    <li><span class="q-n">1</span><div><b>Consiga a VPS</b><p>A <a href="https://www.oracle.com/cloud/free/" target="_blank" rel="noopener">Oracle</a> dá de graça uma VM ARM, uma máquina virtual com 2 núcleos e 12 GB de memória. O cadastro leva uns 30 minutos, e o cartão só é pré-autorizado, sem cobrança. O pedido do passo 2 faz o cadastro com você, no seu <a href="https://www.google.com/chrome/" target="_blank" rel="noopener">Chrome</a>.</p><a class="q-go" href="#oracle">Como conseguir a VPS grátis na Oracle</a></div></li>
     <li><span class="q-n">2</span><div><b>Cole o pedido no Claude Code</b><p>No Claude Code do seu computador, cole o pedido. Ele faz as perguntas da montagem e monta a VPS passo a passo, e só para nos passos que precisam de você.</p><button type="button" class="q-copy" data-copy-target="prompt-text">Copiar o pedido</button> <a class="q-go" href="#setup">Ver o pedido e o que ele pergunta</a></div></li>
-    <li><span class="q-n">3</span><div><b>Peça uma tarefa pelo celular</b><p>Abra o <a href="https://claude.ai/code">claude.ai/code</a> ou a aba Code do app, escolha a sessão do orquestrador e escreva a tarefa. Ele abre um agente na pasta do projeto e avisa você quando o agente termina.</p></div></li>
+    <li><span class="q-n">3</span><div><b>Peça uma tarefa pelo celular</b><p>Abra o <a href="https://claude.ai/code" target="_blank" rel="noopener">claude.ai/code</a> ou a aba Code do app, escolha a sessão do orquestrador e escreva a tarefa. Ele abre um agente na pasta do projeto e avisa você quando o agente termina.</p></div></li>
   </ol>
   <p class="q-alt">Para montar à mão, siga <a href="#preparar">Montar a máquina</a>, do passo 1 ao 10. Os passos 6 a 9 têm um <a href="#instalador">instalador</a> de um comando. Se a Oracle não servir, veja <a href="#caminhos">Quando usar outra máquina</a>.</p>
 
@@ -679,7 +679,7 @@ td code.cp.ok { background: var(--ok-soft); }
     <tr><td>Você pede e acompanha pelo celular</td><td class="ic"><span class="y" aria-label="sim"></span></td><td class="ic"><span class="p" aria-label="só com o PC ligado"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
     <tr><td>Várias tarefas ao mesmo tempo, cada uma com teto de memória</td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="p" aria-label="em parte"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
     <tr><td>Trabalha sem pedir permissão a cada passo</td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="p" aria-label="enquanto você olha"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
-    <tr><td>Avisa e manda arquivo pelo Telegram</td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
+    <tr><td>Avisa e manda arquivo pelo <a href="https://telegram.org/" target="_blank" rel="noopener">Telegram</a></td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
     <tr><td>Usa senha sem o valor passar pela conversa</td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="p" aria-label="se você montar"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
   </table></div>
   <p class="figcap"><span class="p" aria-hidden="true"></span> em parte: o PC precisa estar ligado e você por perto.</p>
@@ -689,7 +689,7 @@ td code.cp.ok { background: var(--ok-soft); }
   <ul>
     <li>Plano Pro, Max, Team ou Enterprise do Claude. O Remote Control não funciona com chave de API, e no Team e no Enterprise um Owner precisa ligar o Remote Control nas configurações de admin do Claude Code.</li>
     <li>O Claude Code instalado na máquina que você usa hoje.</li>
-    <li>Uma chave SSH, o par de arquivos que faz o login no servidor sem senha, e o seu código num repositório git, de preferência no GitHub.</li>
+    <li>Uma chave SSH, o par de arquivos que faz o login no servidor sem senha, e o seu código num repositório <a href="https://git-scm.com/" target="_blank" rel="noopener">git</a>, de preferência no <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>.</li>
     <li>Para a Oracle, um cartão no seu nome com US$ 100 de limite. A Oracle pré-autoriza esse valor quando a conta passa para Pay As You Go, o plano pago que mantém a cota grátis sem cobrança. Cartão virtual temporário serve.</li>
   </ul>
   <p>Para conferir se a conta pode usar o Remote Control, rode <code>claude remote-control --help</code>. O comando lista as opções quando pode e responde com erro quando não pode.</p>
@@ -711,7 +711,7 @@ td code.cp.ok { background: var(--ok-soft); }
   <div class="crumb">Começar</div>
   <h1>Como deixar o Claude Code montar tudo</h1>
   <div class="page-actions"><a href="txt/setup.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Abra o Claude Code no seu computador, cole o pedido abaixo e responda às perguntas. O Claude Code monta com você, do começo ao fim, a VPS, o servidor virtual alugado que fica ligado 24 horas. Antes de cada parte da montagem, ele baixa o mini-guia dela neste site.</p>
+  <p class="lead">Abra o <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> no seu computador, cole o pedido abaixo e responda às perguntas. O Claude Code monta com você, do começo ao fim, a VPS, o servidor virtual alugado que fica ligado 24 horas. Antes de cada parte da montagem, ele baixa o mini-guia dela neste site.</p>
 
   <div class="code big folded" id="promptBox"><div class="code-head"><span>pedido para o Claude Code</span><button class="copy" data-copy="prompt-text">Copiar pedido</button></div><pre id="prompt-text">Você vai montar comigo, do começo ao fim, o Claude Code Always-On: uma VPS que fica ligada 24 horas com o Claude Code rodando, um orquestrador que abre um agente por tarefa, e canais para eu falar com ele pelo celular. Pense nisso como um produto pronto, igual a um assistente que já vem configurado: existe um padrão, e o padrão entra inteiro, a não ser que eu diga que não quero alguma parte. Eu posso nunca ter feito nada parecido, então explique tudo em português simples. A sessão pode ser longa, e tudo bem.
 
@@ -821,7 +821,7 @@ Comece pela etapa 1.</pre><button type="button" class="unfold" id="unfold">Ver o
   <div class="crumb">Começar</div>
   <h1>Como montar a infra com um comando</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="instalador">Copiar para o agente</button><a href="txt/instalador.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">O instalador faz numa VPS Ubuntu os passos 6, 7, 8 e 9 de Montar a máquina: o swap, o teto de memória dos agentes, o recover, o orquestrador, o comando <code>agent</code>, o Cockpit e a manutenção automática. Rode na VPS depois dos passos 1 a 5, com o login do Claude Code já feito.</p>
+  <p class="lead">O instalador faz numa VPS <a href="https://ubuntu.com/" target="_blank" rel="noopener">Ubuntu</a> os passos 6, 7, 8 e 9 de Montar a máquina: o swap, o teto de memória dos agentes, o recover, o orquestrador, o comando <code>agent</code>, o <a href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">Cockpit</a> e a manutenção automática. Rode na VPS depois dos passos 1 a 5, com o login do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> já feito.</p>
 
   <h2>Rodar</h2>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>curl -fsSL https://joaosavi.github.io/always-on/scripts/get.sh | sh
@@ -839,7 +839,7 @@ sed -i 's/^ORCHESTRATOR=.*/ORCHESTRATOR=&lt;orquestrador&gt;/' ~/always-on/confi
     <tr><td data-label="Peça">Cockpit</td><td data-label="Como fica">O pacote inteiro de mods. Ver <a href="#mods">Como instalar o Cockpit</a></td></tr>
     <tr><td data-label="Peça">Manutenção</td><td data-label="Como fica">Os timers <code>sessions-restart</code> e <code>sessions-idle</code>, e o needrestart sem reiniciar as sessões. Ver <a href="#manter">Como deixar a máquina se cuidar sozinha</a></td></tr>
   </table></div>
-  <p>Ele também marca as pastas do orquestrador e do recover como confiáveis e aceita os avisos do Remote Control e do bypass. Sem isso, o serviço travaria na subida, esperando uma tecla.</p>
+  <p>Ele também marca as pastas do orquestrador e do recover como confiáveis e aceita os avisos do <a href="https://code.claude.com/docs/en/remote-control" target="_blank" rel="noopener">Remote Control</a> e do bypass. Sem isso, o serviço travaria na subida, esperando uma tecla.</p>
 
   <h2>Depois de rodar</h2>
   <ol class="steps">
@@ -848,7 +848,7 @@ sed -i 's/^ORCHESTRATOR=.*/ORCHESTRATOR=&lt;orquestrador&gt;/' ~/always-on/confi
     <li>Confira com <code>~/always-on/install.sh --check</code>. Ele só olha, e sai com erro quando falta alguma coisa.</li>
     <li>Siga para <a href="#provar">Como provar que tudo funciona</a>.</li>
   </ol>
-  <p>O instalador pode rodar de novo. Ele grava só o arquivo que falta ou mudou, e o <code>CLAUDE.md</code> e o <code>projects.json</code> ficam como você deixou. Os scripts estão no <a href="https://github.com/joaosavi/joaosavi.github.io/tree/main/always-on/scripts">GitHub</a>.</p>
+  <p>O instalador pode rodar de novo. Ele grava só o arquivo que falta ou mudou, e o <code>CLAUDE.md</code> e o <code>projects.json</code> ficam como você deixou. Os scripts estão no <a href="https://github.com/joaosavi/joaosavi.github.io/tree/main/always-on/scripts" target="_blank" rel="noopener">GitHub</a>.</p>
   <button type="button" class="done-btn" data-done="instalador">Marquei como feito</button>
 </article>
 
@@ -856,22 +856,22 @@ sed -i 's/^ORCHESTRATOR=.*/ORCHESTRATOR=&lt;orquestrador&gt;/' ~/always-on/confi
   <div class="crumb">Canais e ferramentas</div>
   <h1>Como conseguir o bot do Telegram e o número do WhatsApp</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="canais-conseguir">Copiar para o agente</button><a href="txt/canais-conseguir.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">O bot do Telegram se cria em dois minutos pelo BotFather, o bot do próprio Telegram que cria outros bots. O WhatsApp pede um número que receba um SMS uma vez, e um número de ativação, alugado por alguns minutos, resolve.</p>
+  <p class="lead">O bot do <a href="https://telegram.org/" target="_blank" rel="noopener">Telegram</a> se cria em dois minutos pelo <a href="https://t.me/BotFather" target="_blank" rel="noopener">BotFather</a>, o bot do próprio Telegram que cria outros bots. O <a href="https://www.whatsapp.com/" target="_blank" rel="noopener">WhatsApp</a> pede um número que receba um SMS uma vez, e um número de ativação, alugado por alguns minutos, resolve.</p>
 
   <h2>Para que servem os dois canais</h2>
-  <p>Os dois canais levam arquivo e aviso entre você e a máquina, a VPS onde o Claude Code roda. Pelo WhatsApp, você encaminha um PDF à máquina sem baixar e subir no chat. Pelo Telegram, o orquestrador, a sessão que recebe os pedidos e distribui as tarefas, avisa que um teste quebrou ou que um relatório ficou pronto, e manda o arquivo junto. Conversa e pedido de trabalho vão pelo app do Claude, que chega à máquina pelo Remote Control, o recurso que liga uma sessão do Claude Code ao app.</p>
+  <p>Os dois canais levam arquivo e aviso entre você e a máquina, a VPS onde o <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> roda. Pelo WhatsApp, você encaminha um PDF à máquina sem baixar e subir no chat. Pelo Telegram, o orquestrador, a sessão que recebe os pedidos e distribui as tarefas, avisa que um teste quebrou ou que um relatório ficou pronto, e manda o arquivo junto. Conversa e pedido de trabalho vão pelo app do Claude, que chega à máquina pelo <a href="https://code.claude.com/docs/en/remote-control" target="_blank" rel="noopener">Remote Control</a>, o recurso que liga uma sessão do Claude Code ao app.</p>
   <div class="callout warn"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg><div><strong class="label">Qualquer pessoa pode mandar mensagem ao número e ao bot</strong><p>Quem descobre o número ou o bot pode tentar mandar ordens ao agente, a sessão do Claude Code que executa as tarefas. Roubar uma conta de WhatsApp ou de Telegram também dá menos trabalho que roubar a sua conta do Claude. Por isso cada canal só aceita as contas de uma lista, e o agente confirma pelo app antes de agir sobre um pedido que chegue por ali. Não configure os canais como chat, embora seja possível.</p></div></div>
 
 
   <h2>O bot do Telegram</h2>
   <ol class="steps">
-    <li><b>Abrir o BotFather</b>No Telegram, abra o <a href="https://t.me/BotFather">@BotFather</a> e mande <code>/newbot</code>.</li>
+    <li><b>Abrir o BotFather</b>No Telegram, abra o <a href="https://t.me/BotFather" target="_blank" rel="noopener">@BotFather</a> e mande <code>/newbot</code>.</li>
     <li><b>Dar nome e usuário</b>Escolha o nome que aparece nas conversas e um usuário terminado em <code>bot</code>, como <code>meu_agente_bot</code>.</li>
     <li><b>Guardar o token</b>O BotFather responde com o token, a senha que dá controle total do bot, no formato <code>123456789:AAH…</code>. Guarde o token no cofre, o gerenciador de senhas que o agente usa pelo nome, ou entregue direto à máquina.</li>
   </ol>
 
   <h2>O número do WhatsApp</h2>
-  <p>O Telegram cria um bot sem número. O WhatsApp pede um número de celular que receba SMS. Um serviço de ativação, como o <a href="https://5sim.net/">5sim</a>, aluga um número por alguns minutos só para receber o código.</p>
+  <p>O Telegram cria um bot sem número. O WhatsApp pede um número de celular que receba SMS. Um serviço de ativação, como o <a href="https://5sim.net/" target="_blank" rel="noopener">5sim</a>, aluga um número por alguns minutos só para receber o código.</p>
   <ol class="steps">
     <li><b>Pôr saldo</b>Crie a conta no 5sim e ponha um saldo pequeno. O 5sim aceita Pix. Um número para WhatsApp custa a partir de uns US$ 0,06, e o preço muda com o país e o operador.</li>
     <li><b>Comprar o número</b>Escolha o país e o operador, e compre uma ativação de WhatsApp. O número fica com você de 10 a 20 minutos.</li>
@@ -892,17 +892,17 @@ sed -i 's/^ORCHESTRATOR=.*/ORCHESTRATOR=&lt;orquestrador&gt;/' ~/always-on/confi
   <div class="crumb">Canais e ferramentas</div>
   <h1>Como ligar o Telegram e o WhatsApp à máquina</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="canais-ligar">Copiar para o agente</button><a href="txt/canais-ligar.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">O WhatsApp vira uma caixa de entrada de arquivos e mensagens na máquina, a VPS onde o Claude Code roda. O Telegram vira o canal em que o orquestrador avisa você e manda arquivos. O orquestrador é a sessão do Claude Code que recebe os pedidos e distribui as tarefas.</p>
+  <p class="lead">O <a href="https://www.whatsapp.com/" target="_blank" rel="noopener">WhatsApp</a> vira uma caixa de entrada de arquivos e mensagens na máquina, a VPS onde o <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> roda. O <a href="https://telegram.org/" target="_blank" rel="noopener">Telegram</a> vira o canal em que o orquestrador avisa você e manda arquivos. O orquestrador é a sessão do Claude Code que recebe os pedidos e distribui as tarefas.</p>
 
   <h2>WhatsApp</h2>
-  <p>O <a href="https://github.com/openclaw/wacli">wacli</a> liga um número descartável à máquina como aparelho vinculado do WhatsApp. Você encaminha mensagem, áudio e arquivo para esse número, e um serviço grava cada mensagem num <code>.md</code> numa pasta da máquina, com a mídia ao lado. O serviço só grava as mensagens dos números da lista e ignora o resto. O agente, a sessão do Claude Code que faz o trabalho, lê dessa pasta quando você pedir. Uma API de Whisper pode transcrever os áudios. O serviço só recebe e não responde, então ninguém conversa com o Claude pelo WhatsApp.</p>
+  <p>O <a href="https://github.com/openclaw/wacli" target="_blank" rel="noopener">wacli</a> liga um número descartável à máquina como aparelho vinculado do WhatsApp. Você encaminha mensagem, áudio e arquivo para esse número, e um serviço grava cada mensagem num <code>.md</code> numa pasta da máquina, com a mídia ao lado. O serviço só grava as mensagens dos números da lista e ignora o resto. O agente, a sessão do Claude Code que faz o trabalho, lê dessa pasta quando você pedir. Uma API de <a href="https://github.com/openai/whisper" target="_blank" rel="noopener">Whisper</a> pode transcrever os áudios. O serviço só recebe e não responde, então ninguém conversa com o Claude pelo WhatsApp.</p>
 
 
   <h2>Telegram</h2>
   <p>O plugin oficial de canal do Telegram entrega ao orquestrador o que você manda ao bot, e o orquestrador usa o mesmo bot para avisar você e mandar arquivos. O bot só aceita as contas da lista.</p>
   <ol class="steps">
     <li><b>Ter o bot</b>Crie o bot e guarde o token, a senha do bot, como em <a href="#canais-conseguir">Como conseguir o bot do Telegram e o número do WhatsApp</a>.</li>
-    <li><b>Instalar</b>O plugin roda em Bun, um runtime de JavaScript. Instale o Bun e o plugin, e grave o token:
+    <li><b>Instalar</b>O plugin roda em <a href="https://bun.com/" target="_blank" rel="noopener">Bun</a>, um runtime de JavaScript. Instale o Bun e o plugin, e grave o token:
       <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>curl -fsSL https://bun.sh/install | bash</pre></div>
       <div class="code"><div class="code-head"><span>Claude Code, na máquina</span><button class="copy">Copiar</button></div><pre># na máquina, numa sessão do Claude Code
 /plugin install telegram@claude-plugins-official
@@ -921,10 +921,10 @@ sed -i 's/^ORCHESTRATOR=.*/ORCHESTRATOR=&lt;orquestrador&gt;/' ~/always-on/confi
   <div class="crumb">Canais e ferramentas</div>
   <h1>Como dar senhas ao agente sem ele ver o valor</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="cofre">Copiar para o agente</button><a href="txt/cofre.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Um cofre é um gerenciador de senhas. Aqui ele ganha uma conta só do agente, a sessão do Claude Code que trabalha na máquina. O agente usa cada senha pelo nome, e o valor não passa pela conversa.</p>
+  <p class="lead">Um cofre é um gerenciador de senhas. Aqui ele ganha uma conta só do agente, a sessão do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> que trabalha na máquina. O agente usa cada senha pelo nome, e o valor não passa pela conversa.</p>
 
   <h2>Como funciona</h2>
-  <p>O cofre pode ser o Bitwarden ou um Vaultwarden seu. A conta do agente enxerga só uma organização, com os itens que você compartilhar com ela. Um comando pequeno destrava o cofre, entrega o valor ao processo e trava de novo:</p>
+  <p>O cofre pode ser o <a href="https://bitwarden.com/" target="_blank" rel="noopener">Bitwarden</a> ou um <a href="https://github.com/dani-garcia/vaultwarden" target="_blank" rel="noopener">Vaultwarden</a> seu. A conta do agente enxerga só uma organização, com os itens que você compartilhar com ela. Um comando pequeno destrava o cofre, entrega o valor ao processo e trava de novo:</p>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>vault names                                  # lista os nomes, sem valor
 vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do comando</pre></div>
   <p>O valor fica só no ambiente do comando. O <a href="#mods">Cockpit</a> é um pacote de mods para o Claude Code, e o <code>secret-guard</code> dele lê os valores do cofre e mascara o segredo que aparecer numa saída. O usuário que roda as sessões ainda consegue destravar o cofre. Por isso o cofre evita vazamento por acidente, mas não impede um agente que queira ler a senha.</p>
@@ -933,7 +933,7 @@ vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do
   <div class="table-wrap stack"><table>
     <tr><th>Cofre</th><th>Onde as senhas ficam</th><th>Quem mantém</th></tr>
     <tr><td data-label="Cofre">Bitwarden</td><td data-label="Onde as senhas ficam">Na nuvem do Bitwarden, de graça para uma pessoa</td><td data-label="Quem mantém">O Bitwarden</td></tr>
-    <tr><td data-label="Cofre">Vaultwarden</td><td data-label="Onde as senhas ficam">Na sua VPS, num container Docker</td><td data-label="Quem mantém">Você: atualizar a imagem e guardar cópia da pasta de dados</td></tr>
+    <tr><td data-label="Cofre">Vaultwarden</td><td data-label="Onde as senhas ficam">Na sua VPS, num container <a href="https://www.docker.com/" target="_blank" rel="noopener">Docker</a></td><td data-label="Quem mantém">Você: atualizar a imagem e guardar cópia da pasta de dados</td></tr>
   </table></div>
   <p>O Vaultwarden é um servidor compatível com o Bitwarden: os mesmos apps, a mesma extensão e o mesmo comando <code>bw</code> funcionam com ele. Para quem começa, o Bitwarden na nuvem dá menos trabalho.</p>
 
@@ -946,13 +946,13 @@ vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do
     <tr><td>Anexo de arquivo, acesso de emergência e relatórios</td><td>Só no Premium</td></tr>
     <tr><td>Senhas, notas, cartões e passkeys</td><td>Sem limite</td></tr>
   </table></div>
-  <p>O Vaultwarden libera todos esses recursos de graça, inclusive o código de 6 dígitos e organizações sem limite de pessoas. Os limites do Bitwarden estão na <a href="https://bitwarden.com/pricing/">página de preços</a> e na <a href="https://bitwarden.com/help/about-organizations/">documentação das organizações</a>, consultadas em 20/10/2026.</p>
+  <p>O Vaultwarden libera todos esses recursos de graça, inclusive o código de 6 dígitos e organizações sem limite de pessoas. Os limites do Bitwarden estão na <a href="https://bitwarden.com/pricing/" target="_blank" rel="noopener">página de preços</a> e na <a href="https://bitwarden.com/help/about-organizations/" target="_blank" rel="noopener">documentação das organizações</a>, consultadas em 20/10/2026.</p>
 
   <h2>Como subir o Vaultwarden na VPS</h2>
-  <p>O Vaultwarden e a extensão do Bitwarden só aceitam endereço com HTTPS, até em <code>localhost</code>. Testamos o Vaultwarden 1.37.4 e a extensão 2026.10.0: por <code>http</code>, o cofre web recusa o login e a extensão recusa o endereço. O HTTPS precisa de um domínio, e o DuckDNS dá um de graça, no formato <code>&lt;nome&gt;.duckdns.org</code>. O Caddy, um servidor web, fica na frente do cofre e tira o certificado sozinho.</p>
+  <p>O Vaultwarden e a extensão do Bitwarden só aceitam endereço com HTTPS, até em <code>localhost</code>. Testamos o Vaultwarden 1.37.4 e a extensão 2026.10.0: por <code>http</code>, o cofre web recusa o login e a extensão recusa o endereço. O HTTPS precisa de um domínio, e o <a href="https://www.duckdns.org/" target="_blank" rel="noopener">DuckDNS</a> dá um de graça, no formato <code>&lt;nome&gt;.duckdns.org</code>. O <a href="https://caddyserver.com/" target="_blank" rel="noopener">Caddy</a>, um servidor web, fica na frente do cofre e tira o certificado sozinho.</p>
   <ol class="steps">
-    <li><b>Pegue o domínio</b>Entre em <a href="https://www.duckdns.org">duckdns.org</a> com a conta do GitHub ou do Google, escolha o nome e ponha no campo <strong>current ip</strong> o IP público da VPS. Guarde o token da página no cofre.</li>
-    <li><b>Abra as portas 80 e 443</b>O Let's Encrypt, que emite o certificado, confere o domínio pela porta 80, e o cofre responde na 443. Na Oracle, abra as duas na security list e no <code>iptables</code>, como a porta 22 em <a href="#oracle">Como conseguir a VPS grátis na Oracle</a>.</li>
+    <li><b>Pegue o domínio</b>Entre em <a href="https://www.duckdns.org" target="_blank" rel="noopener">duckdns.org</a> com a conta do <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a> ou do Google, escolha o nome e ponha no campo <strong>current ip</strong> o IP público da VPS. Guarde o token da página no cofre.</li>
+    <li><b>Abra as portas 80 e 443</b>O <a href="https://letsencrypt.org/" target="_blank" rel="noopener">Let's Encrypt</a>, que emite o certificado, confere o domínio pela porta 80, e o cofre responde na 443. Na <a href="https://www.oracle.com/cloud/free/" target="_blank" rel="noopener">Oracle</a>, abra as duas na security list e no <code>iptables</code>, como a porta 22 em <a href="#oracle">Como conseguir a VPS grátis na Oracle</a>.</li>
     <li><b>Suba o Vaultwarden</b>Ele escuta só no <code>127.0.0.1</code>, e quem fala com a internet é o Caddy:
       <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>sudo mkdir -p /srv/vaultwarden
 docker run -d --name vaultwarden \
@@ -992,8 +992,8 @@ sudo systemctl reload caddy</pre></div>
   <p>O cofre inteiro mora em <code>/srv/vaultwarden</code>. Copie essa pasta para fora da VPS de vez em quando, porque sem ela as senhas se perdem.</p>
 
   <h2>Com o Coolify na máquina</h2>
-  <p>O proxy do <a href="#servicos">Coolify</a> já ocupa as portas 80 e 443, então o Caddy não sobe. Crie o Vaultwarden como serviço do Coolify, em <strong>+ New</strong> e depois <strong>Services</strong>, e ponha o domínio do DuckDNS nele. O proxy do Coolify tira o certificado do mesmo jeito.</p>
-  <p>O endereço do GitHub Pages, como <code>voce.github.io</code>, não serve: ele é do GitHub, não aponta para a sua VPS e só entrega arquivos estáticos.</p>
+  <p>O proxy do <a href="#servicos">Coolify</a> já ocupa as portas 80 e 443, então o Caddy não sobe. Crie o Vaultwarden como serviço do <a href="https://coolify.io/" target="_blank" rel="noopener">Coolify</a>, em <strong>+ New</strong> e depois <strong>Services</strong>, e ponha o domínio do DuckDNS nele. O proxy do Coolify tira o certificado do mesmo jeito.</p>
+  <p>O endereço do <a href="https://pages.github.com/" target="_blank" rel="noopener">GitHub Pages</a>, como <code>voce.github.io</code>, não serve: ele é do GitHub, não aponta para a sua VPS e só entrega arquivos estáticos.</p>
   <button type="button" class="done-btn" data-done="cofre">Marquei como feito</button>
 </article>
 
@@ -1011,10 +1011,10 @@ sudo systemctl reload caddy</pre></div>
   </table></div>
 
   <h2>O seu Chrome</h2>
-  <p>Instale no seu Chrome a extensão <a href="https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn">Claude in Chrome</a>. Uma sessão da máquina aberta com <code>--chrome</code> usa o seu navegador pela ponte do claude.ai, com os seus logins, e você acompanha ao vivo o que ela clica. O computador precisa estar ligado, com o Chrome aberto.</p>
+  <p>Instale no seu Chrome a extensão <a href="https://chromewebstore.google.com/detail/claude/fcoeoabgfenejglbffodgkkbkcdhcgfn" target="_blank" rel="noopener">Claude in Chrome</a>. Uma sessão da máquina aberta com <code>--chrome</code> usa o seu navegador pela ponte do <a href="https://claude.ai" target="_blank" rel="noopener">claude.ai</a>, com os seus logins, e você acompanha ao vivo o que ela clica. O computador precisa estar ligado, com o Chrome aberto.</p>
 
   <h2>O navegador sem tela</h2>
-  <p>O <a href="https://github.com/microsoft/playwright-mcp">Playwright MCP</a> roda na VPS um Chromium headless, um navegador sem tela, para o agente navegar sozinho, sem supervisão. Ligado ao <a href="#cofre">cofre</a>, ele digita a senha pelo nome do segredo, e o valor não aparece no que ele devolve.</p>
+  <p>O <a href="https://github.com/microsoft/playwright-mcp" target="_blank" rel="noopener">Playwright MCP</a> roda na VPS um <a href="https://www.chromium.org/" target="_blank" rel="noopener">Chromium</a> headless, um navegador sem tela, para o agente navegar sozinho, sem supervisão. Ligado ao <a href="#cofre">cofre</a>, ele digita a senha pelo nome do segredo, e o valor não aparece no que ele devolve.</p>
 
   <h2>Por que o Google barra o navegador sem tela</h2>
   <p>O Chromium headless se denuncia. O navegador se apresenta como <code>HeadlessChrome</code>, liga a marca de automação que os sites leem, e a conexão vem de um IP de nuvem. No login, o Google lê esses sinais e responde "This browser or app may not be secure", antes mesmo da senha.</p>
@@ -1026,21 +1026,21 @@ sudo systemctl reload caddy</pre></div>
   <div class="crumb">Canais e ferramentas</div>
   <h1>Como dar ao agente e-mail, conectores e ferramentas</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="ferramentas">Copiar para o agente</button><a href="txt/ferramentas.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Depois da montagem básica, ligue os conectores da sua conta do Claude, um e-mail só do agente e as ferramentas de linha de comando. O agente é a sessão do Claude Code que trabalha na máquina.</p>
+  <p class="lead">Depois da montagem básica, ligue os conectores da sua conta do Claude, um e-mail só do agente e as ferramentas de linha de comando. O agente é a sessão do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> que trabalha na máquina.</p>
 
   <h2>Conectores do claude.ai</h2>
-  <p>Os conectores que você liga em <a href="https://claude.ai/settings/connectors">claude.ai/settings/connectors</a>, como Gmail, Drive, Slack e Notion, aparecem nas sessões da máquina, porque elas entram com a sua conta, e agem em seu nome. Para impedir um agente de ler o seu e-mail, bloqueie o conector na sessão dele com <code>--disallowedTools</code>.</p>
+  <p>Os conectores que você liga em <a href="https://claude.ai/settings/connectors" target="_blank" rel="noopener">claude.ai/settings/connectors</a>, como <a href="https://www.google.com/gmail/about/" target="_blank" rel="noopener">Gmail</a>, <a href="https://www.google.com/drive/" target="_blank" rel="noopener">Drive</a>, <a href="https://slack.com/" target="_blank" rel="noopener">Slack</a> e <a href="https://www.notion.com/" target="_blank" rel="noopener">Notion</a>, aparecem nas sessões da máquina, porque elas entram com a sua conta, e agem em seu nome. Para impedir um agente de ler o seu e-mail, bloqueie o conector na sessão dele com <code>--disallowedTools</code>.</p>
 
 
   <h2>E-mail do agente</h2>
-  <p>Uma conta Gmail só do agente recebe confirmação de cadastro e código de login sem passar pelo seu e-mail. O Google barra o login headless, feito por um navegador sem tela, então o acesso é por OAuth: um app seu no Google Cloud, um login feito uma vez pelo navegador, e o refresh token, a credencial que renova o acesso, guardado no cofre de senhas do agente. Um CLI como o <a href="https://github.com/googleworkspace/cli">gws</a> lê e envia com o token e encerra. Para o resto da conta, como a página da conta e os serviços sem API, veja <a href="#google">Como deixar a conta Google do agente logada na VPS</a>.</p>
+  <p>Uma conta Gmail só do agente recebe confirmação de cadastro e código de login sem passar pelo seu e-mail. O Google barra o login headless, feito por um navegador sem tela, então o acesso é por OAuth: um app seu no <a href="https://cloud.google.com/" target="_blank" rel="noopener">Google Cloud</a>, um login feito uma vez pelo navegador, e o refresh token, a credencial que renova o acesso, guardado no cofre de senhas do agente. Um CLI como o <a href="https://github.com/googleworkspace/cli" target="_blank" rel="noopener">gws</a> lê e envia com o token e encerra. Para o resto da conta, como a página da conta e os serviços sem API, veja <a href="#google">Como deixar a conta Google do agente logada na VPS</a>.</p>
 
 
   <h2>Ferramentas úteis</h2>
   <ul>
-    <li><code>gh</code>, <code>jq</code>, <code>tmux</code> e Docker, que o guia já instala.</li>
-    <li>Um gerenciador de linguagem para cada stack, como <code>uv</code> para Python e <code>nvm</code> para Node. Peça ao agente para instalar o que o projeto pedir.</li>
-    <li>O MCP do <a href="https://context7.com">Context7</a>, que dá ao agente a documentação atual das bibliotecas.</li>
+    <li><code>gh</code>, <code>jq</code>, <code>tmux</code> e <a href="https://www.docker.com/" target="_blank" rel="noopener">Docker</a>, que o guia já instala.</li>
+    <li>Um gerenciador de linguagem para cada stack, como <code>uv</code> para <a href="https://www.python.org/" target="_blank" rel="noopener">Python</a> e <code>nvm</code> para <a href="https://nodejs.org/" target="_blank" rel="noopener">Node</a>. Peça ao agente para instalar o que o projeto pedir.</li>
+    <li>O MCP do <a href="https://context7.com" target="_blank" rel="noopener">Context7</a>, que dá ao agente a documentação atual das bibliotecas.</li>
   </ul>
   <button type="button" class="done-btn" data-done="ferramentas">Marquei como feito</button>
 </article>
@@ -1049,19 +1049,19 @@ sudo systemctl reload caddy</pre></div>
   <div class="crumb">Canais e ferramentas</div>
   <h1>Como deixar a conta Google do agente logada na VPS</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="google">Copiar para o agente</button><a href="txt/google.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Este é o terceiro navegador de <a href="#navegador">Como deixar o agente usar um navegador</a>. A API do Gmail cobre ler e mandar e-mail. Para o resto da conta Google do agente, como a página da conta, a foto e os serviços sem API, o agente precisa de um navegador logado. Esta página monta um Chrome que fica logado na VPS e que os agentes usam pelo MCP.</p>
+  <p class="lead">Este é o terceiro navegador de <a href="#navegador">Como deixar o agente usar um navegador</a>. A <a href="https://developers.google.com/workspace/gmail/api" target="_blank" rel="noopener">API do Gmail</a> cobre ler e mandar e-mail. Para o resto da conta Google do agente, como a página da conta, a foto e os serviços sem API, o agente precisa de um navegador logado. Esta página monta um <a href="https://www.google.com/chrome/" target="_blank" rel="noopener">Chrome</a> que fica logado na VPS e que os agentes usam pelo MCP.</p>
 
   <h2>Por que o navegador sem tela não serve</h2>
-  <p>No login, o Google lê os sinais de automação do navegador. O Chromium headless do <a href="#navegador">navegador da máquina</a> leva "This browser or app may not be secure" já na tela do e-mail. Passa um Chrome com tela, sem flag de automação, digitando como uma pessoa.</p>
+  <p>No login, o Google lê os sinais de automação do navegador. O <a href="https://www.chromium.org/" target="_blank" rel="noopener">Chromium</a> headless do <a href="#navegador">navegador da máquina</a> leva "This browser or app may not be secure" já na tela do e-mail. Passa um Chrome com tela, sem flag de automação, digitando como uma pessoa.</p>
 
   <h2>Como fica</h2>
   <div class="table-wrap"><table>
     <tr><th>Peça</th><th>O que faz</th></tr>
     <tr><td>Tela virtual</td><td>O <code>Xvfb</code> dá ao Chrome uma tela que não existe, numa VPS sem monitor. Nos comandos abaixo, ela é a tela <code>:77</code></td></tr>
-    <tr><td>Chrome com perfil em disco</td><td>O Chrome for Testing do Playwright, com uma pasta de perfil própria que guarda a sessão entre um uso e outro. O Google não publica Chrome para Linux ARM, e esse binário serve</td></tr>
+    <tr><td>Chrome com perfil em disco</td><td>O <a href="https://googlechromelabs.github.io/chrome-for-testing/" target="_blank" rel="noopener">Chrome for Testing</a> do <a href="https://playwright.dev/" target="_blank" rel="noopener">Playwright</a>, com uma pasta de perfil própria que guarda a sessão entre um uso e outro. O Google não publica Chrome para Linux ARM, e esse binário serve</td></tr>
     <tr><td>Porta de controle</td><td>A porta CDP, que deixa outro programa controlar o Chrome, só em <code>127.0.0.1</code></td></tr>
     <tr><td>MCP para os agentes</td><td>O <code>@playwright/mcp</code> com <code>--cdp-endpoint</code>, ligado a esse Chrome. O agente navega na sessão já logada</td></tr>
-    <tr><td>Serviço do systemd</td><td>Sobe a tela e o Chrome, e sobe só quando alguém usa. Parado, não gasta memória. Ligado, gasta uns 410 MB</td></tr>
+    <tr><td>Serviço do <a href="https://systemd.io/" target="_blank" rel="noopener">systemd</a></td><td>Sobe a tela e o Chrome, e sobe só quando alguém usa. Parado, não gasta memória. Ligado, gasta uns 410 MB</td></tr>
   </table></div>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>sudo apt-get install -y xvfb xdotool x11vnc novnc websockify
 npx -y playwright install chromium</pre></div>
@@ -1069,13 +1069,13 @@ npx -y playwright install chromium</pre></div>
   <h2>O login</h2>
   <ol class="steps">
     <li><b>Suba o Chrome sem a porta de controle</b>A porta CDP é o último sinal de automação que sobra. Durante o login, o Chrome abre sem ela.</li>
-    <li><b>Digite pelo xdotool</b>O <code>xdotool</code> digita o e-mail e a senha na tela virtual, como um teclado. A senha sai do <a href="#cofre">cofre</a> e chega ao <code>xdotool</code> pela entrada padrão, sem aparecer em argumento nem no <code>ps</code>.</li>
+    <li><b>Digite pelo <a href="https://github.com/jordansissel/xdotool" target="_blank" rel="noopener">xdotool</a></b>O <code>xdotool</code> digita o e-mail e a senha na tela virtual, como um teclado. A senha sai do <a href="#cofre">cofre</a> e chega ao <code>xdotool</code> pela entrada padrão, sem aparecer em argumento nem no <code>ps</code>.</li>
     <li><b>Feche e suba de novo com a porta</b>Depois do login, o Chrome volta com a porta CDP em <code>127.0.0.1</code>, e a sessão continua valendo.</li>
   </ol>
   <div class="callout warn"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg><div><strong class="label">Feche o Chrome pelo CDP, nunca matando o processo</strong><p>O Chrome grava os cookies no disco de 30 em 30 segundos e, ao receber SIGTERM, sai sem gravar. Um login seguido de SIGTERM volta deslogado. Feche com o comando <code>Browser.close</code> pelo CDP e ponha <code>KillMode=mixed</code> na unit, para o sinal do systemd chegar só ao script que fecha o Chrome.</p></div></div>
 
   <h2>Quando o Google pede um desafio</h2>
-  <p>Às vezes o Google pede um código no celular ou um captcha que só você resolve. Exponha a tela virtual pelo noVNC, só em <code>127.0.0.1</code>, e abra pelo túnel SSH:</p>
+  <p>Às vezes o Google pede um código no celular ou um captcha que só você resolve. Exponha a tela virtual pelo <a href="https://novnc.com/" target="_blank" rel="noopener">noVNC</a>, só em <code>127.0.0.1</code>, e abra pelo túnel SSH:</p>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>x11vnc -display :77 -localhost -nopw -forever -shared -bg -rfbport 5977
 websockify --web /usr/share/novnc 127.0.0.1:6080 127.0.0.1:5977</pre></div>
   <div class="code"><div class="code-head"><span>bash, no seu computador</span><button class="copy">Copiar</button></div><pre>ssh -N -L 6080:127.0.0.1:6080 &lt;usuario&gt;@&lt;ip&gt;</pre></div>
@@ -1085,7 +1085,7 @@ websockify --web /usr/share/novnc 127.0.0.1:6080 127.0.0.1:5977</pre></div>
   <p>Copiar os cookies da sessão para outro navegador não funciona. Os cookies exportados não logam num perfil limpo, e o Google derruba também a sessão do perfil original. Testamos duas vezes, com o mesmo resultado. A sessão mora no perfil em disco, e quando ela cai, o caminho é fazer o login de novo.</p>
 
   <h2>Saber quando a sessão cai</h2>
-  <p>Sessão do Google parada envelhece. Um timer diário sobe o Chrome, abre o Gmail e a página da conta, confere se o e-mail do agente aparece sem cair na tela de login, e bate o resultado num monitor push do Uptime Kuma. Se a sessão cair, ou se o timer passar 26 horas sem bater, o Kuma avisa no Telegram. O Kuma está em <a href="#servicos">Suba seus sites na VPS e saiba na hora quando caem</a>.</p>
+  <p>Sessão do Google parada envelhece. Um timer diário sobe o Chrome, abre o <a href="https://www.google.com/gmail/about/" target="_blank" rel="noopener">Gmail</a> e a página da conta, confere se o e-mail do agente aparece sem cair na tela de login, e bate o resultado num monitor push do <a href="https://uptime.kuma.pet/" target="_blank" rel="noopener">Uptime Kuma</a>. Se a sessão cair, ou se o timer passar 26 horas sem bater, o Kuma avisa no <a href="https://telegram.org/" target="_blank" rel="noopener">Telegram</a>. O Kuma está em <a href="#servicos">Suba seus sites na VPS e saiba na hora quando caem</a>.</p>
   <button type="button" class="done-btn" data-done="google">Marquei como feito</button>
 </article>
 
@@ -1093,19 +1093,19 @@ websockify --web /usr/share/novnc 127.0.0.1:6080 127.0.0.1:5977</pre></div>
   <div class="crumb">Conseguir a máquina</div>
   <h1>Como conseguir a VPS grátis na Oracle</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="oracle">Copiar para o agente</button><a href="txt/oracle.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Uma VPS é um servidor virtual alugado, ligado 24 horas. A Oracle dá uma de graça, sem prazo: uma VM ARM com 2 núcleos e 12 GB de memória, até 200 GB de disco e 10 TB de tráfego de saída por mês. Com a conta Pay As You Go, você continua sem pagar nada dentro desses limites, consegue criar a VM, e ela não é recolhida por ociosidade.</p>
+  <p class="lead">Uma VPS é um servidor virtual alugado, ligado 24 horas. A <a href="https://www.oracle.com/cloud/free/" target="_blank" rel="noopener">Oracle</a> dá uma de graça, sem prazo: uma VM ARM com 2 núcleos e 12 GB de memória, até 200 GB de disco e 10 TB de tráfego de saída por mês. Com a conta Pay As You Go, você continua sem pagar nada dentro desses limites, consegue criar a VM, e ela não é recolhida por ociosidade.</p>
 
   <h2>O vídeo</h2>
   <div class="video">
     <iframe src="https://www.youtube-nocookie.com/embed/bk5sWon4tnE" title="Como ter um servidor VPS grátis pra sempre sem gambiarra, de Tiago Matos" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-    <p><a href="https://www.youtube.com/watch?v=bk5sWon4tnE">Como ter um servidor VPS grátis pra sempre sem gambiarra</a>, de <a href="https://www.youtube.com/channel/UCXUWGUoYNwtRxaRPoB4KocA">Tiago Matos</a>. Se você travar em alguma tela, assista ao vídeo. Ele faz o cadastro, o upgrade e a VM inteira no console em português. OCPU é a unidade em que a Oracle conta os núcleos de processador. O vídeo usa a cota antiga de 4 OCPU e 24 GB, e a cota atual é de 2 OCPU e 12 GB.</p>
+    <p><a href="https://www.youtube.com/watch?v=bk5sWon4tnE" target="_blank" rel="noopener">Como ter um servidor VPS grátis pra sempre sem gambiarra</a>, de <a href="https://www.youtube.com/channel/UCXUWGUoYNwtRxaRPoB4KocA" target="_blank" rel="noopener">Tiago Matos</a>. Se você travar em alguma tela, assista ao vídeo. Ele faz o cadastro, o upgrade e a VM inteira no console em português. OCPU é a unidade em que a Oracle conta os núcleos de processador. O vídeo usa a cota antiga de 4 OCPU e 24 GB, e a cota atual é de 2 OCPU e 12 GB.</p>
   </div>
 
   <h2>O que vem de graça</h2>
   <div class="table-wrap"><table>
     <tr><th>Recurso</th><th>Limite</th></tr>
     <tr><td>VM ARM, <code>VM.Standard.A1.Flex</code></td><td>1.500 OCPU-hora e 9.000 GB-hora por mês, o que dá 2 OCPU e 12 GB ligados o mês inteiro</td></tr>
-    <tr><td>VM AMD, <code>VM.Standard.E2.1.Micro</code></td><td>Até duas, com 1/8 de OCPU e 1 GB cada. Pequenas demais para o Claude Code</td></tr>
+    <tr><td>VM AMD, <code>VM.Standard.E2.1.Micro</code></td><td>Até duas, com 1/8 de OCPU e 1 GB cada. Pequenas demais para o <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a></td></tr>
     <tr><td>Disco</td><td>200 GB somando todos os volumes de boot e de bloco, com mínimo de 47 GB por VM, e 5 backups de volume</td></tr>
     <tr><td>Tráfego de saída</td><td>10 TB por mês</td></tr>
     <tr><td>IP público</td><td>O efêmero, um por VM</td></tr>
@@ -1132,7 +1132,7 @@ websockify --web /usr/share/novnc 127.0.0.1:6080 127.0.0.1:5977</pre></div>
 
   <h2>Criar a conta</h2>
   <ol class="steps">
-    <li><b>Cadastro</b>Em <a href="https://www.oracle.com/cloud/free/">oracle.com/cloud/free</a>, clique em <b>Start for free</b>. Escolha conta individual, preencha com os dados do titular do cartão e confirme o e-mail.</li>
+    <li><b>Cadastro</b>Em <a href="https://www.oracle.com/cloud/free/" target="_blank" rel="noopener">oracle.com/cloud/free</a>, clique em <b>Start for free</b>. Escolha conta individual, preencha com os dados do titular do cartão e confirme o e-mail.</li>
     <li><b>Região</b>A região que você escolhe no cadastro é a região principal da conta. Ela não muda depois, e as VMs grátis só nascem nela. Escolha a mais perto de você, como <code>Brazil East (Sao Paulo)</code>.</li>
     <li><b>Cartão</b>A Oracle pede o cartão e pré-autoriza US$ 1.</li>
     <li><b>Upgrade para Pay As You Go</b>No console, clique no link <b>Upgrade</b> do banner no topo. Se ele não aparecer, abra Billing &amp; Cost Management, <b>Upgrade and Manage Payment</b>. Escolha Pay As You Go e confirme o cartão. A Oracle pré-autoriza US$ 100.</li>
@@ -1151,7 +1151,7 @@ websockify --web /usr/share/novnc 127.0.0.1:6080 127.0.0.1:5977</pre></div>
   </div>
 
   <h2>A chave SSH</h2>
-  <p>A chave SSH é o par de arquivos que faz o login na VM sem senha. Se você ainda não tem uma, gere no seu computador e aperte Enter para aceitar o caminho padrão. No Windows, os mesmos comandos funcionam no PowerShell.</p>
+  <p>A chave SSH é o par de arquivos que faz o login na VM sem senha. Se você ainda não tem uma, gere no seu computador e aperte Enter para aceitar o caminho padrão. No Windows, os mesmos comandos funcionam no <a href="https://learn.microsoft.com/powershell/" target="_blank" rel="noopener">PowerShell</a>.</p>
   <div class="code"><div class="code-head"><span>bash, na sua máquina</span><button class="copy">Copiar</button></div><pre>ssh-keygen -t ed25519
 cat ~/.ssh/id_ed25519.pub</pre></div>
   <p>A VM recebe só a chave pública, o arquivo <code>.pub</code>. A privada, <code>~/.ssh/id_ed25519</code>, nunca sai do seu computador. Não use a opção <b>Generate a key pair for me</b> do console. Se você fechar a página sem baixar a chave privada que ela gera, ninguém entra mais na VM.</p>
@@ -1179,7 +1179,7 @@ cat ~/.ssh/id_ed25519.pub</pre></div>
   <div class="table-wrap"><table>
     <tr><th>Campo</th><th>Valor</th></tr>
     <tr><td>Name</td><td>O nome da máquina, como <code>agente</code></td></tr>
-    <tr><td>Image</td><td><b>Change image</b>, Ubuntu, <code>Canonical Ubuntu 24.04</code> na versão <code>aarch64</code>. A shape troca sozinha para Ampere</td></tr>
+    <tr><td>Image</td><td><b>Change image</b>, <a href="https://ubuntu.com/" target="_blank" rel="noopener">Ubuntu</a>, <code>Canonical Ubuntu 24.04</code> na versão <code>aarch64</code>. A shape troca sozinha para Ampere</td></tr>
     <tr><td>Shape</td><td><b>Change shape</b>, Ampere, <code>VM.Standard.A1.Flex</code>, 2 OCPU e 12 GB de memória</td></tr>
     <tr><td>Security</td><td>O padrão</td></tr>
     <tr><td>Primary VNIC, rede</td><td><b>Create new virtual cloud network</b></td></tr>
@@ -1214,7 +1214,7 @@ cat ~/.ssh/id_ed25519.pub</pre></div>
   <p>O usuário da imagem Ubuntu é <code>ubuntu</code>. Na primeira conexão, responda <code>yes</code> à pergunta da impressão digital.</p>
 
   <h2>A rede da Oracle</h2>
-  <p>Duas camadas filtram o tráfego que chega à VM. A security list, a lista de regras de rede da sub-rede, filtra antes de o pacote chegar à VM. Dentro da VM, a imagem Ubuntu da Oracle traz regras de iptables que recusam tudo menos o SSH. A máquina só precisa da porta 22, que as duas já liberam.</p>
+  <p>Duas camadas filtram o tráfego que chega à VM. A security list, a lista de regras de rede da sub-rede, filtra antes de o pacote chegar à VM. Dentro da VM, a imagem Ubuntu da Oracle traz regras de <a href="https://www.netfilter.org/projects/iptables/" target="_blank" rel="noopener">iptables</a> que recusam tudo menos o SSH. A máquina só precisa da porta 22, que as duas já liberam.</p>
   <p>A regra da porta 22 fica em Networking, Virtual cloud networks, a sua VCN, a sub-rede pública, aba Security, <b>Default Security List</b>, aba Security rules. Ela é a linha de Ingress, a regra de entrada, com origem <code>0.0.0.0/0</code>, protocolo TCP e porta de destino 22. Se ela não estiver lá, clique em <b>Add Ingress Rules</b> e preencha:</p>
   <div class="table-wrap"><table>
     <tr><th>Campo</th><th>Valor</th></tr>
@@ -1236,7 +1236,7 @@ cat ~/.ssh/id_ed25519.pub</pre></div>
   <p>Não ligue o <code>ufw</code>, o firewall do Ubuntu, nessa VM, porque a imagem e a security list já fecham a entrada. Para abrir outra porta, como a 80 e a 443 de um site, crie uma ingress rule igual com a porta nova e libere a porta no iptables da VM, antes da linha de REJECT:</p>
   <div class="code"><div class="code-head"><span>bash, na VM</span><button class="copy">Copiar</button></div><pre>sudo iptables -L INPUT --line-numbers
 sudo iptables -I INPUT &lt;linha-do-REJECT&gt; -p tcp --dport 80 -j ACCEPT</pre></div>
-  <p>Para a regra sobreviver ao reboot, acrescente a mesma linha <code>-A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT</code> em <code>/etc/iptables/rules.v4</code>, logo antes da linha de REJECT. Com Docker instalado, não rode <code>netfilter-persistent save</code>. Ele grava as regras do Docker junto, e elas duplicam no reboot.</p>
+  <p>Para a regra sobreviver ao reboot, acrescente a mesma linha <code>-A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT</code> em <code>/etc/iptables/rules.v4</code>, logo antes da linha de REJECT. Com <a href="https://www.docker.com/" target="_blank" rel="noopener">Docker</a> instalado, não rode <code>netfilter-persistent save</code>. Ele grava as regras do Docker junto, e elas duplicam no reboot.</p>
 
   <h2>Onde a montagem trava</h2>
   <div class="table-wrap stack"><table>
@@ -1258,14 +1258,14 @@ sudo iptables -I INPUT &lt;linha-do-REJECT&gt; -p tcp --dport 80 -j ACCEPT</pre>
   <div class="crumb">Conseguir a máquina</div>
   <h1>Quando usar outra máquina</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="caminhos">Copiar para o agente</button><a href="txt/caminhos.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Uma VPS é um servidor virtual alugado, ligado 24 horas, onde o Claude Code roda. A opção padrão é a <a href="#oracle">VPS grátis na Oracle</a>. Use outra máquina quando a Oracle não serve: sem capacidade na sua região, com um projeto que não roda em ARM, ou quando você já tem uma VPS com folga.</p>
+  <p class="lead">Uma VPS é um servidor virtual alugado, ligado 24 horas, onde o <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> roda. A opção padrão é a <a href="#oracle">VPS grátis na Oracle</a>. Use outra máquina quando a <a href="https://www.oracle.com/cloud/free/" target="_blank" rel="noopener">Oracle</a> não serve: sem capacidade na sua região, com um projeto que não roda em ARM, ou quando você já tem uma VPS com folga.</p>
   
 
   <h2>Comparação</h2>
   <div class="table-wrap stack"><table>
     <tr><th>Caminho</th><th>Custo</th><th>Máquina</th><th class="ic">Serviço privado</th><th class="ic">Bypass</th></tr>
     <tr class="rec"><td><a href="#oracle"><b>Oracle, Pay As You Go</b></a></td><td>US$ 0 dentro da cota</td><td>ARM, 2 OCPU, 12 GB, até 200 GB</td><td class="ic"><span class="y" aria-label="sim"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
-    <tr><td><a href="#vps"><b>VPS dedicada paga</b></a></td><td>R$ 43,99 por mês na Hostinger KVM 2, em contrato de 24 meses</td><td>x86, 2 vCPU, 8 GB, 100 GB</td><td class="ic"><span class="y" aria-label="sim"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
+    <tr><td><a href="#vps"><b>VPS dedicada paga</b></a></td><td>R$ 43,99 por mês na <a href="https://www.hostinger.com/br/servidor-vps" target="_blank" rel="noopener">Hostinger</a> KVM 2, em contrato de 24 meses</td><td>x86, 2 vCPU, 8 GB, 100 GB</td><td class="ic"><span class="y" aria-label="sim"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
     <tr><td><a href="#container"><b>Container numa VPS que você já tem</b></a></td><td>Nada a mais</td><td>O que sobra da VPS</td><td class="ic"><span class="y" aria-label="sim"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
   </table></div>
 
@@ -1279,32 +1279,32 @@ sudo iptables -I INPUT &lt;linha-do-REJECT&gt; -p tcp --dport 80 -j ACCEPT</pre>
   <p>O Claude Code também roda na nuvem da Anthropic, sem VPS. Lá ele não alcança serviço privado, não roda em bypass e some quando a sessão fica parada, então este guia não cobre esse caminho.</p>
 
   <h2>Tamanho da máquina</h2>
-  <p>Medimos numa máquina com 2 núcleos e 7 GB de memória, num projeto Next.js com Postgres em Docker. A suíte inteira de testes de tela levou 32 minutos, e cada sessão parada do Claude Code ocupou de 200 a 500 MB. Com menos de 4 GB, o build de um app web e o navegador dos testes disputam memória. A conta do teto das sessões está em <a href="#memoria">Como pôr teto de memória e o agente de recover</a>.</p>
+  <p>Medimos numa máquina com 2 núcleos e 7 GB de memória, num projeto <a href="https://nextjs.org/" target="_blank" rel="noopener">Next.js</a> com <a href="https://www.postgresql.org/" target="_blank" rel="noopener">Postgres</a> em <a href="https://www.docker.com/" target="_blank" rel="noopener">Docker</a>. A suíte inteira de testes de tela levou 32 minutos, e cada sessão parada do Claude Code ocupou de 200 a 500 MB. Com menos de 4 GB, o build de um app web e o navegador dos testes disputam memória. A conta do teto das sessões está em <a href="#memoria">Como pôr teto de memória e o agente de recover</a>.</p>
   <div class="callout note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><strong class="label">Troque os nomes de exemplo</strong><p>Os comandos usam três nomes de exemplo. Troque <code>voce</code> pelo seu usuário, <code>agente</code> pelo nome da máquina e <code>projeto</code> pela pasta do repo na máquina. Escolha os três antes de começar, porque eles se repetem em várias páginas.</p></div></div>
-  <div class="callout note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><strong class="label">ARM ou x86</strong><p>A Oracle grátis é ARM. Confira se as imagens Docker e os binários do projeto têm versão <code>linux/arm64</code>. Imagem Docker que roda num Mac com Apple Silicon já é <code>linux/arm64</code> e serve. Binário que o npm ou o pip baixam no Mac é para macOS e não serve de prova. Se o seu deploy já roda em ARM, o projeto roda.</p></div></div>
+  <div class="callout note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><strong class="label">ARM ou x86</strong><p>A Oracle grátis é ARM. Confira se as imagens Docker e os binários do projeto têm versão <code>linux/arm64</code>. Imagem Docker que roda num Mac com Apple Silicon já é <code>linux/arm64</code> e serve. Binário que o <a href="https://docs.npmjs.com/" target="_blank" rel="noopener">npm</a> ou o <a href="https://pip.pypa.io/" target="_blank" rel="noopener">pip</a> baixam no Mac é para macOS e não serve de prova. Se o seu deploy já roda em ARM, o projeto roda.</p></div></div>
 </article>
 
 <article class="page" id="vps" data-title="Como contratar uma VPS paga" data-prev="caminhos" data-next="preparar" hidden>
   <div class="crumb">Conseguir a máquina</div>
   <h1>Como contratar uma VPS paga</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="vps">Copiar para o agente</button><a href="txt/vps.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Uma VPS é um servidor virtual alugado, ligado 24 horas. Contrate uma paga, só para o Claude Code, quando você aceita pagar ou quando a Oracle está sem capacidade na sua região. A opção sugerida é a Hostinger, que cobra em reais, usa processador AMD EPYC (x86) e tem data center na América do Sul.</p>
+  <p class="lead">Uma VPS é um servidor virtual alugado, ligado 24 horas. Contrate uma paga, só para o <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a>, quando você aceita pagar ou quando a <a href="https://www.oracle.com/cloud/free/" target="_blank" rel="noopener">Oracle</a> está sem capacidade na sua região. A opção sugerida é a <a href="https://www.hostinger.com/br/servidor-vps" target="_blank" rel="noopener">Hostinger</a>, que cobra em reais, usa processador AMD EPYC (x86) e tem data center na América do Sul.</p>
 
   <h2>Qual plano</h2>
   <div class="table-wrap stack"><table>
     <tr><th>Plano Hostinger</th><th>Máquina</th><th>Preço no contrato de 24 meses</th><th>Renovação</th><th>Para quê</th></tr>
     <tr><td>KVM 1</td><td>1 vCPU, 4 GB, 50 GB NVMe</td><td>R$ 29,99 por mês</td><td>R$ 59,99 por mês</td><td>Insuficiente. Com um núcleo só, o build e os testes travam</td></tr>
-    <tr class="rec"><td><b>KVM 2</b></td><td>2 vCPU, 8 GB, 100 GB NVMe</td><td>R$ 43,99 por mês</td><td>R$ 77,99 por mês</td><td>Claude Code, git, Docker e testes. Próximo da máquina medida neste guia</td></tr>
+    <tr class="rec"><td><b>KVM 2</b></td><td>2 vCPU, 8 GB, 100 GB NVMe</td><td>R$ 43,99 por mês</td><td>R$ 77,99 por mês</td><td>Claude Code, <a href="https://git-scm.com/" target="_blank" rel="noopener">git</a>, <a href="https://www.docker.com/" target="_blank" rel="noopener">Docker</a> e testes. Próximo da máquina medida neste guia</td></tr>
     <tr><td>KVM 4</td><td>4 vCPU, 16 GB, 200 GB NVMe</td><td>R$ 59,99 por mês</td><td>R$ 149,99 por mês</td><td>App web pesado, várias sessões em paralelo e suíte grande de testes de tela</td></tr>
   </table></div>
   <div class="callout warn"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg><div><strong class="label">O preço depende do contrato</strong><p>Os valores da tabela são os da página da Hostinger em 01/10/2026, para contrato de 24 meses. Na renovação, o KVM 2 passa de R$ 43,99 para R$ 77,99 por mês. Confira o preço do dia antes de contratar.</p></div></div>
-  <p>A máquina da Hostinger é x86, então binário e imagem Docker feitos para PC comum rodam sem ajuste. Qualquer outro provedor serve, desde que ofereça Ubuntu 24.04 e chave SSH.</p>
+  <p>A máquina da Hostinger é x86, então binário e imagem Docker feitos para PC comum rodam sem ajuste. Qualquer outro provedor serve, desde que ofereça <a href="https://ubuntu.com/" target="_blank" rel="noopener">Ubuntu</a> 24.04 e chave SSH.</p>
 
   <h2>Criar</h2>
   <ol class="steps">
     <li><b>Plano e contrato</b>Escolha o KVM 2. O contrato mais longo baixa a mensalidade.</li>
     <li><b>Sistema</b>No painel da VPS, escolha o modelo Ubuntu 24.04, sem painel de controle instalado.</li>
-    <li><b>Local</b>Se o data center da América do Sul aparecer na lista, escolha esse. O Claude Code na VPS não sente a latência, mas o seu terminal e o VS Code sentem.</li>
+    <li><b>Local</b>Se o data center da América do Sul aparecer na lista, escolha esse. O Claude Code na VPS não sente a latência, mas o seu terminal e o <a href="https://code.visualstudio.com/" target="_blank" rel="noopener">VS Code</a> sentem.</li>
     <li><b>Acesso</b>Cadastre a sua chave SSH pública no painel e defina uma senha de root longa. Você não vai digitar essa senha depois que o login por senha for desligado.</li>
     <li><b>Entrar</b>Com o IP do painel, rode <code>ssh root@&lt;ip&gt;</code> e siga para <a href="#preparar">Como fazer a config inicial da VPS</a>. Lá, os comandos com <code>sudo</code> funcionam igual como root.</li>
   </ol>
@@ -1315,9 +1315,9 @@ sudo iptables -I INPUT &lt;linha-do-REJECT&gt; -p tcp --dport 80 -j ACCEPT</pre>
   <div class="crumb">Conseguir a máquina</div>
   <h1>Como rodar num container de uma VPS sua</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="container">Copiar para o agente</button><a href="txt/container.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Uma VPS é um servidor virtual alugado, ligado 24 horas, e nesta página ela se chama host. Se você já tem uma com folga rodando outros serviços, um container LXD dá ao agente um Linux próprio dentro dela, com Docker próprio. O agente é a sessão do Claude Code que trabalha nesse Linux. O <code>docker ps</code> do container não mostra os seus serviços, e limites de memória, CPU e disco protegem o resto do host.</p>
+  <p class="lead">Uma VPS é um servidor virtual alugado, ligado 24 horas, e nesta página ela se chama host. Se você já tem uma com folga rodando outros serviços, um container <a href="https://canonical.com/lxd" target="_blank" rel="noopener">LXD</a> dá ao agente um Linux próprio dentro dela, com <a href="https://www.docker.com/" target="_blank" rel="noopener">Docker</a> próprio. O agente é a sessão do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> que trabalha nesse Linux. O <code>docker ps</code> do container não mostra os seus serviços, e limites de memória, CPU e disco protegem o resto do host.</p>
 
-  <div class="callout danger"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg><div><strong class="label">Não faça no host</strong><p>Não rode os passos de <a href="#preparar">Como fazer a config inicial da VPS</a> no host. Eles mudam o hostname e ligam o ufw, o firewall do Ubuntu, que bloqueia os serviços. Não rode <code>netfilter-persistent save</code>. Não reinicie o host nem o Docker. Meça os serviços antes e depois de cada mudança de rede.</p></div></div>
+  <div class="callout danger"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg><div><strong class="label">Não faça no host</strong><p>Não rode os passos de <a href="#preparar">Como fazer a config inicial da VPS</a> no host. Eles mudam o hostname e ligam o <a href="https://documentation.ubuntu.com/server/how-to/security/firewalls/" target="_blank" rel="noopener">ufw</a>, o firewall do <a href="https://ubuntu.com/" target="_blank" rel="noopener">Ubuntu</a>, que bloqueia os serviços. Não rode <code>netfilter-persistent save</code>. Não reinicie o host nem o Docker. Meça os serviços antes e depois de cada mudança de rede.</p></div></div>
 
   <h2>Antes de começar</h2>
   <p>O host precisa de pelo menos 4 GB de memória e 30 GB de disco livres. Anote como os serviços respondem hoje:</p>
@@ -1421,8 +1421,8 @@ sudo lxc exec agente -- curl -sI https://github.com</pre></div>
   <div class="crumb">Montar a máquina</div>
   <h1>Como fazer a config inicial da VPS</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="preparar">Copiar para o agente</button><a href="txt/preparar.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Na VPS, o servidor virtual alugado onde o Claude Code vai rodar, crie o seu usuário, feche o login por senha e confira as atualizações automáticas. Esta página vale para a Oracle e para a VPS dedicada. No container, pule esta página.</p>
-  <p>Se o seu computador usa Linux ou WSL, crie na VPS o mesmo nome de usuário. Assim os caminhos absolutos das suas configurações, como <code>/home/voce/...</code>, valem lá sem mudança. Se você vem do macOS, troque <code>/Users/voce</code> por <code>/home/voce</code> nas configurações que você levar.</p>
+  <p class="lead">Na VPS, o servidor virtual alugado onde o <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> vai rodar, crie o seu usuário, feche o login por senha e confira as atualizações automáticas. Esta página vale para a <a href="https://www.oracle.com/cloud/free/" target="_blank" rel="noopener">Oracle</a> e para a VPS dedicada. No container, pule esta página.</p>
+  <p>Se o seu computador usa Linux ou <a href="https://learn.microsoft.com/windows/wsl/" target="_blank" rel="noopener">WSL</a>, crie na VPS o mesmo nome de usuário. Assim os caminhos absolutos das suas configurações, como <code>/home/voce/...</code>, valem lá sem mudança. Se você vem do macOS, troque <code>/Users/voce</code> por <code>/home/voce</code> nas configurações que você levar.</p>
 
   <h2>Usuário com sudo</h2>
   <p>Entre com o usuário que o provedor criou, como <code>ubuntu</code>, e rode:</p>
@@ -1439,11 +1439,11 @@ sudo systemctl reload ssh</pre></div>
 
   <h2>Atualizações e firewall</h2>
   <ul>
-    <li><code>systemctl is-active unattended-upgrades</code> deve responder <code>active</code>. No Ubuntu Server ele já vem ligado.</li>
+    <li><code>systemctl is-active unattended-upgrades</code> deve responder <code>active</code>. No <a href="https://ubuntu.com/" target="_blank" rel="noopener">Ubuntu</a> Server ele já vem ligado.</li>
     <li>Numa VPS comum, feche a entrada a tudo menos o SSH com <code>sudo ufw allow OpenSSH &amp;&amp; sudo ufw --force enable</code>.</li>
-    <li>Na Oracle, não ligue o ufw. A imagem e a security list da VCN, a rede virtual da Oracle, já fecham a entrada.</li>
+    <li>Na Oracle, não ligue o <a href="https://documentation.ubuntu.com/server/how-to/security/firewalls/" target="_blank" rel="noopener">ufw</a>. A imagem e a security list da VCN, a rede virtual da Oracle, já fecham a entrada.</li>
   </ul>
-  <div class="callout warn"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg><div><strong class="label">O Docker passa por cima do ufw</strong><p>Porta publicada por container entra por regra própria de iptables, mesmo com o ufw fechado. Publique porta só no loopback, o endereço que só a própria máquina alcança, como <code>127.0.0.1:5432:5432</code>.</p></div></div>
+  <div class="callout warn"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg><div><strong class="label">O Docker passa por cima do ufw</strong><p>Porta publicada por container entra por regra própria de <a href="https://www.netfilter.org/projects/iptables/" target="_blank" rel="noopener">iptables</a>, mesmo com o ufw fechado. Publique porta só no loopback, o endereço que só a própria máquina alcança, como <code>127.0.0.1:5432:5432</code>.</p></div></div>
   <button type="button" class="done-btn" data-done="preparar">Marquei como feito</button>
 </article>
 
@@ -1451,10 +1451,10 @@ sudo systemctl reload ssh</pre></div>
   <div class="crumb">Montar a máquina</div>
   <h1>Como acessar a VPS por SSH e VS Code</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="acesso">Copiar para o agente</button><a href="txt/acesso.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">O agente é a sessão do Claude Code que trabalha na máquina, a VPS alugada. O celular fala com ele pelo Remote Control, o recurso que liga uma sessão do Claude Code ao app do Claude, sem SSH. O SSH serve ao terminal, ao VS Code e para abrir no seu navegador o app que roda na máquina.</p>
+  <p class="lead">O agente é a sessão do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> que trabalha na máquina, a VPS alugada. O celular fala com ele pelo <a href="https://code.claude.com/docs/en/remote-control" target="_blank" rel="noopener">Remote Control</a>, o recurso que liga uma sessão do Claude Code ao app do Claude, sem SSH. O SSH serve ao terminal, ao <a href="https://code.visualstudio.com/" target="_blank" rel="noopener">VS Code</a> e para abrir no seu navegador o app que roda na máquina.</p>
 
   <h2>O bloco do ~/.ssh/config</h2>
-  <p>Autorize na máquina todas as chaves de onde você vai entrar. No Windows com WSL, a chave do Windows e a do WSL são arquivos diferentes, então autorize as duas. Na máquina que já entra, mande a chave pública da outra. No WSL, a chave do Windows fica em <code>/mnt/c/Users/&lt;seu-usuario-windows&gt;/.ssh</code>.</p>
+  <p>Autorize na máquina todas as chaves de onde você vai entrar. No Windows com <a href="https://learn.microsoft.com/windows/wsl/" target="_blank" rel="noopener">WSL</a>, a chave do Windows e a do WSL são arquivos diferentes, então autorize as duas. Na máquina que já entra, mande a chave pública da outra. No WSL, a chave do Windows fica em <code>/mnt/c/Users/&lt;seu-usuario-windows&gt;/.ssh</code>.</p>
   <div class="code"><div class="code-head"><span>bash, na máquina que já entra</span><button class="copy">Copiar</button></div><pre>cat /caminho/da/outra/id_ed25519.pub | ssh agente 'cat &gt;&gt; ~/.ssh/authorized_keys'</pre></div>
   <div class="tabs" data-tabs>
     <div class="tablist" role="tablist">
@@ -1482,7 +1482,7 @@ Host agente
 
   <h2>VS Code</h2>
   <ol class="steps">
-    <li><b>Instale a extensão Remote-SSH</b>Instale pelo painel de extensões do VS Code. No Windows, instale na janela do Windows, porque o <code>code --install-extension</code> chamado de dentro do WSL instala no lado WSL, e a janela do Windows não enxerga a extensão.</li>
+    <li><b>Instale a extensão <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh" target="_blank" rel="noopener">Remote-SSH</a></b>Instale pelo painel de extensões do VS Code. No Windows, instale na janela do Windows, porque o <code>code --install-extension</code> chamado de dentro do WSL instala no lado WSL, e a janela do Windows não enxerga a extensão.</li>
     <li><b>Conecte</b>F1, "Remote-SSH: Connect to Host", <code>agente</code>, Linux.</li>
     <li><b>Abra uma pasta</b>Na primeira vez, abra a pasta pessoal, porque o repo só chega em <a href="#codigo">Como organizar pastas, repos e segredos</a>. A primeira conexão instala o servidor do VS Code na máquina, em cerca de 1 minuto. Quando um servidor de desenvolvimento abre uma porta lá, o VS Code encaminha a porta para o seu computador sozinho.</li>
   </ol>
@@ -1492,13 +1492,13 @@ Host agente
   <p>Com o túnel aberto, abra <code>http://localhost:3000</code>. O endereço continua localhost, então login e callback de OAuth funcionam sem mudar configuração.</p>
 
   <h2>Fechar a porta 22</h2>
-  <p>Este passo é opcional. O Tailscale põe a máquina numa rede privada sua, e a porta 22 deixa de ficar aberta para a internet. O plano Personal é grátis para até 6 usuários.</p>
+  <p>Este passo é opcional. O <a href="https://tailscale.com/" target="_blank" rel="noopener">Tailscale</a> põe a máquina numa rede privada sua, e a porta 22 deixa de ficar aberta para a internet. O plano Personal é grátis para até 6 usuários.</p>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>curl -fsSL https://tailscale.com/install.sh | sh
 sudo tailscale up</pre></div>
   <p>O <code>tailscale up</code> mostra um link. Abra o link, entre na sua conta e instale o Tailscale também no computador de onde você entra. Troque o <code>HostName</code> do <code>~/.ssh/config</code> pelo nome da máquina na rede privada, e confira que <code>ssh agente</code> entra por esse nome antes de seguir.</p>
   <div class="code"><div class="code-head"><span>bash, na máquina, só numa VPS com ufw</span><button class="copy">Copiar</button></div><pre>sudo ufw allow in on tailscale0 to any port 22
 sudo ufw delete allow OpenSSH</pre></div>
-  <p>Na Oracle, pule o bloco acima e apague a regra da porta 22 na security list da VCN, a rede virtual da Oracle.</p>
+  <p>Na <a href="https://www.oracle.com/cloud/free/" target="_blank" rel="noopener">Oracle</a>, pule o bloco acima e apague a regra da porta 22 na security list da VCN, a rede virtual da Oracle.</p>
   <button type="button" class="done-btn" data-done="acesso">Marquei como feito</button>
 </article>
 
@@ -1506,7 +1506,7 @@ sudo ufw delete allow OpenSSH</pre></div>
   <div class="crumb">Montar a máquina</div>
   <h1>Como instalar as ferramentas e levar suas configs</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="ambiente">Copiar para o agente</button><a href="txt/ambiente.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Instale as ferramentas que todo caminho usa e escolha entre o Ubuntu padrão e os seus dotfiles, os arquivos de configuração do seu shell e das suas ferramentas. Rode os comandos como o seu usuário, na máquina ou dentro do container.</p>
+  <p class="lead">Instale as ferramentas que todo caminho usa e escolha entre o <a href="https://ubuntu.com/" target="_blank" rel="noopener">Ubuntu</a> padrão e os seus dotfiles, os arquivos de configuração do seu shell e das suas ferramentas. Rode os comandos como o seu usuário, na máquina ou dentro do container.</p>
 
   <h2>Ferramentas básicas</h2>
   <div class="code"><div class="code-head"><span>bash</span><button class="copy">Copiar</button></div><pre>sudo apt-get update &amp;&amp; sudo apt-get install -y git curl tmux gh
@@ -1515,7 +1515,7 @@ sudo usermod -aG docker "$USER"   <span class="c"># vale a partir do próximo lo
 curl -fsSL https://claude.ai/install.sh | bash</pre></div>
   <p>Saia com <code>exit</code> e entre de novo antes de seguir. O grupo <code>docker</code> e a pasta <code>~/.local/bin</code>, onde o instalador pôs o <code>claude</code>, só valem a partir do próximo login.</p>
   <div class="code"><div class="code-head"><span>bash, na máquina, depois de entrar de novo</span><button class="copy">Copiar</button></div><pre>claude --version &amp;&amp; docker ps</pre></div>
-  <p>Na Oracle e na VPS dedicada, logo depois de instalar e ainda sem container rodando, faça o Docker publicar portas só no loopback, o endereço que só a própria máquina alcança. O Docker publica por cima do ufw, e um <code>5432:5432</code> de compose abriria o banco para a internet. No container de uma VPS compartilhada isso é opcional, porque ele não tem IP público.</p>
+  <p>Na <a href="https://www.oracle.com/cloud/free/" target="_blank" rel="noopener">Oracle</a> e na VPS dedicada, logo depois de instalar e ainda sem container rodando, faça o <a href="https://www.docker.com/" target="_blank" rel="noopener">Docker</a> publicar portas só no loopback, o endereço que só a própria máquina alcança. O Docker publica por cima do <a href="https://documentation.ubuntu.com/server/how-to/security/firewalls/" target="_blank" rel="noopener">ufw</a>, e um <code>5432:5432</code> de compose abriria o banco para a internet. No container de uma VPS compartilhada isso é opcional, porque ele não tem IP público.</p>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>echo '{"ip": "127.0.0.1"}' | sudo tee /etc/docker/daemon.json
 sudo systemctl restart docker</pre></div>
 
@@ -1526,14 +1526,14 @@ sudo systemctl restart docker</pre></div>
       <button role="tab" aria-selected="false" aria-controls="tab-dot" id="t-dot">Meus dotfiles</button>
     </div>
     <div class="tabpanel" role="tabpanel" id="tab-padrao" aria-labelledby="t-padrao">
-      <p>Não exige repo de dotfiles nem leitura de script. O shell é o bash do Ubuntu, e você instala só o que o projeto pede, como Node, Python e o gerenciador de pacotes dele. Serve para uma máquina que você vai usar quase só pelo app.</p>
+      <p>Não exige repo de dotfiles nem leitura de script. O shell é o bash do Ubuntu, e você instala só o que o projeto pede, como <a href="https://nodejs.org/" target="_blank" rel="noopener">Node</a>, <a href="https://www.python.org/" target="_blank" rel="noopener">Python</a> e o gerenciador de pacotes dele. Serve para uma máquina que você vai usar quase só pelo app.</p>
     </div>
     <div class="tabpanel" role="tabpanel" id="tab-dot" aria-labelledby="t-dot" hidden>
       <p>Traz o seu shell, aliases e o <code>~/.claude/settings.json</code>, e deixa o terminal remoto igual ao seu.</p>
       <ul>
         <li>Se o repo de dotfiles é privado, faça antes o <a href="#logins">login do GitHub</a>.</li>
-        <li>Não aplique de uma vez. Com chezmoi, rode <code>chezmoi init &lt;repo&gt;</code> sem <code>--apply</code>, veja com <code>chezmoi managed --include=encrypted,scripts</code> o que é segredo e o que é script, e aplique com <code>chezmoi apply --exclude=encrypted,scripts</code>.</li>
-        <li>Depois, aplique só os scripts e segredos que fazem sentido no servidor. Passo feito para WSL, macOS ou interface gráfica não serve, e a chave SSH pessoal ou credencial de nuvem não precisa estar numa máquina que roda sozinha.</li>
+        <li>Não aplique de uma vez. Com <a href="https://www.chezmoi.io/" target="_blank" rel="noopener">chezmoi</a>, rode <code>chezmoi init &lt;repo&gt;</code> sem <code>--apply</code>, veja com <code>chezmoi managed --include=encrypted,scripts</code> o que é segredo e o que é script, e aplique com <code>chezmoi apply --exclude=encrypted,scripts</code>.</li>
+        <li>Depois, aplique só os scripts e segredos que fazem sentido no servidor. Passo feito para <a href="https://learn.microsoft.com/windows/wsl/" target="_blank" rel="noopener">WSL</a>, macOS ou interface gráfica não serve, e a chave SSH pessoal ou credencial de nuvem não precisa estar numa máquina que roda sozinha.</li>
         <li>Se os dotfiles cifram segredos, traga a chave de decifrar à mão, pelo SSH, e apague no fim.</li>
         <li>Depois, confira <code>file ~/.local/bin/*</code>. Dotfiles que baixam binário x86 fixo falham numa máquina ARM com <code>exec format error</code>.</li>
       </ul>
@@ -1544,10 +1544,10 @@ sudo systemctl restart docker</pre></div>
   <p>Nada do seu computador vai sozinho para a máquina. Leve item por item, só o que escolher. Para quem começa, o Ubuntu padrão e o login do Claude bastam. Quem já tem um ambiente montado escolhe na tabela o que poupa trabalho:</p>
   <div class="table-wrap stack"><table>
     <tr><th>Item</th><th>Vale levar quando</th><th>Como levar</th></tr>
-    <tr><td data-label="Item">Configuração do git</td><td data-label="Vale levar quando">Sempre</td><td data-label="Como levar">O nome e o e-mail, em <a href="#logins">Como fazer login no Claude e no GitHub</a></td></tr>
+    <tr><td data-label="Item">Configuração do <a href="https://git-scm.com/" target="_blank" rel="noopener">git</a></td><td data-label="Vale levar quando">Sempre</td><td data-label="Como levar">O nome e o e-mail, em <a href="#logins">Como fazer login no Claude e no GitHub</a></td></tr>
     <tr><td data-label="Item"><code>~/.claude/settings.json</code></td><td data-label="Vale levar quando">Você já ajustou permissões, modelo ou hooks</td><td data-label="Como levar">Copiando o arquivo, e conferindo os caminhos absolutos dele</td></tr>
     <tr><td data-label="Item">Skills e agents</td><td data-label="Vale levar quando">Você usa skills suas no dia a dia</td><td data-label="Como levar">O comando abaixo, que leva <code>~/.claude/skills</code>, <code>~/.claude/agents</code> e <code>~/.agents</code></td></tr>
-    <tr><td data-label="Item">Plugins</td><td data-label="Vale levar quando">Você usa plugins além do Cockpit, o pacote de mods que o guia instala</td><td data-label="Como levar">Instalando de novo lá, com <code>/plugin</code></td></tr>
+    <tr><td data-label="Item">Plugins</td><td data-label="Vale levar quando">Você usa plugins além do <a href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">Cockpit</a>, o pacote de mods que o guia instala</td><td data-label="Como levar">Instalando de novo lá, com <code>/plugin</code></td></tr>
     <tr><td data-label="Item">Servidores MCP</td><td data-label="Vale levar quando">O projeto depende de um MCP que não está no <code>.mcp.json</code> do repo</td><td data-label="Como levar"><code>claude mcp list</code> aqui e <code>claude mcp add</code> lá. Os que pedem OAuth pedem login de novo</td></tr>
     <tr><td data-label="Item">Shell, aliases e dotfiles</td><td data-label="Vale levar quando">Você vai trabalhar muito pelo terminal da máquina</td><td data-label="Como levar">A aba Meus dotfiles, acima, só com o que serve num servidor</td></tr>
     <tr><td data-label="Item"><code>.credentials.json</code></td><td data-label="Vale levar quando"><span class="pill no">nunca</span></td><td data-label="Como levar">Cada máquina faz o próprio login</td></tr>
@@ -1561,7 +1561,7 @@ sudo systemctl restart docker</pre></div>
   <div class="crumb">Montar a máquina</div>
   <h1>Como fazer login no Claude e no GitHub</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="logins">Copiar para o agente</button><a href="txt/logins.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Cada máquina faz o próprio login no Claude e no GitHub. Os dois logins mostram um link ou um código e esperam você. Rode cada um dentro de um tmux, um terminal que continua rodando se o SSH cair, para a espera não morrer junto.</p>
+  <p class="lead">Cada máquina faz o próprio login no Claude e no <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a>. Os dois logins mostram um link ou um código e esperam você. Rode cada um dentro de um <a href="https://github.com/tmux/tmux" target="_blank" rel="noopener">tmux</a>, um terminal que continua rodando se o SSH cair, para a espera não morrer junto.</p>
   <div class="callout danger"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></svg><div><strong class="label">Não copie as credenciais</strong><p>Não copie o <code>~/.claude/.credentials.json</code> do seu computador. O token de renovação, a credencial que mantém o login vivo, muda a cada renovação, e a primeira máquina que renovar derruba a outra.</p></div></div>
 
   <h2>Claude</h2>
@@ -1573,8 +1573,8 @@ sudo systemctl restart docker</pre></div>
   <p>A máquina ganha uma chave SSH própria, que você revoga sem afetar a sua.</p>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>ssh-keygen -t ed25519 -N '' -f ~/.ssh/id_ed25519 -C agente
 gh auth login -h github.com -p ssh -w</pre></div>
-  <p>O login do <code>gh</code> dá acesso a todos os repos da conta. Se o agente, a sessão do Claude Code que trabalha na máquina, usa poucos repos, crie no lugar um token fine-grained, uma credencial que só abre os repos escolhidos, em <a href="https://github.com/settings/personal-access-tokens">github.com/settings/personal-access-tokens</a>, e use <code>gh auth login --with-token</code>. No login completo, quando ele oferecer subir uma chave, escolha a da máquina. Ele mostra um código de 8 caracteres. Abra <a href="https://github.com/login/device">github.com/login/device</a> e digite o código em até 15 minutos. Ignore o aviso de que ele não achou navegador.</p>
-  <p>Escolha com qual identidade os commits do agente saem. O e-mail <code>noreply</code> do GitHub, em <a href="https://github.com/settings/emails">github.com/settings/emails</a>, liga o commit à sua conta sem expor o seu e-mail. Um e-mail de trabalho faz o commit aparecer como da empresa.</p>
+  <p>O login do <code>gh</code> dá acesso a todos os repos da conta. Se o agente, a sessão do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> que trabalha na máquina, usa poucos repos, crie no lugar um token fine-grained, uma credencial que só abre os repos escolhidos, em <a href="https://github.com/settings/personal-access-tokens" target="_blank" rel="noopener">github.com/settings/personal-access-tokens</a>, e use <code>gh auth login --with-token</code>. No login completo, quando ele oferecer subir uma chave, escolha a da máquina. Ele mostra um código de 8 caracteres. Abra <a href="https://github.com/login/device" target="_blank" rel="noopener">github.com/login/device</a> e digite o código em até 15 minutos. Ignore o aviso de que ele não achou navegador.</p>
+  <p>Escolha com qual identidade os commits do agente saem. O e-mail <code>noreply</code> do GitHub, em <a href="https://github.com/settings/emails" target="_blank" rel="noopener">github.com/settings/emails</a>, liga o commit à sua conta sem expor o seu e-mail. Um e-mail de trabalho faz o commit aparecer como da empresa.</p>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>git config --global user.name "Seu Nome"
 git config --global user.email 12345678+voce@users.noreply.github.com</pre></div>
   <p>Servidores MCP com OAuth pedem login de novo nesta máquina. Compare a saída de <code>claude mcp list</code> no seu computador e na máquina, e autentique com <code>/mcp</code> numa sessão.</p>
@@ -1585,7 +1585,7 @@ git config --global user.email 12345678+voce@users.noreply.github.com</pre></div
   <div class="crumb">Montar a máquina</div>
   <h1>Como organizar pastas, repos e segredos</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="codigo">Copiar para o agente</button><a href="txt/codigo.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Clone os repos e leve à mão só os arquivos fora do git que o agente usa. O agente é a sessão do Claude Code que trabalha na máquina.</p>
+  <p class="lead">Clone os repos e leve à mão só os arquivos fora do <a href="https://git-scm.com/" target="_blank" rel="noopener">git</a> que o agente usa. O agente é a sessão do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> que trabalha na máquina.</p>
 
   <h2>Separar os ambientes</h2>
   <p>Antes de clonar, decida como as pastas se dividem. A divisão sugerida separa pelo que cada pasta guarda:</p>
@@ -1608,7 +1608,7 @@ git config --global user.email 12345678+voce@users.noreply.github.com</pre></div
   <div class="code"><div class="code-head"><span>bash, na sua máquina, na pasta do repo</span><button class="copy">Copiar</button></div><pre>tar czf - .env | ssh agente 'tar xzf - -C ~/projeto &amp;&amp; chmod 600 ~/projeto/.env'</pre></div>
 
   <h2>Dependências e serviços</h2>
-  <p>Na máquina, dentro de <code>~/projeto</code>, instale o que o projeto pede pelo lockfile, como <code>npm ci</code> ou <code>uv sync</code>. Se o projeto usa Playwright, rode em seguida <code>npx playwright install --with-deps chromium</code>, que tem versão para Linux ARM. Depois suba os serviços com <code>docker compose up -d</code>. Os testes de <a href="#provar">Como provar que tudo funciona</a> dependem dos dois.</p>
+  <p>Na máquina, dentro de <code>~/projeto</code>, instale o que o projeto pede pelo lockfile, como <code>npm ci</code> ou <code>uv sync</code>. Se o projeto usa <a href="https://playwright.dev/" target="_blank" rel="noopener">Playwright</a>, rode em seguida <code>npx playwright install --with-deps chromium</code>, que tem versão para Linux ARM. Depois suba os serviços com <code>docker compose up -d</code>. Os testes de <a href="#provar">Como provar que tudo funciona</a> dependem dos dois.</p>
 
   <h2>Cuidados</h2>
   <ul>
@@ -1624,7 +1624,7 @@ git config --global user.email 12345678+voce@users.noreply.github.com</pre></div
   <div class="crumb">Montar a máquina</div>
   <h1>Como pôr teto de memória e o agente de recover</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="memoria">Copiar para o agente</button><a href="txt/memoria.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Os agentes são as sessões do Claude Code que trabalham na máquina, uma por tarefa. Sem limite, um comando pesado de uma sessão enche a memória da máquina, e as outras sessões e o SSH param junto. Com swap, uma área do disco que serve de memória extra, e um teto de memória para os agentes, só o comando pesado morre. O recover, uma sessão de socorro com memória reservada, continua respondendo pelo celular.</p>
+  <p class="lead">Os agentes são as sessões do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> que trabalham na máquina, uma por tarefa. Sem limite, um comando pesado de uma sessão enche a memória da máquina, e as outras sessões e o SSH param junto. Com swap, uma área do disco que serve de memória extra, e um teto de memória para os agentes, só o comando pesado morre. O recover, uma sessão de socorro com memória reservada, continua respondendo pelo celular.</p>
   <p>O <a href="#instalador">instalador</a> faz esta página com um comando. Ela fica para quem monta à mão ou quer entender cada peça.</p>
   <p>Na nossa montagem, num container com 2 núcleos e 7 GB e sem swap, um typecheck com dois <code>tsc</code> de 1 GB cada levou a memória ao limite. Cada conexão SSH passou de 1 segundo para 20 a 77 segundos, e as sessões do app pararam de responder.</p>
 
@@ -1652,18 +1652,18 @@ cat /proc/swaps</pre></div>
       <p>O <code>cat /proc/swaps</code> mostra o <code>/swapfile</code> com 8388604 KB. A linha do <code>/etc/fstab</code> liga o swap de novo depois de um reboot.</p>
     </div>
     <div class="tabpanel" role="tabpanel" id="tab-mem-ct" aria-labelledby="t-mem-ct" hidden>
-      <p>O container não tem swap próprio e usa o do host, sem configuração extra no LXD. Rode no host os mesmos comandos da aba VM ou VPS. Depois, confira de dentro do container quanto swap ele pode usar, em bytes. Na nossa montagem, o valor foi igual ao <code>limits.memory</code>.</p>
+      <p>O container não tem swap próprio e usa o do host, sem configuração extra no <a href="https://canonical.com/lxd" target="_blank" rel="noopener">LXD</a>. Rode no host os mesmos comandos da aba VM ou VPS. Depois, confira de dentro do container quanto swap ele pode usar, em bytes. Na nossa montagem, o valor foi igual ao <code>limits.memory</code>.</p>
       <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>cat /sys/fs/cgroup/memory.swap.max</pre></div>
       <div class="callout warn"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></svg><div><strong class="label">O swap do host vale para todos</strong><p>Os outros serviços do host passam a usar o mesmo swap. Crie o arquivo com a confirmação de quem cuida do host, e meça os serviços antes e depois, como na <a href="#container">página do container</a>.</p></div></div>
     </div>
   </div>
 
   <h2>O slice dos agentes</h2>
-  <p>Um slice do systemd é um grupo de processos com um teto de memória que vale para tudo que roda dentro dele, somado. O orquestrador, a sessão que recebe os pedidos e abre os agentes, fica no mesmo slice que todos os agentes. Cada agente ganha, ao nascer, um teto próprio abaixo do teto do grupo, e um projeto pesado não come a memória dos outros.</p>
+  <p>Um slice do <a href="https://systemd.io/" target="_blank" rel="noopener">systemd</a> é um grupo de processos com um teto de memória que vale para tudo que roda dentro dele, somado. O orquestrador, a sessão que recebe os pedidos e abre os agentes, fica no mesmo slice que todos os agentes. Cada agente ganha, ao nascer, um teto próprio abaixo do teto do grupo, e um projeto pesado não come a memória dos outros.</p>
   <p>Escolha o nome do slice e calcule os números a partir da memória da máquina:</p>
   <div class="table-wrap"><table>
     <tr><th>Valor</th><th>Como calcular</th></tr>
-    <tr><td><code>&lt;teto&gt;</code></td><td>O total do <code>free -m</code> menos 512 MB do recover e 1 GiB do sistema e do Docker. Desconte mais se os containers do projeto usam mais que isso</td></tr>
+    <tr><td><code>&lt;teto&gt;</code></td><td>O total do <code>free -m</code> menos 512 MB do recover e 1 GiB do sistema e do <a href="https://www.docker.com/" target="_blank" rel="noopener">Docker</a>. Desconte mais se os containers do projeto usam mais que isso</td></tr>
     <tr><td><code>&lt;alto&gt;</code></td><td><code>&lt;teto&gt;</code> menos uns 512 MB. Acima dele, o grupo fica lento e empurra memória para o swap antes de bater no teto</td></tr>
     <tr><td><code>&lt;swap-agentes&gt;</code></td><td>Até metade do swap, para sobrar swap ao resto da máquina</td></tr>
     <tr><td>Teto de cada projeto</td><td>Quanto o comando mais pesado do projeto usa, mais uns 500 MB da sessão. Um typecheck grande de TypeScript passa de 1 GB</td></tr>
@@ -1692,7 +1692,7 @@ MemoryMin=256M
 MemoryMax=512M
 CPUWeight=1000
 EOF</pre></div>
-  <p>O script roda o Remote Control, o recurso que liga o Claude Code da máquina ao app do Claude, no modo servidor, que abre uma sessão nova cada vez que você pede pelo app:</p>
+  <p>O script roda o <a href="https://code.claude.com/docs/en/remote-control" target="_blank" rel="noopener">Remote Control</a>, o recurso que liga o Claude Code da máquina ao app do Claude, no modo servidor, que abre uma sessão nova cada vez que você pede pelo app:</p>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>mkdir -p ~/recover ~/.local/bin &amp;&amp; cat &gt; ~/.local/bin/recover-rc &lt;&lt;'EOF'
 #!/bin/sh
 # O recover roda o Remote Control no modo servidor, que abre uma sessão nova cada vez que você pede
@@ -1815,7 +1815,7 @@ EOF</pre></div>
   <div class="crumb">Montar a máquina</div>
   <h1>Como montar o orquestrador e os agentes</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="orquestrador">Copiar para o agente</button><a href="txt/orquestrador.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">O orquestrador é uma sessão do Claude Code que fica sempre aberta no app. Você pede a tarefa a ele, e ele abre um agente por tarefa, na pasta do projeto, com teto de RAM próprio. O agente é outra sessão do Claude Code, que faz o trabalho. O orquestrador distribui as tarefas, acompanha os agentes e relata o resultado.</p>
+  <p class="lead">O orquestrador é uma sessão do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> que fica sempre aberta no app. Você pede a tarefa a ele, e ele abre um agente por tarefa, na pasta do projeto, com teto de RAM próprio. O agente é outra sessão do Claude Code, que faz o trabalho. O orquestrador distribui as tarefas, acompanha os agentes e relata o resultado.</p>
   <p>O <a href="#instalador">instalador</a> faz esta página com um comando. Ela fica para quem monta à mão ou quer entender cada peça.</p>
 
   <ol class="flow" aria-label="O caminho de uma tarefa">
@@ -1829,8 +1829,8 @@ EOF</pre></div>
 
   <h2>Por que um orquestrador</h2>
   <ul>
-    <li>O Remote Control liga uma sessão da máquina ao app do Claude. Sem orquestrador, cada projeto novo pede um serviço do Remote Control próprio, criado à mão. Com o orquestrador, projeto novo é uma linha no <code>projects.json</code>.</li>
-    <li>Cada agente nasce dentro do slice dos agentes, o grupo do systemd com um teto de memória para todos eles somados, com o teto do projeto, e um projeto pesado não derruba os outros.</li>
+    <li>O <a href="https://code.claude.com/docs/en/remote-control" target="_blank" rel="noopener">Remote Control</a> liga uma sessão da máquina ao app do Claude. Sem orquestrador, cada projeto novo pede um serviço do Remote Control próprio, criado à mão. Com o orquestrador, projeto novo é uma linha no <code>projects.json</code>.</li>
+    <li>Cada agente nasce dentro do slice dos agentes, o grupo do <a href="https://systemd.io/" target="_blank" rel="noopener">systemd</a> com um teto de memória para todos eles somados, com o teto do projeto, e um projeto pesado não derruba os outros.</li>
     <li>O agente abre na pasta do projeto e carrega o <code>CLAUDE.md</code>, a memória e os hooks dele.</li>
   </ul>
 
@@ -1838,7 +1838,7 @@ EOF</pre></div>
   <div class="table-wrap stack"><table>
     <tr><th>Forma</th><th>Como</th><th>Quem usa</th></tr>
     <tr><td data-label="Forma">Modo servidor</td><td data-label="Como"><code>claude remote-control</code> espera, e abre uma sessão nova cada vez que você pede pelo app</td><td data-label="Quem usa">O recover, a sessão de socorro</td></tr>
-    <tr><td data-label="Forma">Sessão de terminal ligada ao app</td><td data-label="Como"><code>claude --remote-control &lt;nome&gt;</code> num tmux. A sessão aparece pronta no app, com a pasta, o teto e a tarefa com que nasceu</td><td data-label="Quem usa">O orquestrador e os agentes</td></tr>
+    <tr><td data-label="Forma">Sessão de terminal ligada ao app</td><td data-label="Como"><code>claude --remote-control &lt;nome&gt;</code> num <a href="https://github.com/tmux/tmux" target="_blank" rel="noopener">tmux</a>. A sessão aparece pronta no app, com a pasta, o teto e a tarefa com que nasceu</td><td data-label="Quem usa">O orquestrador e os agentes</td></tr>
   </table></div>
   <p>Se o app não conseguir abrir uma sessão, use a segunda forma: entre pelo SSH, abra um tmux e rode <code>claude --remote-control &lt;nome&gt;</code> na pasta.</p>
 
@@ -2248,7 +2248,7 @@ agent stop teste</pre></div>
   <div class="crumb">Montar a máquina</div>
   <h1>Como instalar o Cockpit e o que ele faz</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="mods">Copiar para o agente</button><a href="txt/mods.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">O Cockpit é um pacote de 11 mods, extensões que mudam o comportamento do Claude Code. Os guardas barram os erros comuns de um agente, a sessão que trabalha sozinha numa tarefa. Os instrumentos mostram em que ponto cada sessão está. Instale o pacote inteiro.</p>
+  <p class="lead">O Cockpit é um pacote de 11 mods, extensões que mudam o comportamento do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a>. Os guardas barram os erros comuns de um agente, a sessão que trabalha sozinha numa tarefa. Os instrumentos mostram em que ponto cada sessão está. Instale o pacote inteiro.</p>
 
   <h2>Instalar</h2>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>claude plugin marketplace add joaosavi/cockpit
@@ -2259,9 +2259,9 @@ claude plugin install cockpit@cockpit</pre></div>
   <p>Barram o erro antes de ele acontecer.</p>
     <div class="mods">
       <div class="mod"><div class="mod-h"><code>secret-guard</code></div><p>Troca o valor de todo segredo por <code>&lt;hidden:NOME&gt;</code> na saída das ferramentas, antes de o agente ler. Quando o agente escreve o marcador num <code>.env</code> ou num comando, o mod põe o valor real no lugar.</p></div>
-      <div class="mod"><div class="mod-h"><code>collision-guard</code></div><p>Avisa quando duas sessões editam o mesmo arquivo, e segura uma vez o comando git que levaria junto a edição ainda não commitada de outra sessão.</p></div>
+      <div class="mod"><div class="mod-h"><code>collision-guard</code></div><p>Avisa quando duas sessões editam o mesmo arquivo, e segura uma vez o comando <a href="https://git-scm.com/" target="_blank" rel="noopener">git</a> que levaria junto a edição ainda não commitada de outra sessão.</p></div>
       <div class="mod"><div class="mod-h"><code>pipefail</code></div><p>Liga o <code>set -o pipefail</code> quando o agente passa um teste ou typecheck por <code>tail</code>, <code>head</code> ou <code>grep</code>. Sem ele, um teste que falha sai com código 0 e parece aprovado.</p></div>
-      <div class="mod"><div class="mod-h"><code>memory-guard</code> <span class="mod-cmd">/ram</span></div><p>Antes de typecheck, build, teste e Playwright, confere a folga do teto de memória: roda com um processo só, espera ou recusa. Repete com um processo o comando morto por falta de memória (exit 137).</p></div>
+      <div class="mod"><div class="mod-h"><code>memory-guard</code> <span class="mod-cmd">/ram</span></div><p>Antes de typecheck, build, teste e <a href="https://playwright.dev/" target="_blank" rel="noopener">Playwright</a>, confere a folga do teto de memória: roda com um processo só, espera ou recusa. Repete com um processo o comando morto por falta de memória (exit 137).</p></div>
       <div class="mod"><div class="mod-h"><code>loop-breaker</code></div><p>Percebe quando o agente anda em círculo, com a mesma correção no mesmo arquivo ou o mesmo erro voltando, e manda ele parar e mudar de abordagem.</p></div>
       <div class="mod"><div class="mod-h"><code>usage-limit</code> <span class="mod-cmd">/limit</span></div><p>Protege o limite de uso do plano: um subagente por vez a partir de 90%, commit do trabalho em 97%, pausa que guarda os últimos 2% para você, e retomada sozinha quando a janela reinicia.</p></div>
     </div>
@@ -2280,12 +2280,12 @@ claude plugin install cockpit@cockpit</pre></div>
       <div class="mod"><div class="mod-h"><code>global-memory</code></div><p>Cria uma pasta de memória da máquina, ao lado da memória de cada projeto. O que o agente aprende sobre a VPS chega a toda sessão, de qualquer pasta.</p></div>
     </div>
 
-  <p>Todo comando do Cockpit também responde em texto, então funciona pelo Remote Control, no app do celular.</p>
+  <p>Todo comando do Cockpit também responde em texto, então funciona pelo <a href="https://code.claude.com/docs/en/remote-control" target="_blank" rel="noopener">Remote Control</a>, no app do celular.</p>
 
   <h2>Abrir o painel no seu computador</h2>
   <p>O <code>panel</code> escuta só no <code>127.0.0.1</code> da VPS. Para abrir no navegador do seu computador, ligue um túnel SSH e acesse <code>http://localhost:7777</code>:</p>
   <div class="code"><div class="code-head"><span>bash, no seu computador</span><button class="copy">Copiar</button></div><pre>ssh -N -L 7777:127.0.0.1:7777 &lt;usuario&gt;@&lt;ip&gt;</pre></div>
-  <p>As opções e os limites de cada mod estão no <a href="https://github.com/joaosavi/cockpit">repositório do Cockpit</a>. Com os mods instalados, siga para <a href="#provar">Como provar que tudo funciona</a>.</p>
+  <p>As opções e os limites de cada mod estão no <a href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">repositório do Cockpit</a>. Com os mods instalados, siga para <a href="#provar">Como provar que tudo funciona</a>.</p>
   <button type="button" class="done-btn" data-done="mods">Marquei como feito</button>
 </article>
 
@@ -2293,7 +2293,7 @@ claude plugin install cockpit@cockpit</pre></div>
   <div class="crumb">Montar a máquina</div>
   <h1>Como deixar a máquina se cuidar sozinha</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="manter">Copiar para o agente</button><a href="txt/manter.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Timers do systemd, tarefas que rodam sozinhas em horário marcado, mantêm a máquina funcionando sem você olhar. Um reinicia as sessões depois da atualização do sistema, outro encerra o agente esquecido, e os outros disparam as tarefas que você agendar. O agente é a sessão do Claude Code aberta para uma tarefa.</p>
+  <p class="lead">Timers do <a href="https://systemd.io/" target="_blank" rel="noopener">systemd</a>, tarefas que rodam sozinhas em horário marcado, mantêm a máquina funcionando sem você olhar. Um reinicia as sessões depois da atualização do sistema, outro encerra o agente esquecido, e os outros disparam as tarefas que você agendar. O agente é a sessão do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> aberta para uma tarefa.</p>
   <p>O <a href="#instalador">instalador</a> faz esta página com um comando. Ela fica para quem monta à mão ou quer entender cada peça.</p>
 
   <h2>Voltar depois da atualização do sistema</h2>
@@ -2326,12 +2326,12 @@ claude plugin install cockpit@cockpit</pre></div>
     <li>As sessões do app nascem em bypass, o modo que roda comandos sem pedir permissão. Abra uma pelo app e rode na máquina <code>ps -eo args | grep -- '[-]-print' | grep -c '[b]ypassPermissions'</code>, que conta as sessões com a flag. Os colchetes tiram da conta o próprio comando. O seletor do app não mostra o bypass.</li>
     <li>O orquestrador, a sessão que distribui as tarefas, e o recover, a sessão de socorro, voltam sozinhos depois de reiniciar a máquina, ou o container com <code>sudo lxc restart agente</code>, e aparecem no app.</li>
     <li>Pelo app, o orquestrador abre um agente, uma sessão só para a tarefa, num projeto, espera, relata o resultado e encerra o agente. O <code>agent list</code> fica vazio no fim.</li>
-    <li>As sessões rodam dentro do teto. O <code>memstat</code> mostra o teto que você calculou na linha do slice dos agentes, o grupo do systemd que soma a memória deles, e o teste do <code>systemd-run</code> de <a href="#memoria">Como pôr teto de memória e o agente de recover</a> termina em <code>oom-kill</code>.</li>
+    <li>As sessões rodam dentro do teto. O <code>memstat</code> mostra o teto que você calculou na linha do slice dos agentes, o grupo do <a href="https://systemd.io/" target="_blank" rel="noopener">systemd</a> que soma a memória deles, e o teste do <code>systemd-run</code> de <a href="#memoria">Como pôr teto de memória e o agente de recover</a> termina em <code>oom-kill</code>.</li>
     <li>A sessão <code>recover</code> aparece no app e responde.</li>
-    <li>O <code>/ram</code> do <code>memory-guard</code>, mod do Cockpit, o pacote de travas do Claude Code, mostra o slice e o teto numa sessão nova.</li>
+    <li>O <code>/ram</code> do <code>memory-guard</code>, mod do <a href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">Cockpit</a>, o pacote de travas do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a>, mostra o slice e o teto numa sessão nova.</li>
     <li>No host compartilhado, os outros serviços respondem igual ao início.</li>
   </ul>
-  <div class="callout tip"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><div><strong class="label">Pronto</strong><p>Abra o <a href="https://claude.ai/code">claude.ai/code</a> ou a aba Code do app do Claude e escolha a sessão do orquestrador.</p></div></div>
+  <div class="callout tip"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg><div><strong class="label">Pronto</strong><p>Abra o <a href="https://claude.ai/code" target="_blank" rel="noopener">claude.ai/code</a> ou a aba Code do app do Claude e escolha a sessão do orquestrador.</p></div></div>
   <button type="button" class="done-btn" data-done="provar">Marquei como feito</button>
 </article>
 
@@ -2346,7 +2346,7 @@ claude plugin install cockpit@cockpit</pre></div>
 
 
   <h2>Um repo com a configuração</h2>
-  <p>Um repo privado no GitHub pode guardar a configuração da máquina: as units do systemd, os scripts de <code>~/.local/bin</code>, o <code>~/.claude/CLAUDE.md</code>, o <code>settings.json</code> e as skills. O repo serve de backup e de receita para montar outra máquina. Os arquivos instalados viram links para o repo, e uma mudança na máquina aparece no <code>git status</code>. Credencial, <code>.env</code> e o <code>~/.claude/.credentials.json</code> ficam fora. Você escolhe o que entra.</p>
+  <p>Um repo privado no <a href="https://github.com/" target="_blank" rel="noopener">GitHub</a> pode guardar a configuração da máquina: as units do <a href="https://systemd.io/" target="_blank" rel="noopener">systemd</a>, os scripts de <code>~/.local/bin</code>, o <code>~/.claude/CLAUDE.md</code>, o <code>settings.json</code> e as skills. O repo serve de backup e de receita para montar outra máquina. Os arquivos instalados viram links para o repo, e uma mudança na máquina aparece no <code>git status</code>. Credencial, <code>.env</code> e o <code>~/.claude/.credentials.json</code> ficam fora. Você escolhe o que entra.</p>
 
 
   <p>Para subir sites e serviços na mesma máquina e saber quando eles caem, veja <a href="#servicos">Suba seus sites na VPS e saiba na hora quando caem</a>.</p>
@@ -2356,16 +2356,16 @@ claude plugin install cockpit@cockpit</pre></div>
   <div class="crumb">Consultar</div>
   <h1>Suba seus sites na VPS e saiba na hora quando caem</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="servicos">Copiar para o agente</button><a href="txt/servicos.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">A VPS que roda o agente também hospeda os seus sites e serviços. Três ferramentas gratuitas fazem isso sem você configurar servidor web: o Coolify sobe cada serviço em Docker com HTTPS, o Uptime Kuma avisa no Telegram quando um site cai, e o Beszel mostra a CPU, a memória e o disco da máquina ao longo do tempo.</p>
+  <p class="lead">A VPS que roda o agente também hospeda os seus sites e serviços. Três ferramentas gratuitas fazem isso sem você configurar servidor web: o <a href="https://coolify.io/" target="_blank" rel="noopener">Coolify</a> sobe cada serviço em <a href="https://www.docker.com/" target="_blank" rel="noopener">Docker</a> com HTTPS, o <a href="https://uptime.kuma.pet/" target="_blank" rel="noopener">Uptime Kuma</a> avisa no <a href="https://telegram.org/" target="_blank" rel="noopener">Telegram</a> quando um site cai, e o <a href="https://beszel.dev/" target="_blank" rel="noopener">Beszel</a> mostra a CPU, a memória e o disco da máquina ao longo do tempo.</p>
 
   <h2>Quanto de memória cada um gasta</h2>
   <div class="table-wrap"><table>
     <tr><th>Ferramenta</th><th>Memória</th></tr>
-    <tr><td>Coolify, com o banco, o Redis e o proxy</td><td>270 MB</td></tr>
+    <tr><td>Coolify, com o banco, o <a href="https://redis.io/" target="_blank" rel="noopener">Redis</a> e o proxy</td><td>270 MB</td></tr>
     <tr><td>Uptime Kuma</td><td>240 MB</td></tr>
     <tr><td>Beszel, com o painel e o agente que mede a máquina</td><td>30 MB</td></tr>
   </table></div>
-  <p>Medido numa VM da Oracle com os três rodando, em 20/10/2026. Some a isso o que os seus sites gastam. A memória sai da folga fora do slice dos agentes, o grupo com o teto das sessões do Claude Code.</p>
+  <p>Medido numa VM da <a href="https://www.oracle.com/cloud/free/" target="_blank" rel="noopener">Oracle</a> com os três rodando, em 20/10/2026. Some a isso o que os seus sites gastam. A memória sai da folga fora do slice dos agentes, o grupo com o teto das sessões do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a>.</p>
 
   <h2>Abrir espaço na memória</h2>
   <p>O instalador reserva 1 GB para o sistema e o Docker. Com os três rodando, reserve 2 GB. Troque a linha no <code>~/always-on/config.env</code> e rode o instalador de novo, que recalcula o teto dos agentes:</p>
@@ -2396,20 +2396,20 @@ claude plugin install cockpit@cockpit</pre></div>
   <div class="crumb">Consultar</div>
   <h1>Pegue qualquer arquivo da VPS, até pelo celular</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="baixar">Copiar para o agente</button><a href="txt/baixar.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Pelo terminal, com <code>scp</code>. Pelo celular, num Artifact privado do claude.ai.</p>
+  <p class="lead">Pelo terminal, com <code>scp</code>. Pelo celular, num Artifact privado do <a href="https://claude.ai" target="_blank" rel="noopener">claude.ai</a>.</p>
 
   <h2>Pelo terminal</h2>
   <p>No terminal do seu computador, com o bloco do <code>~/.ssh/config</code> já gravado, rode:</p>
   <div class="code"><div class="code-head"><span>bash, na sua máquina</span><button class="copy">Copiar</button></div><pre>scp &lt;maquina&gt;:~/caminho/relatorio.pdf .</pre></div>
   <h2>Pelo celular</h2>
-  <p>Sem terminal à mão, como no celular, peça à sessão do Claude Code para publicar o arquivo num Artifact, uma página privada do claude.ai que só você abre, com botão de download.</p>
+  <p>Sem terminal à mão, como no celular, peça à sessão do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> para publicar o arquivo num Artifact, uma página privada do claude.ai que só você abre, com botão de download.</p>
 </article>
 
 <article class="page" id="dia" data-title="Os comandos que você vai usar todo dia" hidden>
   <div class="crumb">Consultar</div>
   <h1>Os comandos que você vai usar todo dia</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="dia">Copiar para o agente</button><a href="txt/dia.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Os comandos de uso diário, com a máquina já montada. O orquestrador é a sessão do Claude Code que distribui as tarefas, e cada agente é uma sessão aberta só para uma tarefa.</p>
+  <p class="lead">Os comandos de uso diário, com a máquina já montada. O orquestrador é a sessão do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> que distribui as tarefas, e cada agente é uma sessão aberta só para uma tarefa.</p>
   <div class="table-wrap stack"><table>
     <tr><th>Quero</th><th>Faço</th></tr>
     <tr><td>Falar com o agente pelo celular ou navegador</td><td>Abro o claude.ai/code ou a aba Code do app e escolho a sessão do orquestrador</td></tr>
@@ -2433,12 +2433,12 @@ claude plugin install cockpit@cockpit</pre></div>
   <div class="crumb">Consultar</div>
   <h1>Algo quebrou? A saída está aqui</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="problemas">Copiar para o agente</button><a href="txt/problemas.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">Procure pelo sintoma na primeira coluna. Quase todos estes problemas aconteceram na nossa montagem. Na tabela, o orquestrador é a sessão do Claude Code que distribui as tarefas, o agente é a sessão que trabalha numa tarefa, o recover é a sessão de socorro, e o Cockpit é o pacote de mods que barra erros comuns.</p>
+  <p class="lead">Procure pelo sintoma na primeira coluna. Quase todos estes problemas aconteceram na nossa montagem. Na tabela, o orquestrador é a sessão do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> que distribui as tarefas, o agente é a sessão que trabalha numa tarefa, o recover é a sessão de socorro, e o <a href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">Cockpit</a> é o pacote de mods que barra erros comuns.</p>
   <div class="table-wrap stack"><table>
     <tr><th>Sintoma</th><th>Causa</th><th>Conserto</th></tr>
     <tr><td>A sessão aberta pelo app pede permissão para tudo</td><td>O Claude Code ignora <code>defaultMode: "bypassPermissions"</code> vindo das configurações do projeto</td><td><code>--permission-mode bypassPermissions</code> na linha do <code>claude</code>, depois de <code>remote-control</code> no modo servidor</td></tr>
     <tr><td>Serviço ativo e nenhuma sessão no app</td><td>A sessão está parada numa pergunta de primeira vez</td><td><code>tmux -L &lt;nome&gt; attach</code> mostra qual. Rode o comando à mão uma vez</td></tr>
-    <tr><td>O app não abre sessão nova</td><td>A ponte do modo servidor caiu, ou o app recusou a sessão</td><td>Pelo SSH, num tmux: <code>claude --remote-control &lt;nome&gt;</code> na pasta. A sessão aparece pronta no app</td></tr>
+    <tr><td>O app não abre sessão nova</td><td>A ponte do modo servidor caiu, ou o app recusou a sessão</td><td>Pelo SSH, num <a href="https://github.com/tmux/tmux" target="_blank" rel="noopener">tmux</a>: <code>claude --remote-control &lt;nome&gt;</code> na pasta. A sessão aparece pronta no app</td></tr>
     <tr><td>Um tmux aberto pelo SSH some quando o serviço reinicia</td><td>O serviço usa o socket padrão do tmux</td><td>Socket próprio, com <code>tmux -L &lt;nome&gt;</code>, no serviço</td></tr>
     <tr><td>O segundo agente herda o teto do primeiro</td><td>Os dois nasceram no mesmo servidor tmux</td><td>Um servidor tmux por agente, como no comando <code>agent</code></td></tr>
     <tr><td>O orquestrador não acha o agente no <code>ListAgents</code></td><td>O agente subiu sem <code>XDG_RUNTIME_DIR</code>, e o socket dele caiu em <code>/tmp</code></td><td><code>XDG_RUNTIME_DIR=/run/user/$(id -u)</code> no <code>claude</code>, nunca no tmux</td></tr>
@@ -2452,17 +2452,17 @@ claude plugin install cockpit@cockpit</pre></div>
     <tr><td>Um teste que sobe banco estoura 5s</td><td>Máquina de 2 núcleos com a suíte inteira em paralelo</td><td>Limite de 30s nos testes que sobem container</td></tr>
     <tr><td>O SSH leva de 20 a 77 segundos para entrar, e as sessões do app param de responder</td><td>A máquina chegou ao limite de memória sem swap. O kernel descarta o cache de disco, e todo processo espera o disco</td><td>Swap e o teto das sessões, em <a href="#memoria">Como pôr teto de memória e o agente de recover</a>. Na hora, abra a sessão <code>recover</code> e mate o comando pesado</td></tr>
     <tr><td>Um build ou uma suíte de testes morre com <code>Killed</code> ou exit 137</td><td>O grupo das sessões bateu no teto, e o kernel matou o maior processo</td><td>Menos paralelismo, ou um teto maior para o projeto no <code>projects.json</code>. O <code>memory-guard</code> do Cockpit faz isso sozinho</td></tr>
-    <tr><td>Todas as sessões caem juntas quando um comando morre por falta de memória</td><td>Sem <code>OOMPolicy=continue</code>, o systemd para o serviço inteiro quando o kernel mata um processo dele</td><td><code>OOMPolicy=continue</code> na unit, e <code>sudo systemctl daemon-reload</code></td></tr>
+    <tr><td>Todas as sessões caem juntas quando um comando morre por falta de memória</td><td>Sem <code>OOMPolicy=continue</code>, o <a href="https://systemd.io/" target="_blank" rel="noopener">systemd</a> para o serviço inteiro quando o kernel mata um processo dele</td><td><code>OOMPolicy=continue</code> na unit, e <code>sudo systemctl daemon-reload</code></td></tr>
     <tr><td>A sessão parou com <code>You've hit your session limit</code> e continua parada depois do horário de volta</td><td>Ninguém escreveu nela depois que o limite voltou</td><td>O <code>usage-limit</code> do Cockpit retoma sozinho. Sem ele, mande uma mensagem pela sessão no app</td></tr>
     <tr><td>Um binário falha com <code>exec format error</code></td><td>Binário x86 numa máquina ARM</td><td>Baixar a versão arm64 e conferir com <code>file</code></td></tr>
-    <tr><td>A extensão Remote-SSH não aparece no VS Code</td><td>O <code>code</code> chamado do WSL instalou do lado WSL</td><td>Instalar pelo VS Code do Windows</td></tr>
+    <tr><td>A extensão <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh" target="_blank" rel="noopener">Remote-SSH</a> não aparece no <a href="https://code.visualstudio.com/" target="_blank" rel="noopener">VS Code</a></td><td>O <code>code</code> chamado do <a href="https://learn.microsoft.com/windows/wsl/" target="_blank" rel="noopener">WSL</a> instalou do lado WSL</td><td>Instalar pelo VS Code do Windows</td></tr>
     <tr><td><code>gh auth login</code> reclama que não achou navegador</td><td>A máquina não tem interface gráfica</td><td>Ignorar e digitar o código em github.com/login/device</td></tr>
-    <tr><td>O container do LXD não recebe IP nem sai para a internet</td><td>O Docker põe o FORWARD em DROP, e a imagem da nuvem fecha o INPUT em REJECT</td><td>O serviço <code>lxd-firewall</code>, com as regras na ordem da página do container</td></tr>
-    <tr><td>Uma ferramenta do projeto some nas sessões do app</td><td>O serviço não carregou o <code>.bashrc</code> ou o <code>.zshrc</code>, onde nvm e afins põem o PATH</td><td><code>bash -lic</code> ou <code>zsh -lic</code> no <code>ExecStart</code></td></tr>
+    <tr><td>O container do <a href="https://canonical.com/lxd" target="_blank" rel="noopener">LXD</a> não recebe IP nem sai para a internet</td><td>O <a href="https://www.docker.com/" target="_blank" rel="noopener">Docker</a> põe o FORWARD em DROP, e a imagem da nuvem fecha o INPUT em REJECT</td><td>O serviço <code>lxd-firewall</code>, com as regras na ordem da página do container</td></tr>
+    <tr><td>Uma ferramenta do projeto some nas sessões do app</td><td>O serviço não carregou o <code>.bashrc</code> ou o <code>.zshrc</code>, onde <a href="https://github.com/nvm-sh/nvm" target="_blank" rel="noopener">nvm</a> e afins põem o PATH</td><td><code>bash -lic</code> ou <code>zsh -lic</code> no <code>ExecStart</code></td></tr>
     <tr><td>O VS Code do Windows recusa a chave</td><td>A chave do Windows não está no <code>authorized_keys</code> da máquina</td><td>Autorizar a chave pública do Windows, como em Acesso por SSH e VS Code</td></tr>
     <tr><td>As regras do firewall somem ou duplicam no reboot</td><td><code>netfilter-persistent save</code> grava as regras do Docker junto</td><td>Regras num serviço <code>oneshot</code> que confere antes de inserir</td></tr>
-    <tr><td>Um <code>lxc list</code> instalou o LXD</td><td>No Ubuntu 24.04, o <code>lxc</code> sem o snap é um instalador</td><td>Saber antes de rodar num host que importa</td></tr>
-    <tr><td>A Oracle recusa criar a VM com "Out of host capacity"</td><td>Conta só Always Free, ou falta máquina ARM livre naquele availability domain</td><td>O upgrade para Pay As You Go. Com ele aprovado, outro availability domain ou mais tarde</td></tr>
+    <tr><td>Um <code>lxc list</code> instalou o LXD</td><td>No <a href="https://ubuntu.com/" target="_blank" rel="noopener">Ubuntu</a> 24.04, o <code>lxc</code> sem o snap é um instalador</td><td>Saber antes de rodar num host que importa</td></tr>
+    <tr><td>A <a href="https://www.oracle.com/cloud/free/" target="_blank" rel="noopener">Oracle</a> recusa criar a VM com "Out of host capacity"</td><td>Conta só Always Free, ou falta máquina ARM livre naquele availability domain</td><td>O upgrade para Pay As You Go. Com ele aprovado, outro availability domain ou mais tarde</td></tr>
     <tr><td>A VM grátis da Oracle aparece parada</td><td>Em conta só gratuita, a Oracle para a VM que passa 7 dias ociosa</td><td>Ligar de novo em Compute, Instances, Start, e fazer o upgrade para Pay As You Go</td></tr>
   </table></div>
 </article>
@@ -2473,10 +2473,10 @@ claude plugin install cockpit@cockpit</pre></div>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="seguranca">Copiar para o agente</button><a href="txt/seguranca.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
   <p class="lead">Uma máquina que trabalha sozinha 24 horas faz tudo o que as chaves dela permitem. Dê a ela só o necessário.</p>
   <ul>
-    <li>Dê ao agente, a sessão do Claude Code que trabalha na máquina, só as chaves que ele usa, cada uma revogável sem afetar as suas.</li>
+    <li>Dê ao agente, a sessão do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> que trabalha na máquina, só as chaves que ele usa, cada uma revogável sem afetar as suas.</li>
     <li>O login do Claude na máquina vence. A sessão que dura mais que ele para de andar até um login novo, então renove quando o app parar de abrir sessão.</li>
-    <li>As sessões gastam a mesma cota da sua conta do Claude, seja no seu computador, na Oracle ou na nuvem da Anthropic. Uma noite inteira de trabalho do agente consome o limite que seria seu de manhã.</li>
-    <li>Uma máquina com IP público recebe tentativas de login no SSH o tempo todo. Desligue o login por senha e mantenha a atualização automática. O Tailscale tira a porta 22 da internet.</li>
+    <li>As sessões gastam a mesma cota da sua conta do Claude, seja no seu computador, na <a href="https://www.oracle.com/cloud/free/" target="_blank" rel="noopener">Oracle</a> ou na nuvem da Anthropic. Uma noite inteira de trabalho do agente consome o limite que seria seu de manhã.</li>
+    <li>Uma máquina com IP público recebe tentativas de login no SSH o tempo todo. Desligue o login por senha e mantenha a atualização automática. O <a href="https://tailscale.com/" target="_blank" rel="noopener">Tailscale</a> tira a porta 22 da internet.</li>
     <li>Num host compartilhado, um build pesado do agente deixa os outros serviços mais lentos. O peso de CPU dá prioridade ao host, mas não zera a disputa.</li>
     <li>Na Oracle Pay As You Go, nada é cobrado dentro da cota, e o orçamento com alerta avisa se algo sair dela. Uma VPS paga custa a mensalidade mesmo parada.</li>
   </ul>
@@ -2487,29 +2487,29 @@ claude plugin install cockpit@cockpit</pre></div>
   <h1>De onde vem cada informação</h1>
   <p class="lead">Consultadas entre 01 e 19/10/2026. Os números de tempo e memória vêm da nossa montagem.</p>
   <ul class="refs">
-    <li><a href="https://code.claude.com/docs/en/remote-control">Remote Control</a></li>
-    <li><a href="https://code.claude.com/docs/en/cross-session-messaging">Message your other Claude Code sessions</a></li>
-    <li><a href="https://code.claude.com/docs/en/authentication">Authentication</a></li>
-    <li><a href="https://code.claude.com/docs/en/agent-view">Background sessions e agent view</a></li>
-    <li><a href="https://code.claude.com/docs/en/permission-modes">Permission modes</a></li>
-    <li><a href="https://code.claude.com/docs/en/worktrees">Worktrees</a></li>
-    <li><a href="https://code.claude.com/docs/en/claude-code-on-the-web">Use Claude Code in the cloud</a></li>
-    <li><a href="https://code.claude.com/docs/en/cloud-environments">Configure cloud environments</a></li>
-    <li><a href="https://code.claude.com/docs/en/self-hosted-environments">Self-hosted environments</a></li>
-    <li><a href="https://docs.oracle.com/en-us/iaas/Content/FreeTier/resourceref.htm">Oracle, Always Free Resources</a></li>
-    <li><a href="https://docs.oracle.com/iaas/Content/FreeTier/freetier.htm">Oracle Cloud Infrastructure Free Tier</a></li>
-    <li><a href="https://blog.51sec.org/2023/02/oracle-cloud-cleaning-up-idle-compute.html">51sec, Oracle Cloud Cleaning Up Idle Compute Instances</a></li>
-    <li><a href="https://www.youtube.com/watch?v=bk5sWon4tnE">Tiago Matos, Como ter um servidor VPS grátis pra sempre sem gambiarra</a></li>
-    <li><a href="https://www.infoq.com/news/2026/07/oracle-cloud-free-tier-limits/">InfoQ, julho de 2026</a></li>
-    <li><a href="https://www.hostinger.com/br/servidor-vps">Hostinger, servidor VPS</a></li>
-    <li><a href="https://tailscale.com/pricing">Tailscale, preços</a></li>
-    <li><a href="https://man7.org/linux/man-pages/man5/systemd.resource-control.5.html">systemd.resource-control</a></li>
-    <li><a href="https://man7.org/linux/man-pages/man5/systemd.slice.5.html">systemd.slice</a></li>
-    <li><a href="https://man7.org/linux/man-pages/man5/systemd.service.5.html">systemd.service</a></li>
-    <li><a href="https://docs.kernel.org/admin-guide/cgroup-v2.html">Control Group v2</a></li>
-    <li><a href="https://docs.kernel.org/accounting/psi.html">Pressure Stall Information</a></li>
-    <li><a href="https://canonical.com/lxd/docs/latest/reference/instance_options/">LXD, opções de instância</a></li>
-    <li><a href="https://man7.org/linux/man-pages/man8/swapon.8.html">swapon(8)</a></li>
+    <li><a href="https://code.claude.com/docs/en/remote-control" target="_blank" rel="noopener">Remote Control</a></li>
+    <li><a href="https://code.claude.com/docs/en/cross-session-messaging" target="_blank" rel="noopener">Message your other Claude Code sessions</a></li>
+    <li><a href="https://code.claude.com/docs/en/authentication" target="_blank" rel="noopener">Authentication</a></li>
+    <li><a href="https://code.claude.com/docs/en/agent-view" target="_blank" rel="noopener">Background sessions e agent view</a></li>
+    <li><a href="https://code.claude.com/docs/en/permission-modes" target="_blank" rel="noopener">Permission modes</a></li>
+    <li><a href="https://code.claude.com/docs/en/worktrees" target="_blank" rel="noopener">Worktrees</a></li>
+    <li><a href="https://code.claude.com/docs/en/claude-code-on-the-web" target="_blank" rel="noopener">Use Claude Code in the cloud</a></li>
+    <li><a href="https://code.claude.com/docs/en/cloud-environments" target="_blank" rel="noopener">Configure cloud environments</a></li>
+    <li><a href="https://code.claude.com/docs/en/self-hosted-environments" target="_blank" rel="noopener">Self-hosted environments</a></li>
+    <li><a href="https://docs.oracle.com/en-us/iaas/Content/FreeTier/resourceref.htm" target="_blank" rel="noopener">Oracle, Always Free Resources</a></li>
+    <li><a href="https://docs.oracle.com/iaas/Content/FreeTier/freetier.htm" target="_blank" rel="noopener">Oracle Cloud Infrastructure Free Tier</a></li>
+    <li><a href="https://blog.51sec.org/2023/02/oracle-cloud-cleaning-up-idle-compute.html" target="_blank" rel="noopener">51sec, Oracle Cloud Cleaning Up Idle Compute Instances</a></li>
+    <li><a href="https://www.youtube.com/watch?v=bk5sWon4tnE" target="_blank" rel="noopener">Tiago Matos, Como ter um servidor VPS grátis pra sempre sem gambiarra</a></li>
+    <li><a href="https://www.infoq.com/news/2026/07/oracle-cloud-free-tier-limits/" target="_blank" rel="noopener">InfoQ, julho de 2026</a></li>
+    <li><a href="https://www.hostinger.com/br/servidor-vps" target="_blank" rel="noopener">Hostinger, servidor VPS</a></li>
+    <li><a href="https://tailscale.com/pricing" target="_blank" rel="noopener">Tailscale, preços</a></li>
+    <li><a href="https://man7.org/linux/man-pages/man5/systemd.resource-control.5.html" target="_blank" rel="noopener">systemd.resource-control</a></li>
+    <li><a href="https://man7.org/linux/man-pages/man5/systemd.slice.5.html" target="_blank" rel="noopener">systemd.slice</a></li>
+    <li><a href="https://man7.org/linux/man-pages/man5/systemd.service.5.html" target="_blank" rel="noopener">systemd.service</a></li>
+    <li><a href="https://docs.kernel.org/admin-guide/cgroup-v2.html" target="_blank" rel="noopener">Control Group v2</a></li>
+    <li><a href="https://docs.kernel.org/accounting/psi.html" target="_blank" rel="noopener">Pressure Stall Information</a></li>
+    <li><a href="https://canonical.com/lxd/docs/latest/reference/instance_options/" target="_blank" rel="noopener">LXD, opções de instância</a></li>
+    <li><a href="https://man7.org/linux/man-pages/man8/swapon.8.html" target="_blank" rel="noopener">swapon(8)</a></li>
   </ul>
 </article>
 

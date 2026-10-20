@@ -1,14 +1,14 @@
 # Suba seus sites na VPS e saiba na hora quando caem  
-A VPS que roda o agente também hospeda os seus sites e serviços. Três ferramentas gratuitas fazem isso sem você configurar servidor web: o Coolify sobe cada serviço em Docker com HTTPS, o Uptime Kuma avisa no Telegram quando um site cai, e o Beszel mostra a CPU, a memória e o disco da máquina ao longo do tempo. 
+A VPS que roda o agente também hospeda os seus sites e serviços. Três ferramentas gratuitas fazem isso sem você configurar servidor web: o Coolify (https://coolify.io/) sobe cada serviço em Docker (https://www.docker.com/) com HTTPS, o Uptime Kuma (https://uptime.kuma.pet/) avisa no Telegram (https://telegram.org/) quando um site cai, e o Beszel (https://beszel.dev/) mostra a CPU, a memória e o disco da máquina ao longo do tempo. 
 
 ## Quanto de memória cada um gasta 
 
 | Ferramenta | Memória |
 | --- | --- | 
-| Coolify, com o banco, o Redis e o proxy | 270 MB | 
+| Coolify, com o banco, o Redis (https://redis.io/) e o proxy | 270 MB | 
 | Uptime Kuma | 240 MB | 
 | Beszel, com o painel e o agente que mede a máquina | 30 MB |  
-Medido numa VM da Oracle com os três rodando, em 20/10/2026. Some a isso o que os seus sites gastam. A memória sai da folga fora do slice dos agentes, o grupo com o teto das sessões do Claude Code. 
+Medido numa VM da Oracle (https://www.oracle.com/cloud/free/) com os três rodando, em 20/10/2026. Some a isso o que os seus sites gastam. A memória sai da folga fora do slice dos agentes, o grupo com o teto das sessões do Claude Code (https://claude.com/product/claude-code). 
 
 ## Abrir espaço na memória 
 O instalador reserva 1 GB para o sistema e o Docker. Com os três rodando, reserve 2 GB. Troque a linha no `~/always-on/config.env` e rode o instalador de novo, que recalcula o teto dos agentes: 
