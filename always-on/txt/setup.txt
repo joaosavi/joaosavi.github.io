@@ -92,7 +92,7 @@ Tudo aqui é instalado. O que precisa de uma conta minha fica instalado e espera
    B. Quais contas do Telegram falam com o bot: a minha (recomendado), a minha e de outras pessoas, ou não sei.
    C. O número do WhatsApp do agente: um número de ativação do 5sim, que você me guia a comprar (recomendado), um chip meu, depois, ou não sei. Explique que o número fica como segunda conta no app do WhatsApp do meu celular.
    D. Quais números de WhatsApp mandam arquivo para a máquina: o meu (recomendado), o meu e outros, ou não sei.
-   E. O cofre de senhas: Bitwarden na nuvem, de graça (recomendado), ou um Vaultwarden na própria VPS, sem domínio, aberto por túnel SSH (txt/cofre.txt mostra como), ou não sei.
+   E. O cofre de senhas: Bitwarden na nuvem, de graça (recomendado), ou um Vaultwarden na própria VPS, com HTTPS pelo Tailscale (txt/cofre.txt mostra como), ou não sei. Explique que o Vaultwarden atual não abre sem HTTPS.
    F. O navegador: o meu Chrome pela extensão Claude in Chrome e também o navegador sem tela da VPS (recomendado), só um deles, ou não sei.
 3. Monte na ordem: Telegram, WhatsApp, cofre, navegador, conectores do claude.ai. Para cada um, prove que funciona: o bot me manda uma mensagem e só a minha conta passa; um arquivo que eu encaminho aparece na pasta; o agente usa um segredo do cofre sem mostrar o valor; o agente abre uma página e me diz o título.
 

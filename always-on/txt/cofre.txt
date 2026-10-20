@@ -20,8 +20,11 @@ O valor fica só no ambiente do comando. O Cockpit (txt/mods.txt) é um pacote d
 | Vaultwarden | Na sua VPS, num container Docker | Você: atualizar a imagem e guardar cópia da pasta de dados |  
 O Vaultwarden é um servidor compatível com o Bitwarden: os mesmos apps, a mesma extensão e o mesmo comando `bw` funcionam com ele. Para quem começa, o Bitwarden na nuvem dá menos trabalho. 
 
-## Como subir o Vaultwarden na VPS sem domínio 
-O cofre web só abre em página segura, com HTTPS ou no endereço `localhost`. Ligado só no `127.0.0.1` da VPS e aberto por um túnel SSH, o seu navegador vê `localhost` e aceita. Não precisa de domínio nem de certificado, e o cofre não fica exposto na internet. 
+## Como subir o Vaultwarden na VPS 
+O Vaultwarden e a extensão do Bitwarden só aceitam endereço com HTTPS, até em `localhost`. Testamos o Vaultwarden 1.37.4 e a extensão 2026.10.0: por `http`, o cofre web recusa o login e a extensão recusa o endereço. O caminho mais simples é o Tailscale, uma rede privada entre os seus aparelhos. Ele dá ao cofre um endereço HTTPS válido que só os aparelhos da sua rede abrem. 
+
+- Ligue o Tailscale. Instale o Tailscale na VPS, no seu computador e no celular, com a mesma conta. O passo da VPS está em Como acessar a VPS por SSH e VS Code (txt/acesso.txt). O endereço da VPS na rede fica no formato `<maquina>.<rede>.ts.net`, e o `tailscale status` mostra o seu. 
+- Suba o Vaultwarden. Troque o endereço do `DOMAIN` pelo da sua VPS: 
 
 bash, na máquina
 ```
@@ -29,30 +32,35 @@ sudo mkdir -p /srv/vaultwarden
 docker run -d --name vaultwarden \
   --restart unless-stopped \
   -e SIGNUPS_ALLOWED=true \
-  -e DOMAIN=http://localhost:8222 \
+  -e DOMAIN=https://<maquina>.<rede>.ts.net \
   -v /srv/vaultwarden:/data \
   -p 127.0.0.1:8222:80 \
-  vaultwarden/server:1.34.3
+  vaultwarden/server:1.37.4
 ```
 
-No seu computador, abra o túnel e acesse `http://localhost:8222`: 
+- Publique com HTTPS na sua rede. O Tailscale tira o certificado e passa o tráfego para a porta 8222: 
 
-bash, no seu computador
+bash, na máquina
 ```
-ssh -N -L 8222:127.0.0.1:8222 <usuario>@<ip>
+sudo tailscale serve --bg 8222
 ```
+Na primeira vez, o comando mostra um link para ligar o HTTPS na sua rede. Abra o link e aceite. O cofre abre em `https://<maquina>.<rede>.ts.net`, no navegador, na extensão e no app do celular.  
 
-- Crie a sua conta e a conta do agente, com outro e-mail. 
-- Na sua conta, crie uma organização e compartilhe com a conta do agente só os itens que ele vai usar. 
-- Feche o cadastro: recrie o container com `SIGNUPS_ALLOWED=false`. A pasta `/srv/vaultwarden` guarda tudo, então nada se perde. 
-- Na VPS, aponte o `bw` para o cofre com `bw config server http://127.0.0.1:8222`. O agente fala com ele direto, sem túnel.  
+## Como pôr uma senha no cofre e entregar ao agente 
+A interface do Vaultwarden é em inglês, e os nomes abaixo são os da tela. Ele funciona sem servidor de e-mail: o convite não manda mensagem, e a conta do agente aceita o convite ao se cadastrar. 
+
+- Crie a sua conta. Abra o endereço do cofre, clique em Create account e escolha a senha mestra. 
+- Crie a organização. No cofre, clique em New organization, dê um nome e clique em Submit. Ela já nasce com a Default collection, a pasta que você divide com o agente. 
+- Convide o agente. Em Admin Console, abra Members, clique em Invite member, ponha o e-mail da conta do agente, deixe o papel User e clique em Save. 
+- Crie a conta do agente. Numa janela anônima, crie a conta com o e-mail do convite. Na lista de membros, ela passa para Needs confirmation. 
+- Confirme o agente. Na linha dele, abra Options, clique em Confirm e confirme de novo no diálogo. 
+- Dê a coleção ao agente. Na mesma linha, abra Options e depois Collections. Em Select collections, escolha Default collection e clique fora da lista, porque o Esc descarta a escolha. A permissão View items deixa o agente ler sem editar. Clique em Save. 
+- Ligue a extensão ao seu cofre. Na tela de login da extensão do Bitwarden, clique em bitwarden.com, ao lado de Accessing, e escolha self-hosted. Em Server URL, ponha o endereço `https` do cofre, clique em Save e faça o login. 
+- Salve a senha. Pela extensão, com New, ou pelo cofre web, com New e depois Login. A senha nasce no seu cofre pessoal. 
+- Passe a senha para a organização. No cofre web, abra o Options da senha e clique em Assign to collections. Em Move to organization, escolha a organização. Em Select collections to assign, escolha Default collection e clique em Assign. A senha passa a ser da organização, e o agente já enxerga. 
+- Feche o cadastro. Recrie o container com `SIGNUPS_ALLOWED=false`. A pasta `/srv/vaultwarden` guarda tudo: testamos, e as contas e as senhas continuam, e um cadastro novo é recusado. 
+- Aponte o comando do agente. A VPS está na sua rede do Tailscale, então o `bw` fala com o cofre pelo mesmo endereço: `bw config server https://<maquina>.<rede>.ts.net`.  
 O cofre inteiro mora em `/srv/vaultwarden`. Copie essa pasta para fora da VPS de vez em quando, porque sem ela as senhas se perdem. 
 
-## Como usar o Vaultwarden no celular 
-O app do Bitwarden no celular só aceita servidor com HTTPS. Há dois caminhos: 
-
-| Caminho | Como fica | Custo |
-| --- | --- | --- | 
-| Tailscale (recomendado) | Uma rede privada entre os seus aparelhos. `sudo tailscale serve --bg 8222` publica o cofre com HTTPS em `https://<maquina>.<rede>.ts.net`, visível só para aparelhos da sua rede | Grátis para uso pessoal | 
-| Domínio próprio | Um subdomínio apontando para a VPS e o Caddy na frente, que tira o certificado sozinho. O cofre fica aberto na internet, protegido só pela senha mestra | O domínio: um .com.br sai a R$ 40 por ano |  
-O endereço do GitHub Pages não serve: ele só entrega arquivos estáticos e não repassa tráfego para a VPS.
+## Sem Tailscale 
+Aponte um subdomínio seu para a VPS e ponha o Caddy ou o proxy do Coolify (txt/servicos.txt) na frente do cofre, que tira o certificado sozinho. O cofre fica aberto na internet, protegido só pela senha mestra, e um `.com.br` sai a R$ 40 por ano. O endereço do GitHub Pages não serve, porque ele só entrega arquivos estáticos e não repassa tráfego para a VPS.

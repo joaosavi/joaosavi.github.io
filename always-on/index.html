@@ -797,7 +797,7 @@ Tudo aqui é instalado. O que precisa de uma conta minha fica instalado e espera
    B. Quais contas do Telegram falam com o bot: a minha (recomendado), a minha e de outras pessoas, ou não sei.
    C. O número do WhatsApp do agente: um número de ativação do 5sim, que você me guia a comprar (recomendado), um chip meu, depois, ou não sei. Explique que o número fica como segunda conta no app do WhatsApp do meu celular.
    D. Quais números de WhatsApp mandam arquivo para a máquina: o meu (recomendado), o meu e outros, ou não sei.
-   E. O cofre de senhas: Bitwarden na nuvem, de graça (recomendado), ou um Vaultwarden na própria VPS, sem domínio, aberto por túnel SSH (txt/cofre.txt mostra como), ou não sei.
+   E. O cofre de senhas: Bitwarden na nuvem, de graça (recomendado), ou um Vaultwarden na própria VPS, com HTTPS pelo Tailscale (txt/cofre.txt mostra como), ou não sei. Explique que o Vaultwarden atual não abre sem HTTPS.
    F. O navegador: o meu Chrome pela extensão Claude in Chrome e também o navegador sem tela da VPS (recomendado), só um deles, ou não sei.
 3. Monte na ordem: Telegram, WhatsApp, cofre, navegador, conectores do claude.ai. Para cada um, prove que funciona: o bot me manda uma mensagem e só a minha conta passa; um arquivo que eu encaminho aparece na pasta; o agente usa um segredo do cofre sem mostrar o valor; o agente abre uma página e me diz o título.
 
@@ -932,34 +932,43 @@ vault exec GITHUB_TOKEN -- gh repo list      # a senha só existe no ambiente do
   </table></div>
   <p>O Vaultwarden é um servidor compatível com o Bitwarden: os mesmos apps, a mesma extensão e o mesmo comando <code>bw</code> funcionam com ele. Para quem começa, o Bitwarden na nuvem dá menos trabalho.</p>
 
-  <h2>Como subir o Vaultwarden na VPS sem domínio</h2>
-  <p>O cofre web só abre em página segura, com HTTPS ou no endereço <code>localhost</code>. Ligado só no <code>127.0.0.1</code> da VPS e aberto por um túnel SSH, o seu navegador vê <code>localhost</code> e aceita. Não precisa de domínio nem de certificado, e o cofre não fica exposto na internet.</p>
-  <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>sudo mkdir -p /srv/vaultwarden
+  <h2>Como subir o Vaultwarden na VPS</h2>
+  <p>O Vaultwarden e a extensão do Bitwarden só aceitam endereço com HTTPS, até em <code>localhost</code>. Testamos o Vaultwarden 1.37.4 e a extensão 2026.10.0: por <code>http</code>, o cofre web recusa o login e a extensão recusa o endereço. O caminho mais simples é o Tailscale, uma rede privada entre os seus aparelhos. Ele dá ao cofre um endereço HTTPS válido que só os aparelhos da sua rede abrem.</p>
+  <ol class="steps">
+    <li><b>Ligue o Tailscale</b>Instale o Tailscale na VPS, no seu computador e no celular, com a mesma conta. O passo da VPS está em <a href="#acesso">Como acessar a VPS por SSH e VS Code</a>. O endereço da VPS na rede fica no formato <code>&lt;maquina&gt;.&lt;rede&gt;.ts.net</code>, e o <code>tailscale status</code> mostra o seu.</li>
+    <li><b>Suba o Vaultwarden</b>Troque o endereço do <code>DOMAIN</code> pelo da sua VPS:
+      <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>sudo mkdir -p /srv/vaultwarden
 docker run -d --name vaultwarden \
   --restart unless-stopped \
   -e SIGNUPS_ALLOWED=true \
-  -e DOMAIN=http://localhost:8222 \
+  -e DOMAIN=https://&lt;maquina&gt;.&lt;rede&gt;.ts.net \
   -v /srv/vaultwarden:/data \
   -p 127.0.0.1:8222:80 \
-  vaultwarden/server:1.34.3</pre></div>
-  <p>No seu computador, abra o túnel e acesse <code>http://localhost:8222</code>:</p>
-  <div class="code"><div class="code-head"><span>bash, no seu computador</span><button class="copy">Copiar</button></div><pre>ssh -N -L 8222:127.0.0.1:8222 &lt;usuario&gt;@&lt;ip&gt;</pre></div>
+  vaultwarden/server:1.37.4</pre></div></li>
+    <li><b>Publique com HTTPS na sua rede</b>O Tailscale tira o certificado e passa o tráfego para a porta 8222:
+      <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>sudo tailscale serve --bg 8222</pre></div>
+      Na primeira vez, o comando mostra um link para ligar o HTTPS na sua rede. Abra o link e aceite. O cofre abre em <code>https://&lt;maquina&gt;.&lt;rede&gt;.ts.net</code>, no navegador, na extensão e no app do celular.</li>
+  </ol>
+
+  <h2>Como pôr uma senha no cofre e entregar ao agente</h2>
+  <p>A interface do Vaultwarden é em inglês, e os nomes abaixo são os da tela. Ele funciona sem servidor de e-mail: o convite não manda mensagem, e a conta do agente aceita o convite ao se cadastrar.</p>
   <ol class="steps">
-    <li>Crie a sua conta e a conta do agente, com outro e-mail.</li>
-    <li>Na sua conta, crie uma organização e compartilhe com a conta do agente só os itens que ele vai usar.</li>
-    <li>Feche o cadastro: recrie o container com <code>SIGNUPS_ALLOWED=false</code>. A pasta <code>/srv/vaultwarden</code> guarda tudo, então nada se perde.</li>
-    <li>Na VPS, aponte o <code>bw</code> para o cofre com <code>bw config server http://127.0.0.1:8222</code>. O agente fala com ele direto, sem túnel.</li>
+    <li><b>Crie a sua conta</b>Abra o endereço do cofre, clique em <strong>Create account</strong> e escolha a senha mestra.</li>
+    <li><b>Crie a organização</b>No cofre, clique em <strong>New organization</strong>, dê um nome e clique em <strong>Submit</strong>. Ela já nasce com a <strong>Default collection</strong>, a pasta que você divide com o agente.</li>
+    <li><b>Convide o agente</b>Em <strong>Admin Console</strong>, abra <strong>Members</strong>, clique em <strong>Invite member</strong>, ponha o e-mail da conta do agente, deixe o papel <strong>User</strong> e clique em <strong>Save</strong>.</li>
+    <li><b>Crie a conta do agente</b>Numa janela anônima, crie a conta com o e-mail do convite. Na lista de membros, ela passa para <strong>Needs confirmation</strong>.</li>
+    <li><b>Confirme o agente</b>Na linha dele, abra <strong>Options</strong>, clique em <strong>Confirm</strong> e confirme de novo no diálogo.</li>
+    <li><b>Dê a coleção ao agente</b>Na mesma linha, abra <strong>Options</strong> e depois <strong>Collections</strong>. Em <strong>Select collections</strong>, escolha <strong>Default collection</strong> e clique fora da lista, porque o Esc descarta a escolha. A permissão <strong>View items</strong> deixa o agente ler sem editar. Clique em <strong>Save</strong>.</li>
+    <li><b>Ligue a extensão ao seu cofre</b>Na tela de login da extensão do Bitwarden, clique em <strong>bitwarden.com</strong>, ao lado de <strong>Accessing</strong>, e escolha <strong>self-hosted</strong>. Em <strong>Server URL</strong>, ponha o endereço <code>https</code> do cofre, clique em <strong>Save</strong> e faça o login.</li>
+    <li><b>Salve a senha</b>Pela extensão, com <strong>New</strong>, ou pelo cofre web, com <strong>New</strong> e depois <strong>Login</strong>. A senha nasce no seu cofre pessoal.</li>
+    <li><b>Passe a senha para a organização</b>No cofre web, abra o <strong>Options</strong> da senha e clique em <strong>Assign to collections</strong>. Em <strong>Move to organization</strong>, escolha a organização. Em <strong>Select collections to assign</strong>, escolha <strong>Default collection</strong> e clique em <strong>Assign</strong>. A senha passa a ser da organização, e o agente já enxerga.</li>
+    <li><b>Feche o cadastro</b>Recrie o container com <code>SIGNUPS_ALLOWED=false</code>. A pasta <code>/srv/vaultwarden</code> guarda tudo: testamos, e as contas e as senhas continuam, e um cadastro novo é recusado.</li>
+    <li><b>Aponte o comando do agente</b>A VPS está na sua rede do Tailscale, então o <code>bw</code> fala com o cofre pelo mesmo endereço: <code>bw config server https://&lt;maquina&gt;.&lt;rede&gt;.ts.net</code>.</li>
   </ol>
   <p>O cofre inteiro mora em <code>/srv/vaultwarden</code>. Copie essa pasta para fora da VPS de vez em quando, porque sem ela as senhas se perdem.</p>
 
-  <h2>Como usar o Vaultwarden no celular</h2>
-  <p>O app do Bitwarden no celular só aceita servidor com HTTPS. Há dois caminhos:</p>
-  <div class="table-wrap stack"><table>
-    <tr><th>Caminho</th><th>Como fica</th><th>Custo</th></tr>
-    <tr><td data-label="Caminho">Tailscale (recomendado)</td><td data-label="Como fica">Uma rede privada entre os seus aparelhos. <code>sudo tailscale serve --bg 8222</code> publica o cofre com HTTPS em <code>https://&lt;maquina&gt;.&lt;rede&gt;.ts.net</code>, visível só para aparelhos da sua rede</td><td data-label="Custo">Grátis para uso pessoal</td></tr>
-    <tr><td data-label="Caminho">Domínio próprio</td><td data-label="Como fica">Um subdomínio apontando para a VPS e o Caddy na frente, que tira o certificado sozinho. O cofre fica aberto na internet, protegido só pela senha mestra</td><td data-label="Custo">O domínio: um .com.br sai a R$ 40 por ano</td></tr>
-  </table></div>
-  <p>O endereço do GitHub Pages não serve: ele só entrega arquivos estáticos e não repassa tráfego para a VPS.</p>
+  <h2>Sem Tailscale</h2>
+  <p>Aponte um subdomínio seu para a VPS e ponha o Caddy ou o proxy do <a href="#servicos">Coolify</a> na frente do cofre, que tira o certificado sozinho. O cofre fica aberto na internet, protegido só pela senha mestra, e um <code>.com.br</code> sai a R$ 40 por ano. O endereço do GitHub Pages não serve, porque ele só entrega arquivos estáticos e não repassa tráfego para a VPS.</p>
   <button type="button" class="done-btn" data-done="cofre">Marquei como feito</button>
 </article>
 
