@@ -24,6 +24,7 @@ set -o pipefail; yarn test | tail -20
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: nenhum comando é reescrito. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `extraRunners` | lista vazia | Nomes de script que também contam como executor quando um gerenciador de pacotes chama: `yarn <nome>`, `npm run <nome>`, `pnpm <nome>`, `bun run <nome>`. |
 
 Ponha aqui o script de checagem do repo quando o código de saída dele diz se o código funciona, como um `verify` que roda lint, tipos e testes. O mod passa a reescrever `yarn verify | tail` também.

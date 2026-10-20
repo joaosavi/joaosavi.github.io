@@ -36,6 +36,7 @@ The 7-day limits also apply to the per-model weekly windows, such as `seven_day_
 
 | Option | Default | What it does |
 | --- | --- | --- |
+| `enabled` | `true` | Off, the mod does nothing: no throttle, commit, pause or resume, and `/limit` is gone. Takes effect in the next session, or after `/reload-plugins`. |
 | `fiveHourThrottle` | `true` | Throttle in the 5-hour window. |
 | `fiveHourThrottleAt` | `90` | From this share of the 5-hour window, one subagent at a time. |
 | `fiveHourCommit` | `true` | Commit request in the 5-hour window. |

@@ -27,7 +27,11 @@ O mod traz as cinco skills que entrega, na pasta `skills/`, então funciona sem 
 
 ## Opções
 
-Nenhuma.
+| Opção | Padrão | O que faz |
+| --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: nenhuma skill é entregue e nada é segurado. Vale na próxima sessão, ou depois de `/reload-plugins`. |
+| `holdWrites` | `true` | Segura uma vez a escrita, o commit ou o PR, com a skill na recusa, para o agente refazer seguindo a skill. Desligado, a chamada roda e a skill vem com o resultado. |
+| `diagnoseReminder` | `true` | Lembra o agente de carregar `diagnosing-bugs` quando o seu prompt traz um erro ou diz que algo quebrou. |
 
 ## O que grava
 

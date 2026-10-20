@@ -45,6 +45,7 @@ No plano pessoal funciona como instalado; no Team ou Enterprise não faz nada at
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: a seção de memória fica como o Claude Code escreveu. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `globalDir` | `~/.claude/global-memory` | Pasta da memória da máquina, com o próprio `MEMORY.md`. |
 
 ## O que grava

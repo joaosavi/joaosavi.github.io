@@ -1,4 +1,4 @@
-# Cockpit 1.2.0
+# Cockpit 1.3.0
 
 # Início rápido
 
@@ -206,9 +206,11 @@ Um segredo que chega à conversa vai para o modelo e fica no log da sessão, e a
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: todo valor aparece na saída como é. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `secretsFile` | `~/.secrets` | Arquivo `CHAVE=valor` em que todo valor é segredo, qualquer que seja o nome. |
 | `envRoot` | vazio | Pasta onde procurar arquivos `.env`, 5 níveis abaixo. Vazio não procura nenhum. |
 | `minLength` | `12` | Valor mais curto fica de fora, menos formato conhecido e valor dos arquivos de segredos. |
+| `fillCommands` | `true` | Roda o comando Bash que nomeia `<hidden:NAME>` com o valor real. Desligado, esse comando não roda, e o agente recebe a instrução de ler o valor dentro do comando. |
 
 Por padrão o mod não lê nenhum `.env`. Para cobrir os `.env` dos seus projetos, aponte `envRoot` para a pasta dos repos, como `~/code`. O mod varre a pasta ao começar, procura `.env` novo no máximo uma vez por minuto e refaz a lista pelo menos a cada 10 minutos.
 
@@ -264,9 +266,11 @@ Rodar várias sessões ao mesmo tempo é comum, e duas delas caem no mesmo repo 
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: nada é registrado, nada avisa, nenhum git é segurado. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `git` | `confirm` | `confirm` segura uma vez o comando git arriscado. `note` deixa rodar e avisa o agente depois. `off` não mexe em comando git. |
 | `windowMinutes` | `30` | Por quanto tempo a edição de outra sessão num arquivo fora de repo git ainda conta. Dentro de um repo, conta enquanto o git mostrar o arquivo como mudado. |
 | `expireHours` | `24` | Sessão calada por esse tempo conta como encerrada, e o registro dela sai. |
+| `editWarnings` | `true` | Avisa o agente, com um aviso na tela, quando outra sessão editou o mesmo arquivo. Desligado, as edições continuam registradas, então as outras sessões e a trava do git ainda as veem. |
 
 ## O que grava
 
@@ -323,6 +327,7 @@ set -o pipefail; yarn test | tail -20
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: nenhum comando é reescrito. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `extraRunners` | lista vazia | Nomes de script que também contam como executor quando um gerenciador de pacotes chama: `yarn <nome>`, `npm run <nome>`, `pnpm <nome>`, `bun run <nome>`. |
 
 Ponha aqui o script de checagem do repo quando o código de saída dele diz se o código funciona, como um `verify` que roda lint, tipos e testes. O mod passa a reescrever `yarn verify | tail` também.
@@ -384,8 +389,13 @@ Sem limite de cgroup, como na maioria dos desktops e notebooks Linux, a folga é
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: comando pesado roda como veio, e o `/ram` some. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `margin` | `2` | Porcentagem de memória mantida livre: do `memory.max` de cada cgroup, ou do total da máquina sem limite de cgroup. A marca do alto só conta para cgroup sem max. |
 | `waitSeconds` | `120` | Quanto tempo um comando pesado espera memória antes de ser recusado. |
+| `reduce` | `true` | Quando só cabe um processo, põe `--concurrency=1`, `--workers=1` ou `--maxWorkers=1`. |
+| `wait` | `true` | Quando nada cabe, espera até `waitSeconds`. Desligado, o passo seguinte vem na hora. |
+| `refuse` | `true` | Quando a memória não libera, recusa o comando. Desligado, ele roda como veio e pode morrer. |
+| `retry137` | `true` | Repete com um processo só o comando morto com exit 137. |
 
 ## O que grava
 
@@ -440,9 +450,13 @@ Quando uma contagem chega ao limite, o mod acrescenta uma nota ao resultado da f
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: nada é contado, nenhum empurrão. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `editLimit` | `5` | Tentativas de correção num arquivo, num turno, antes do empurrão. |
 | `errorLimit` | `3` | Vezes que o mesmo erro pode voltar num turno antes do empurrão. |
 | `repeatLimit` | `3` | Chamadas idênticas em sequência antes do empurrão. |
+| `editCheck` | `true` | Empurra depois de `editLimit` tentativas de correção num arquivo. |
+| `errorCheck` | `true` | Empurra depois de o mesmo erro voltar `errorLimit` vezes. |
+| `repeatCheck` | `true` | Empurra depois de `repeatLimit` chamadas idênticas em sequência. |
 
 ## O que grava
 
@@ -510,6 +524,7 @@ Os limites de 7 dias valem também para as janelas semanais por modelo, como `se
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: sem freio, commit, pausa nem retomada, e o `/limit` some. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `fiveHourThrottle` | `true` | Freio na janela de 5 horas. |
 | `fiveHourThrottleAt` | `90` | A partir dessa porcentagem da janela de 5 horas, um subagente por vez. |
 | `fiveHourCommit` | `true` | Pedido de commit na janela de 5 horas. |
@@ -668,6 +683,7 @@ No `/config`, ou em `pluginConfigs` no `~/.claude/settings.json`.
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: sem faixa, sem linha de atividade, sem `/hud`, e o script da status line imprime uma linha vazia. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `band` | `panel` | `panel` desenha duas linhas acima do prompt, `line` uma, `off` nenhuma (o `/hud` continua). Use `off` com a status line. |
 | `activity` | `true` | Mostra a linha de atividade durante o turno. |
 | `memory` | `true` | Mostra a folga de memória na faixa e a linha `MEMORY`. |
@@ -826,10 +842,12 @@ A metade de baixo da gaveta **Mods** audita os mods pelos diários do último di
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: sem `/panel`, sem subir servidor, sem respostas; um servidor que já roda continua. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `port` | `7777` | A porta da página, no `127.0.0.1`. |
 | `model` | `sonnet` | O modelo do `claude -p` em cada resumo: `sonnet`, `haiku` ou `opus`. |
 | `refreshMinutes` | `5` | Uma sessão cuja conversa mudou ganha resumo novo nesse intervalo. |
 | `autostart` | `true` | Sobe o servidor quando uma sessão começa e a porta não responde. Desligue quando um gerenciador de serviços roda o servidor. |
+| `answers` | `true` | Deixa a página mandar texto para esta sessão como prompt seu. Desligado, a página mostra as opções da sessão em cinza e sem campo de resposta. |
 
 ## Subir o servidor à mão
 
@@ -907,7 +925,11 @@ O mod traz as cinco skills que entrega, na pasta `skills/`, então funciona sem 
 
 ## Opções
 
-Nenhuma.
+| Opção | Padrão | O que faz |
+| --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: nenhuma skill é entregue e nada é segurado. Vale na próxima sessão, ou depois de `/reload-plugins`. |
+| `holdWrites` | `true` | Segura uma vez a escrita, o commit ou o PR, com a skill na recusa, para o agente refazer seguindo a skill. Desligado, a chamada roda e a skill vem com o resultado. |
+| `diagnoseReminder` | `true` | Lembra o agente de carregar `diagnosing-bugs` quando o seu prompt traz um erro ou diz que algo quebrou. |
 
 ## O que grava
 
@@ -984,6 +1006,7 @@ No plano pessoal funciona como instalado; no Team ou Enterprise não faz nada at
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: a seção de memória fica como o Claude Code escreveu. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `globalDir` | `~/.claude/global-memory` | Pasta da memória da máquina, com o próprio `MEMORY.md`. |
 
 ## O que grava
@@ -1069,9 +1092,39 @@ As mesmas opções ficam em `pluginConfigs` no `~/.claude/settings.json`, com a 
 | `autoCompactWindow` | `733000` num modelo de 1M, se você escolher | O Claude Code resume a conversa em uns 70% em vez de perto do fim. |
 | `pluginConfigs` | `band: "off"` no hud, estilo, ícones, fuso | As suas respostas ao setup. Com a status line ligada, a faixa desliga para as linhas não aparecerem duas vezes. |
 | `enabledPlugins` | `claude-hud@claude-hud` desligado, quando estava ligado | A status line dele é a que o hud substitui. |
+| `pluginConfigs` | `enabled: false` em cada mod que você desligar, se pedir | Só quando você pede ao setup para desligar mods. |
 | `extraKnownMarketplaces.cockpit` | `autoUpdate: true` | Os mods atualizam sozinhos. |
 
 ## Desligar um mod
+
+Todo mod tem a opção **Enabled**. Desligue no `/config`, ou ponha `"enabled": false` na entrada do mod em `pluginConfigs`, e abra uma sessão nova ou rode `/reload-plugins`. Desligado, o mod não registra nenhum hook e não custa nada por chamada. O `/cockpit:setup` também desliga mods para você.
+
+~/.claude/settings.json:
+
+```
+{
+  "pluginConfigs": {
+    "loop-breaker@cockpit": { "options": { "enabled": false } },
+    "memory-guard@cockpit": { "options": { "refuse": false } }
+  }
+}
+```
+
+## Desligar um passo de um guarda
+
+| Mod | Chaves |
+| --- | --- |
+| [`secret-guard`](https://joaosavi.github.io/cockpit/pt/md/secret-guard.md) | `fillCommands` |
+| [`collision-guard`](https://joaosavi.github.io/cockpit/pt/md/collision-guard.md) | `editWarnings`, e `git: off` para a trava do git |
+| [`memory-guard`](https://joaosavi.github.io/cockpit/pt/md/memory-guard.md) | `reduce`, `wait`, `refuse`, `retry137` |
+| [`loop-breaker`](https://joaosavi.github.io/cockpit/pt/md/loop-breaker.md) | `editCheck`, `errorCheck`, `repeatCheck` |
+| [`usage-limit`](https://joaosavi.github.io/cockpit/pt/md/usage-limit.md) | freio, commit e pausa de cada janela, e `resume` |
+| [`skill-loader`](https://joaosavi.github.io/cockpit/pt/md/skill-loader.md) | `holdWrites`, `diagnoseReminder` |
+| [`panel`](https://joaosavi.github.io/cockpit/pt/md/panel.md) | `answers`, `autostart` |
+
+A página de cada mod diz o que cada chave desliga.
+
+## Tirar os hooks de um mod
 
 O Claude Code recusa desligar um plugin que outro plugin ligado exige, e o pacote `cockpit` exige todos os mods. Desligue o pacote primeiro e depois o mod:
 
@@ -1082,7 +1135,7 @@ claude plugin disable cockpit@cockpit
 claude plugin disable pipefail@cockpit
 ```
 
-Os outros mods continuam ligados. Religar o pacote religa o mod. O `spinner-status` tem também a opção **Enabled** no `/config`, que desliga sem mexer no pacote.
+Os outros mods continuam ligados. Religar o pacote religa o mod.
 
 
 ---
@@ -1225,26 +1278,27 @@ Os mods deixam os diários em `~/.local/state/mods/`. Apague essa pasta para rem
 
 # Versões
 
-Cockpit 1.2.0. O pacote leva a versão do lançamento, e cada mod leva a versão do lançamento em que mudou pela última vez.
+Cockpit 1.3.0. O pacote leva a versão do lançamento, e cada mod leva a versão do lançamento em que mudou pela última vez.
 
 Um mod que não mudou num lançamento mantém a versão, então o Claude Code não atualiza ele à toa.
 
 | Mod | Versão |
 | --- | --- |
-| `cockpit` (pacote) | 1.2.0 |
-| [`secret-guard`](https://joaosavi.github.io/cockpit/pt/md/secret-guard.md) | 1.1.0 |
-| [`collision-guard`](https://joaosavi.github.io/cockpit/pt/md/collision-guard.md) | 1.0.0 |
-| [`pipefail`](https://joaosavi.github.io/cockpit/pt/md/pipefail.md) | 1.0.0 |
-| [`memory-guard`](https://joaosavi.github.io/cockpit/pt/md/memory-guard.md) | 1.0.0 |
-| [`loop-breaker`](https://joaosavi.github.io/cockpit/pt/md/loop-breaker.md) | 1.0.0 |
-| [`usage-limit`](https://joaosavi.github.io/cockpit/pt/md/usage-limit.md) | 1.2.0 |
-| [`hud`](https://joaosavi.github.io/cockpit/pt/md/hud.md) | 1.0.0 |
+| `cockpit` (pacote) | 1.3.0 |
+| [`secret-guard`](https://joaosavi.github.io/cockpit/pt/md/secret-guard.md) | 1.3.0 |
+| [`collision-guard`](https://joaosavi.github.io/cockpit/pt/md/collision-guard.md) | 1.3.0 |
+| [`pipefail`](https://joaosavi.github.io/cockpit/pt/md/pipefail.md) | 1.3.0 |
+| [`memory-guard`](https://joaosavi.github.io/cockpit/pt/md/memory-guard.md) | 1.3.0 |
+| [`loop-breaker`](https://joaosavi.github.io/cockpit/pt/md/loop-breaker.md) | 1.3.0 |
+| [`usage-limit`](https://joaosavi.github.io/cockpit/pt/md/usage-limit.md) | 1.3.0 |
+| [`hud`](https://joaosavi.github.io/cockpit/pt/md/hud.md) | 1.3.0 |
 | [`spinner-status`](https://joaosavi.github.io/cockpit/pt/md/spinner-status.md) | 1.0.0 |
-| [`panel`](https://joaosavi.github.io/cockpit/pt/md/panel.md) | 1.0.0 |
-| [`skill-loader`](https://joaosavi.github.io/cockpit/pt/md/skill-loader.md) | 1.0.0 |
-| [`global-memory`](https://joaosavi.github.io/cockpit/pt/md/global-memory.md) | 1.0.0 |
+| [`panel`](https://joaosavi.github.io/cockpit/pt/md/panel.md) | 1.3.0 |
+| [`skill-loader`](https://joaosavi.github.io/cockpit/pt/md/skill-loader.md) | 1.3.0 |
+| [`global-memory`](https://joaosavi.github.io/cockpit/pt/md/global-memory.md) | 1.3.0 |
 
 ## O que mudou
 
+- **1.3.0**: todo mod ganhou a opção `enabled`, e os guardas ganharam uma chave por passo. O `/cockpit:setup` desliga mods.
 - **1.2.0**: o `usage-limit` passou a cuidar de cada janela por conta própria, com freio, commit e pausa separados para 5 horas e 7 dias, cada um com chave e porcentagem.
 - **1.1.0**: o `secret-guard` passou a ler a pasta de segredos ao lado do arquivo de segredos.

@@ -19,9 +19,11 @@ Rodar várias sessões ao mesmo tempo é comum, e duas delas caem no mesmo repo 
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: nada é registrado, nada avisa, nenhum git é segurado. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `git` | `confirm` | `confirm` segura uma vez o comando git arriscado. `note` deixa rodar e avisa o agente depois. `off` não mexe em comando git. |
 | `windowMinutes` | `30` | Por quanto tempo a edição de outra sessão num arquivo fora de repo git ainda conta. Dentro de um repo, conta enquanto o git mostrar o arquivo como mudado. |
 | `expireHours` | `24` | Sessão calada por esse tempo conta como encerrada, e o registro dela sai. |
+| `editWarnings` | `true` | Avisa o agente, com um aviso na tela, quando outra sessão editou o mesmo arquivo. Desligado, as edições continuam registradas, então as outras sessões e a trava do git ainda as veem. |
 
 ## O que grava
 

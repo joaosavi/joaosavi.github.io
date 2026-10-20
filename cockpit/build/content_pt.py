@@ -152,9 +152,11 @@ page('Guardas', 'secret-guard', 'lock', '<code>secret-guard</code>', 'secret-gua
 </ul>
 <h2>Opções</h2>
 {opts([
+    ('enabled', '<code>true</code>', 'Desligado, o mod não faz nada: todo valor aparece na saída como é. Vale na próxima sessão, ou depois de <code>/reload-plugins</code>.'),
     ('secretsFile', '<code>~/.secrets</code>', 'Arquivo <code>CHAVE=valor</code> em que todo valor é segredo, qualquer que seja o nome.'),
     ('envRoot', 'vazio', 'Pasta onde procurar arquivos <code>.env</code>, 5 níveis abaixo. Vazio não procura nenhum.'),
     ('minLength', '<code>12</code>', 'Valor mais curto fica de fora, menos formato conhecido e valor dos arquivos de segredos.'),
+    ('fillCommands', '<code>true</code>', 'Roda o comando Bash que nomeia <code>&lt;hidden:NAME&gt;</code> com o valor real. Desligado, esse comando não roda, e o agente recebe a instrução de ler o valor dentro do comando.'),
 ])}
 <p>Por padrão o mod não lê nenhum <code>.env</code>. Para cobrir os <code>.env</code> dos seus projetos, aponte <code>envRoot</code> para a pasta dos repos, como <code>~/code</code>. O mod varre a pasta ao começar, procura <code>.env</code> novo no máximo uma vez por minuto e refaz a lista pelo menos a cada 10 minutos.</p>
 {diary('secret-guard', 'uma linha a cada lista refeita (com o tempo que levou), resultado escondido, marcador devolvido ou preenchido num comando e comando barrado, só com nome de segredo e contagem, mais uma linha <code>session-summary</code>. Os valores vivem só na memória do mod, nunca em disco.')}
@@ -188,9 +190,11 @@ page('Guardas', 'collision-guard', 'branch', '<code>collision-guard</code>', 'co
 </ul>
 <h2>Opções</h2>
 {opts([
+    ('enabled', '<code>true</code>', 'Desligado, o mod não faz nada: nada é registrado, nada avisa, nenhum git é segurado. Vale na próxima sessão, ou depois de <code>/reload-plugins</code>.'),
     ('git', '<code>confirm</code>', '<code>confirm</code> segura uma vez o comando git arriscado. <code>note</code> deixa rodar e avisa o agente depois. <code>off</code> não mexe em comando git.'),
     ('windowMinutes', '<code>30</code>', 'Por quanto tempo a edição de outra sessão num arquivo fora de repo git ainda conta. Dentro de um repo, conta enquanto o git mostrar o arquivo como mudado.'),
     ('expireHours', '<code>24</code>', 'Sessão calada por esse tempo conta como encerrada, e o registro dela sai.'),
+    ('editWarnings', '<code>true</code>', 'Avisa o agente, com um aviso na tela, quando outra sessão editou o mesmo arquivo. Desligado, as edições continuam registradas, então as outras sessões e a trava do git ainda as veem.'),
 ])}
 {diary('collision-guard', 'uma linha por aviso (<code>edit-warned</code>, <code>git-held</code>, <code>git-confirmed</code>, <code>git-noted</code>) com a operação git e quantos arquivos, nunca o conteúdo, mais uma linha <code>session-summary</code>.')}
 <h2>Custo</h2>
@@ -218,7 +222,8 @@ page('Guardas', 'pipefail', 'funnel', '<code>pipefail</code>', 'pipefail', f'''
 </ul>
 {code('yarn test | tail -20' + chr(10) + '# vira' + chr(10) + 'set -o pipefail; yarn test | tail -20', 'o que o mod reescreve')}
 <h2>Opções</h2>
-{opts([('extraRunners', 'lista vazia', 'Nomes de script que também contam como executor quando um gerenciador de pacotes chama: <code>yarn &lt;nome&gt;</code>, <code>npm run &lt;nome&gt;</code>, <code>pnpm &lt;nome&gt;</code>, <code>bun run &lt;nome&gt;</code>.')])}
+{opts([('enabled', '<code>true</code>', 'Desligado, o mod não faz nada: nenhum comando é reescrito. Vale na próxima sessão, ou depois de <code>/reload-plugins</code>.'),
+    ('extraRunners', 'lista vazia', 'Nomes de script que também contam como executor quando um gerenciador de pacotes chama: <code>yarn &lt;nome&gt;</code>, <code>npm run &lt;nome&gt;</code>, <code>pnpm &lt;nome&gt;</code>, <code>bun run &lt;nome&gt;</code>.')])}
 <p>Ponha aqui o script de checagem do repo quando o código de saída dele diz se o código funciona, como um <code>verify</code> que roda lint, tipos e testes. O mod passa a reescrever <code>yarn verify | tail</code> também.</p>
 {diary('pipefail', 'uma linha por reescrita com o executor (<code>yarn vitest</code>, nunca o comando inteiro), mais uma linha <code>session-summary</code>.')}
 <h2>Custo</h2>
@@ -251,8 +256,13 @@ page('Guardas', 'memory-guard', 'mem', '<code>memory-guard</code>', 'memory-guar
 <p><code>/ram</code> mostra a folga, o uso e os limites de cada cgroup quando há, e os picos medidos. Diz que não há leitura quando o sistema não dá nenhuma. No terminal abre também a janela Memory, com uma barra por cgroup e a marca do alto, atualizado a cada 2 segundos. <code>r</code> atualiza e <code>esc</code> fecha.</p>
 <h2>Opções</h2>
 {opts([
+    ('enabled', '<code>true</code>', 'Desligado, o mod não faz nada: comando pesado roda como veio, e o <code>/ram</code> some. Vale na próxima sessão, ou depois de <code>/reload-plugins</code>.'),
     ('margin', '<code>2</code>', 'Porcentagem de memória mantida livre: do <code>memory.max</code> de cada cgroup, ou do total da máquina sem limite de cgroup. A marca do alto só conta para cgroup sem max.'),
     ('waitSeconds', '<code>120</code>', 'Quanto tempo um comando pesado espera memória antes de ser recusado.'),
+    ('reduce', '<code>true</code>', 'Quando só cabe um processo, põe <code>--concurrency=1</code>, <code>--workers=1</code> ou <code>--maxWorkers=1</code>.'),
+    ('wait', '<code>true</code>', 'Quando nada cabe, espera até <code>waitSeconds</code>. Desligado, o passo seguinte vem na hora.'),
+    ('refuse', '<code>true</code>', 'Quando a memória não libera, recusa o comando. Desligado, ele roda como veio e pode morrer.'),
+    ('retry137', '<code>true</code>', 'Repete com um processo só o comando morto com exit 137.'),
 ])}
 <h2>O que grava</h2>
 <ul>
@@ -287,9 +297,13 @@ page('Guardas', 'loop-breaker', 'loop', '<code>loop-breaker</code>', 'loop-break
 <p>Quando uma contagem chega ao limite, o mod acrescenta uma nota ao resultado da ferramenta. A nota começa com <code>Loop check</code> e pede ao agente que escreva o que tentou e depois releia o código, forme uma hipótese nova ou pergunte a você. Nada é recusado.</p>
 <h2>Opções</h2>
 {opts([
+    ('enabled', '<code>true</code>', 'Desligado, o mod não faz nada: nada é contado, nenhum empurrão. Vale na próxima sessão, ou depois de <code>/reload-plugins</code>.'),
     ('editLimit', '<code>5</code>', 'Tentativas de correção num arquivo, num turno, antes do empurrão.'),
     ('errorLimit', '<code>3</code>', 'Vezes que o mesmo erro pode voltar num turno antes do empurrão.'),
     ('repeatLimit', '<code>3</code>', 'Chamadas idênticas em sequência antes do empurrão.'),
+    ('editCheck', '<code>true</code>', 'Empurra depois de <code>editLimit</code> tentativas de correção num arquivo.'),
+    ('errorCheck', '<code>true</code>', 'Empurra depois de o mesmo erro voltar <code>errorLimit</code> vezes.'),
+    ('repeatCheck', '<code>true</code>', 'Empurra depois de <code>repeatLimit</code> chamadas idênticas em sequência.'),
 ])}
 {diary('loop-breaker', 'uma linha por empurrão com o tipo e a contagem, mais uma linha <code>session-summary</code>.')}
 <h2>Custo</h2>
@@ -330,6 +344,7 @@ page('Guardas', 'usage-limit', 'gauge', '<code>usage-limit</code>', 'usage-limit
 <p><code>/limit</code> mostra cada janela com as etapas, o estado e o que está guardado para a retomada. Em texto simples, então lê igual pelo Remote Control.</p>
 <h2>Opções</h2>
 {opts([
+    ('enabled', '<code>true</code>', 'Desligado, o mod não faz nada: sem freio, commit, pausa nem retomada, e o <code>/limit</code> some. Vale na próxima sessão, ou depois de <code>/reload-plugins</code>.'),
     ('fiveHourThrottle', '<code>true</code>', 'Freio na janela de 5 horas.'),
     ('fiveHourThrottleAt', '<code>90</code>', 'A partir dessa porcentagem da janela de 5 horas, um subagente por vez.'),
     ('fiveHourCommit', '<code>true</code>', 'Pedido de commit na janela de 5 horas.'),
@@ -400,6 +415,7 @@ page('Instrumentos', 'hud', 'hud', '<code>hud</code>', 'hud', f'''
 <h2>Opções</h2>
 <p>No <code>/config</code>, ou em <code>pluginConfigs</code> no <code>~/.claude/settings.json</code>.</p>
 {opts([
+    ('enabled', '<code>true</code>', 'Desligado, o mod não faz nada: sem faixa, sem linha de atividade, sem <code>/hud</code>, e o script da status line imprime uma linha vazia. Vale na próxima sessão, ou depois de <code>/reload-plugins</code>.'),
     ('band', '<code>panel</code>', '<code>panel</code> desenha duas linhas acima do prompt, <code>line</code> uma, <code>off</code> nenhuma (o <code>/hud</code> continua). Use <code>off</code> com a status line.'),
     ('activity', '<code>true</code>', 'Mostra a linha de atividade durante o turno.'),
     ('memory', '<code>true</code>', 'Mostra a folga de memória na faixa e a linha <code>MEMORY</code>.'),
@@ -492,10 +508,12 @@ page('Instrumentos', 'panel', 'grid', '<code>panel</code>', 'panel', f'''
 <div class="shot"><img src="../img/panel-mods.png" alt="A gaveta Mods: o computador, os guardas e uma linha por mod com ações, falhas e tempo por chamada" loading="lazy"></div>
 <h2>Opções</h2>
 {opts([
+    ('enabled', '<code>true</code>', 'Desligado, o mod não faz nada: sem <code>/panel</code>, sem subir servidor, sem respostas; um servidor que já roda continua. Vale na próxima sessão, ou depois de <code>/reload-plugins</code>.'),
     ('port', '<code>7777</code>', 'A porta da página, no <code>127.0.0.1</code>.'),
     ('model', '<code>sonnet</code>', 'O modelo do <code>claude -p</code> em cada resumo: <code>sonnet</code>, <code>haiku</code> ou <code>opus</code>.'),
     ('refreshMinutes', '<code>5</code>', 'Uma sessão cuja conversa mudou ganha resumo novo nesse intervalo.'),
     ('autostart', '<code>true</code>', 'Sobe o servidor quando uma sessão começa e a porta não responde. Desligue quando um gerenciador de serviços roda o servidor.'),
+    ('answers', '<code>true</code>', 'Deixa a página mandar texto para esta sessão como prompt seu. Desligado, a página mostra as opções da sessão em cinza e sem campo de resposta.'),
 ])}
 <h2>Subir o servidor à mão</h2>
 <p>A página precisa do Python 3.9 ou mais novo, como <code>python3</code>, <code>python</code> ou <code>py</code>, e do <code>curl</code>. Com <code>autostart</code> ligado, a primeira sessão sobe o servidor, e ele continua depois que ela termina. Para subir você mesmo, rode o arquivo do servidor na pasta do plugin, que é o <code>installPath</code> de <code>panel@cockpit</code> em <code>~/.claude/plugins/installed_plugins.json</code>:</p>
@@ -542,7 +560,11 @@ page('Instrumentos', 'skill-loader', 'book', '<code>skill-loader</code>', 'skill
 <h2>As skills</h2>
 <p>O mod traz as cinco skills que entrega, na pasta <code>skills/</code>, então funciona sem nada mais instalado. O Claude Code também lista elas como <code>skill-loader:&lt;nome&gt;</code>. O mod lê uma skill primeiro da própria pasta, depois de <code>&lt;projeto&gt;/.claude/skills/&lt;nome&gt;/SKILL.md</code> e depois de <code>~/.claude/skills/&lt;nome&gt;/SKILL.md</code>. As skills são de Matt Pocock, sob licença MIT.</p>
 <h2>Opções</h2>
-<p>Nenhuma.</p>
+{opts([
+    ('enabled', '<code>true</code>', 'Desligado, o mod não faz nada: nenhuma skill é entregue e nada é segurado. Vale na próxima sessão, ou depois de <code>/reload-plugins</code>.'),
+    ('holdWrites', '<code>true</code>', 'Segura uma vez a escrita, o commit ou o PR, com a skill na recusa, para o agente refazer seguindo a skill. Desligado, a chamada roda e a skill vem com o resultado.'),
+    ('diagnoseReminder', '<code>true</code>', 'Lembra o agente de carregar <code>diagnosing-bugs</code> quando o seu prompt traz um erro ou diz que algo quebrou.'),
+])}
 {diary('skill-loader', 'uma linha por skill carregada, chamada segurada, skill que faltou e lembrete, mais uma linha <code>session-summary</code>.')}
 <h2>Custo</h2>
 <p>O hook somou uns 2 ms por chamada de ferramenta na máquina Linux do autor (60 chamadas medidas em outubro de 2026, estimativa). Uma escrita segurada custa ao agente uma chamada a mais.</p>
@@ -576,7 +598,8 @@ page('Memória', 'global-memory', 'globe', '<code>global-memory</code>', 'global
 {code(chr(10).join(['{', '  "enabledPlugins": { "global-memory@cockpit": true },', '  "prependPlugins": ["global-memory@cockpit", "sec-default@builtin"]', '}']), 'managed settings')}
 <p>No plano pessoal funciona como instalado; no Team ou Enterprise não faz nada até essas configurações entrarem.</p>
 <h2>Opções</h2>
-{opts([('globalDir', '<code>~/.claude/global-memory</code>', 'Pasta da memória da máquina, com o próprio <code>MEMORY.md</code>.')])}
+{opts([('enabled', '<code>true</code>', 'Desligado, o mod não faz nada: a seção de memória fica como o Claude Code escreveu. Vale na próxima sessão, ou depois de <code>/reload-plugins</code>.'),
+    ('globalDir', '<code>~/.claude/global-memory</code>', 'Pasta da memória da máquina, com o próprio <code>MEMORY.md</code>.')])}
 {diary('global-memory', 'uma linha a cada seção de memória reescrita, índice global acrescentado ou vez que o mod se afastou e por quê, mais uma linha <code>session-summary</code>.')}
 <h2>Custo</h2>
 <p>Nenhum por chamada de ferramenta: o mod não tem hook de <code>tool.call</code>. Ele lê o <code>MEMORY.md</code> global quando o prompt de sistema e o primeiro contexto são montados. O texto reescrito depende só da entrada, então o cache do prompt continua valendo.</p>
@@ -618,12 +641,27 @@ page('Consultar', 'configure', 'sliders', 'Como mudar as opções e desligar um 
     ('<code>autoCompactWindow</code>', '<code>733000</code> num modelo de 1M, se você escolher', 'O Claude Code resume a conversa em uns 70% em vez de perto do fim.'),
     ('<code>pluginConfigs</code>', '<code>band: "off"</code> no hud, estilo, ícones, fuso', 'As suas respostas ao setup. Com a status line ligada, a faixa desliga para as linhas não aparecerem duas vezes.'),
     ('<code>enabledPlugins</code>', '<code>claude-hud@claude-hud</code> desligado, quando estava ligado', 'A status line dele é a que o hud substitui.'),
+    ('<code>pluginConfigs</code>', '<code>enabled: false</code> em cada mod que você desligar, se pedir', 'Só quando você pede ao setup para desligar mods.'),
     ('<code>extraKnownMarketplaces.cockpit</code>', '<code>autoUpdate: true</code>', 'Os mods atualizam sozinhos.'),
 ], 'stack')}
 <h2>Desligar um mod</h2>
+<p>Todo mod tem a opção <b>Enabled</b>. Desligue no <code>/config</code>, ou ponha <code>"enabled": false</code> na entrada do mod em <code>pluginConfigs</code>, e abra uma sessão nova ou rode <code>/reload-plugins</code>. Desligado, o mod não registra nenhum hook e não custa nada por chamada. O <code>/cockpit:setup</code> também desliga mods para você.</p>
+{code(chr(10).join(['{', '  "pluginConfigs": {', '    "loop-breaker@cockpit": { "options": { "enabled": false } },', '    "memory-guard@cockpit": { "options": { "refuse": false } }', '  }', '}']), '~/.claude/settings.json')}
+<h2>Desligar um passo de um guarda</h2>
+{table(['Mod', 'Chaves'], [
+    ('<a href="#secret-guard"><code>secret-guard</code></a>', '<code>fillCommands</code>'),
+    ('<a href="#collision-guard"><code>collision-guard</code></a>', '<code>editWarnings</code>, e <code>git: off</code> para a trava do git'),
+    ('<a href="#memory-guard"><code>memory-guard</code></a>', '<code>reduce</code>, <code>wait</code>, <code>refuse</code>, <code>retry137</code>'),
+    ('<a href="#loop-breaker"><code>loop-breaker</code></a>', '<code>editCheck</code>, <code>errorCheck</code>, <code>repeatCheck</code>'),
+    ('<a href="#usage-limit"><code>usage-limit</code></a>', 'freio, commit e pausa de cada janela, e <code>resume</code>'),
+    ('<a href="#skill-loader"><code>skill-loader</code></a>', '<code>holdWrites</code>, <code>diagnoseReminder</code>'),
+    ('<a href="#panel"><code>panel</code></a>', '<code>answers</code>, <code>autostart</code>'),
+])}
+<p>A página de cada mod diz o que cada chave desliga.</p>
+<h2>Tirar os hooks de um mod</h2>
 <p>O Claude Code recusa desligar um plugin que outro plugin ligado exige, e o pacote <code>cockpit</code> exige todos os mods. Desligue o pacote primeiro e depois o mod:</p>
 {code('claude plugin disable cockpit@cockpit' + chr(10) + 'claude plugin disable pipefail@cockpit')}
-<p>Os outros mods continuam ligados. Religar o pacote religa o mod. O <code>spinner-status</code> tem também a opção <b>Enabled</b> no <code>/config</code>, que desliga sem mexer no pacote.</p>
+<p>Os outros mods continuam ligados. Religar o pacote religa o mod.</p>
 ''')
 
 page('Consultar', 'remote', 'server', 'Como usar numa máquina remota', 'Como usar numa máquina remota', f'''
@@ -700,6 +738,7 @@ page('Consultar', 'versions', 'tag', 'Versões', 'Versões', f'''
 ''' + table(['Mod', 'Versão'], [('<code>cockpit</code> (pacote)', VERS['cockpit'])] + [(f'<a href="#{m}"><code>{m}</code></a>', VERS[m]) for m in ORDER]) + '''
 <h2>O que mudou</h2>
 <ul>
+  <li><b>1.3.0</b>: todo mod ganhou a opção <code>enabled</code>, e os guardas ganharam uma chave por passo. O <code>/cockpit:setup</code> desliga mods.</li>
   <li><b>1.2.0</b>: o <code>usage-limit</code> passou a cuidar de cada janela por conta própria, com freio, commit e pausa separados para 5 horas e 7 dias, cada um com chave e porcentagem.</li>
   <li><b>1.1.0</b>: o <code>secret-guard</code> passou a ler a pasta de segredos ao lado do arquivo de segredos.</li>
 </ul>

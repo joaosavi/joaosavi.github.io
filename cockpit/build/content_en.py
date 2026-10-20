@@ -151,9 +151,11 @@ page('Guards', 'secret-guard', 'lock', '<code>secret-guard</code>', 'secret-guar
 </ul>
 <h2>Options</h2>
 {opts([
+    ('enabled', '<code>true</code>', 'Off, the mod does nothing: every value shows in tool output as it is. Takes effect in the next session, or after <code>/reload-plugins</code>.'),
     ('secretsFile', '<code>~/.secrets</code>', '<code>KEY=value</code> file whose every value is a secret, whatever its name.'),
     ('envRoot', 'empty', 'Folder searched for <code>.env</code> files, 5 levels deep. Empty searches none.'),
     ('minLength', '<code>12</code>', 'Shorter values are left alone, except known token formats and the values of the secrets files.'),
+    ('fillCommands', '<code>true</code>', 'Run a Bash command that names <code>&lt;hidden:NAME&gt;</code> with the real value. Off, such a command does not run, and the agent is told to read the value inside the command.'),
 ])}
 <p>By default the mod reads no <code>.env</code> files. To cover your projects' <code>.env</code> files too, set <code>envRoot</code> to the folder that holds your repos, such as <code>~/code</code>. The mod then scans it at start, checks its folders for new <code>.env</code> files at most once a minute, and rebuilds the list at least every 10 minutes.</p>
 {diary('secret-guard', 'one line each time the list is rebuilt (with how long it took), a result is redacted, a placeholder is restored or filled in a command, or a command is stopped, with secret names and counts only, plus one <code>session-summary</code> line. The values live only in the mod\'s memory, never on disk.')}
@@ -187,9 +189,11 @@ page('Guards', 'collision-guard', 'branch', '<code>collision-guard</code>', 'col
 </ul>
 <h2>Options</h2>
 {opts([
+    ('enabled', '<code>true</code>', 'Off, the mod does nothing: no record, no warning, no git hold. Takes effect in the next session, or after <code>/reload-plugins</code>.'),
     ('git', '<code>confirm</code>', '<code>confirm</code> holds a risky git command once. <code>note</code> lets it run and tells the agent afterwards. <code>off</code> leaves git commands alone.'),
     ('windowMinutes', '<code>30</code>', 'How long another session\'s edit to a file outside any git repo still counts. Inside a repo, an edit counts while git shows the file as changed.'),
     ('expireHours', '<code>24</code>', 'A session silent this long counts as gone, and its record is removed.'),
+    ('editWarnings', '<code>true</code>', 'Tell the agent, and show a toast, when another session edited the same file. Off, edits are still recorded, so the other sessions and the git guard still see them.'),
 ])}
 {diary('collision-guard', 'one line per warning (<code>edit-warned</code>, <code>git-held</code>, <code>git-confirmed</code>, <code>git-noted</code>) with the git operation and how many files, never a file\'s content, plus one <code>session-summary</code> line.')}
 <h2>Cost</h2>
@@ -217,7 +221,8 @@ page('Guards', 'pipefail', 'funnel', '<code>pipefail</code>', 'pipefail', f'''
 </ul>
 {code('yarn test | tail -20' + chr(10) + '# becomes' + chr(10) + 'set -o pipefail; yarn test | tail -20', 'what the mod rewrites')}
 <h2>Options</h2>
-{opts([('extraRunners', 'empty list', 'Script names that also count as runners when a package manager calls them: <code>yarn &lt;name&gt;</code>, <code>npm run &lt;name&gt;</code>, <code>pnpm &lt;name&gt;</code>, <code>bun run &lt;name&gt;</code>.')])}
+{opts([('enabled', '<code>true</code>', 'Off, the mod does nothing: no command is rewritten. Takes effect in the next session, or after <code>/reload-plugins</code>.'),
+    ('extraRunners', 'empty list', 'Script names that also count as runners when a package manager calls them: <code>yarn &lt;name&gt;</code>, <code>npm run &lt;name&gt;</code>, <code>pnpm &lt;name&gt;</code>, <code>bun run &lt;name&gt;</code>.')])}
 <p>Add a repo's own check script here when its exit code says whether the code works, such as <code>verify</code> for a script that runs lint, types and tests. The mod then rewrites <code>yarn verify | tail</code> too.</p>
 {diary('pipefail', 'one line per rewrite naming the runner (<code>yarn vitest</code>, never the whole command), plus one <code>session-summary</code> line.')}
 <h2>Cost</h2>
@@ -250,8 +255,13 @@ page('Guards', 'memory-guard', 'mem', '<code>memory-guard</code>', 'memory-guard
 <p><code>/ram</code> shows the headroom, each cgroup's use and limits when there are any, and the measured peaks. It says there is no memory reading when the system gives none. In a terminal it also opens the Memory pane: a bar per cgroup with the high mark, refreshed every 2 seconds. Press <code>r</code> to refresh and <code>esc</code> to close.</p>
 <h2>Options</h2>
 {opts([
+    ('enabled', '<code>true</code>', 'Off, the mod does nothing: heavy commands run as written, and <code>/ram</code> is gone. Takes effect in the next session, or after <code>/reload-plugins</code>.'),
     ('margin', '<code>2</code>', 'Share of memory kept free: of each cgroup\'s <code>memory.max</code>, or of the machine\'s total without a cgroup limit. The high mark counts only for a cgroup with no max.'),
     ('waitSeconds', '<code>120</code>', 'How long a heavy command waits for memory before it is refused.'),
+    ('reduce', '<code>true</code>', 'When only a single process fits, add <code>--concurrency=1</code>, <code>--workers=1</code> or <code>--maxWorkers=1</code>.'),
+    ('wait', '<code>true</code>', 'When nothing fits, wait up to <code>waitSeconds</code>. Off, the next step comes at once.'),
+    ('refuse', '<code>true</code>', 'When memory does not free up, refuse the command. Off, it runs as written and may be killed.'),
+    ('retry137', '<code>true</code>', 'Rerun with a single process a command killed with exit 137.'),
 ])}
 <h2>What it records</h2>
 <ul>
@@ -286,9 +296,13 @@ page('Guards', 'loop-breaker', 'loop', '<code>loop-breaker</code>', 'loop-breake
 <p>When a count reaches its limit, the mod adds a note to the tool result. The note starts with <code>Loop check</code> and asks the agent to write what it tried, then re-read the code, form a new hypothesis, or ask you. Nothing is refused.</p>
 <h2>Options</h2>
 {opts([
+    ('enabled', '<code>true</code>', 'Off, the mod does nothing: no count, no nudge. Takes effect in the next session, or after <code>/reload-plugins</code>.'),
     ('editLimit', '<code>5</code>', 'Fix attempts on one file in one turn before the nudge.'),
     ('errorLimit', '<code>3</code>', 'Times the same error may come back in one turn before the nudge.'),
     ('repeatLimit', '<code>3</code>', 'Identical tool calls in a row before the nudge.'),
+    ('editCheck', '<code>true</code>', 'Nudge after <code>editLimit</code> fix attempts on one file.'),
+    ('errorCheck', '<code>true</code>', 'Nudge after the same error comes back <code>errorLimit</code> times.'),
+    ('repeatCheck', '<code>true</code>', 'Nudge after <code>repeatLimit</code> identical calls in a row.'),
 ])}
 {diary('loop-breaker', 'one line per nudge with its kind and count, plus one <code>session-summary</code> line.')}
 <h2>Cost</h2>
@@ -329,6 +343,7 @@ page('Guards', 'usage-limit', 'gauge', '<code>usage-limit</code>', 'usage-limit'
 <p><code>/limit</code> shows each window with its stages, the state, and what is held for the resume. Plain text, so it reads the same in Remote Control.</p>
 <h2>Options</h2>
 {opts([
+    ('enabled', '<code>true</code>', 'Off, the mod does nothing: no throttle, commit, pause or resume, and <code>/limit</code> is gone. Takes effect in the next session, or after <code>/reload-plugins</code>.'),
     ('fiveHourThrottle', '<code>true</code>', 'Throttle in the 5-hour window.'),
     ('fiveHourThrottleAt', '<code>90</code>', 'From this share of the 5-hour window, one subagent at a time.'),
     ('fiveHourCommit', '<code>true</code>', 'Commit request in the 5-hour window.'),
@@ -399,6 +414,7 @@ page('Instruments', 'hud', 'hud', '<code>hud</code>', 'hud', f'''
 <h2>Options</h2>
 <p>In <code>/config</code>, or under <code>pluginConfigs</code> in <code>~/.claude/settings.json</code>.</p>
 {opts([
+    ('enabled', '<code>true</code>', 'Off, the mod does nothing: no band, no activity row, no <code>/hud</code>, and the status line script prints an empty line. Takes effect in the next session, or after <code>/reload-plugins</code>.'),
     ('band', '<code>panel</code>', '<code>panel</code> draws two rows above the prompt, <code>line</code> one, <code>off</code> none (<code>/hud</code> still works). Use <code>off</code> with the status line.'),
     ('activity', '<code>true</code>', 'Shows the activity row while a turn runs.'),
     ('memory', '<code>true</code>', 'Shows the memory headroom in the band and the <code>MEMORY</code> row.'),
@@ -491,10 +507,12 @@ page('Instruments', 'panel', 'grid', '<code>panel</code>', 'panel', f'''
 <div class="shot"><img src="img/panel-mods.png" alt="The Mods drawer: the computer, the guards, and one row per mod with its actions, failures and time per tool call" loading="lazy"></div>
 <h2>Options</h2>
 {opts([
+    ('enabled', '<code>true</code>', 'Off, the mod does nothing: no <code>/panel</code>, no server start, no answers; a server already running keeps running. Takes effect in the next session, or after <code>/reload-plugins</code>.'),
     ('port', '<code>7777</code>', 'The port the page listens on, on <code>127.0.0.1</code>.'),
     ('model', '<code>sonnet</code>', 'The model <code>claude -p</code> uses for each summary: <code>sonnet</code>, <code>haiku</code> or <code>opus</code>.'),
     ('refreshMinutes', '<code>5</code>', 'A session whose transcript changed gets a new summary this often.'),
     ('autostart', '<code>true</code>', 'Start the server when a session starts and the port does not answer. Turn it off when a service manager runs the server.'),
+    ('answers', '<code>true</code>', 'Let the page send text to this session as your prompt. Off, the page shows the session\'s options greyed out and no reply field.'),
 ])}
 <h2>Start the server by hand</h2>
 <p>The page needs Python 3.9 or later, as <code>python3</code>, <code>python</code> or <code>py</code>, and <code>curl</code>. With <code>autostart</code> on, the first session starts the server, and it keeps running after that session ends. To start it yourself, run the server file from the plugin folder, which is the <code>installPath</code> of <code>panel@cockpit</code> in <code>~/.claude/plugins/installed_plugins.json</code>:</p>
@@ -541,7 +559,11 @@ page('Instruments', 'skill-loader', 'book', '<code>skill-loader</code>', 'skill-
 <h2>The skills</h2>
 <p>The mod ships the five skills it delivers, in its <code>skills/</code> folder, so it works with nothing else installed. Claude Code also lists them as <code>skill-loader:&lt;name&gt;</code>. The mod reads a skill from its own folder first, then from <code>&lt;project&gt;/.claude/skills/&lt;name&gt;/SKILL.md</code>, then from <code>~/.claude/skills/&lt;name&gt;/SKILL.md</code>. The skills are by Matt Pocock, under the MIT license.</p>
 <h2>Options</h2>
-<p>None.</p>
+{opts([
+    ('enabled', '<code>true</code>', 'Off, the mod does nothing: no skill is delivered and nothing is held. Takes effect in the next session, or after <code>/reload-plugins</code>.'),
+    ('holdWrites', '<code>true</code>', 'Hold a write, a commit or a PR once, with the skill in the refusal, so the agent redoes it following the skill. Off, the call runs and the skill comes with its result.'),
+    ('diagnoseReminder', '<code>true</code>', 'Remind the agent to load <code>diagnosing-bugs</code> when your prompt carries an error or says something broke.'),
+])}
 {diary('skill-loader', 'one line per skill loaded, held call, missing skill and reminder, plus one <code>session-summary</code> line.')}
 <h2>Cost</h2>
 <p>The hook added about 2 ms per tool call on the author's Linux machine (60 calls measured in October 2026, an estimate). A held write costs the agent one extra call.</p>
@@ -575,7 +597,8 @@ page('Memory', 'global-memory', 'globe', '<code>global-memory</code>', 'global-m
 {code(MANAGED_JSON, 'managed settings')}
 <p>On a personal plan it works as installed; on a Team or Enterprise plan it does nothing until these settings are in place.</p>
 <h2>Options</h2>
-{opts([('globalDir', '<code>~/.claude/global-memory</code>', 'Folder of the machine-wide memory, with its own <code>MEMORY.md</code>.')])}
+{opts([('enabled', '<code>true</code>', 'Off, the mod does nothing: the memory section stays as Claude Code wrote it. Takes effect in the next session, or after <code>/reload-plugins</code>.'),
+    ('globalDir', '<code>~/.claude/global-memory</code>', 'Folder of the machine-wide memory, with its own <code>MEMORY.md</code>.')])}
 {diary('global-memory', 'one line each time the memory section is rewritten, the global index is added, or the mod steps aside and why, plus one <code>session-summary</code> line.')}
 <h2>Cost</h2>
 <p>None per tool call: the mod has no <code>tool.call</code> hook. It reads the global <code>MEMORY.md</code> when the system prompt and the first context are built. The rewritten text depends only on its input, so the prompt cache stays warm.</p>
@@ -617,12 +640,27 @@ page('Reference', 'configure', 'sliders', 'Configure and turn mods off', 'Config
     ('<code>autoCompactWindow</code>', '<code>733000</code> on a 1M model, if you choose it', 'Claude Code summarizes the conversation at about 70% instead of near the end.'),
     ('<code>pluginConfigs</code>', '<code>band: "off"</code> for the hud, style, icons, time zone', 'Your answers to the setup questions. With the status line on, the band goes off so the rows do not show twice.'),
     ('<code>enabledPlugins</code>', '<code>claude-hud@claude-hud</code> off, when it was on', 'Its status line is the one the hud replaces.'),
+    ('<code>pluginConfigs</code>', '<code>enabled: false</code> for each mod you turn off, if you ask', 'Only when you ask the setup to turn mods off.'),
     ('<code>extraKnownMarketplaces.cockpit</code>', '<code>autoUpdate: true</code>', 'The mods update by themselves.'),
 ], 'stack')}
 <h2>Turn one mod off</h2>
+<p>Every mod has an <b>Enabled</b> option. Turn it off in <code>/config</code>, or set <code>"enabled": false</code> under the mod's <code>pluginConfigs</code> entry, then start a new session or run <code>/reload-plugins</code>. Off, the mod registers no hook and costs nothing per tool call. <code>/cockpit:setup</code> can also turn mods off for you.</p>
+{code(chr(10).join(['{', '  "pluginConfigs": {', '    "loop-breaker@cockpit": { "options": { "enabled": false } },', '    "memory-guard@cockpit": { "options": { "refuse": false } }', '  }', '}']), '~/.claude/settings.json')}
+<h2>Turn off one step of a guard</h2>
+{table(['Mod', 'Switches'], [
+    ('<a href="#secret-guard"><code>secret-guard</code></a>', '<code>fillCommands</code>'),
+    ('<a href="#collision-guard"><code>collision-guard</code></a>', '<code>editWarnings</code>, and <code>git: off</code> for the git hold'),
+    ('<a href="#memory-guard"><code>memory-guard</code></a>', '<code>reduce</code>, <code>wait</code>, <code>refuse</code>, <code>retry137</code>'),
+    ('<a href="#loop-breaker"><code>loop-breaker</code></a>', '<code>editCheck</code>, <code>errorCheck</code>, <code>repeatCheck</code>'),
+    ('<a href="#usage-limit"><code>usage-limit</code></a>', 'throttle, commit and pause for each window, and <code>resume</code>'),
+    ('<a href="#skill-loader"><code>skill-loader</code></a>', '<code>holdWrites</code>, <code>diagnoseReminder</code>'),
+    ('<a href="#panel"><code>panel</code></a>', '<code>answers</code>, <code>autostart</code>'),
+])}
+<p>Each mod's page says what each switch stops.</p>
+<h2>Remove a mod's hooks entirely</h2>
 <p>Claude Code refuses to disable a plugin that an enabled plugin requires, and the <code>cockpit</code> bundle requires every mod. Disable the bundle first, then the mod:</p>
 {code('claude plugin disable cockpit@cockpit' + chr(10) + 'claude plugin disable pipefail@cockpit')}
-<p>The other mods stay on. Enabling the bundle again turns the mod back on. <code>spinner-status</code> also has an <b>Enabled</b> option in <code>/config</code>, which turns it off without touching the bundle.</p>
+<p>The other mods stay on. Enabling the bundle again turns the mod back on.</p>
 ''')
 
 page('Reference', 'remote', 'server', 'Run on a remote machine', 'Run on a remote machine', f'''
@@ -699,6 +737,7 @@ page('Reference', 'versions', 'tag', 'Versions', 'Versions', f'''
 ''' + table(['Mod', 'Version'], [('<code>cockpit</code> (bundle)', VERS['cockpit'])] + [(f'<a href="#{m}"><code>{m}</code></a>', VERS[m]) for m in ORDER]) + '''
 <h2>What changed</h2>
 <ul>
+  <li><b>1.3.0</b>: every mod has an <code>enabled</code> option, and the guards have one switch per step. <code>/cockpit:setup</code> can turn mods off.</li>
   <li><b>1.2.0</b>: <code>usage-limit</code> limits each window on its own, with a separate throttle, commit and pause for the 5-hour and 7-day windows, each with its own switch and percentage.</li>
   <li><b>1.1.0</b>: <code>secret-guard</code> reads the secrets folder beside the secrets file.</li>
 </ul>

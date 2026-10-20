@@ -27,8 +27,13 @@ Sem limite de cgroup, como na maioria dos desktops e notebooks Linux, a folga é
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: comando pesado roda como veio, e o `/ram` some. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `margin` | `2` | Porcentagem de memória mantida livre: do `memory.max` de cada cgroup, ou do total da máquina sem limite de cgroup. A marca do alto só conta para cgroup sem max. |
 | `waitSeconds` | `120` | Quanto tempo um comando pesado espera memória antes de ser recusado. |
+| `reduce` | `true` | Quando só cabe um processo, põe `--concurrency=1`, `--workers=1` ou `--maxWorkers=1`. |
+| `wait` | `true` | Quando nada cabe, espera até `waitSeconds`. Desligado, o passo seguinte vem na hora. |
+| `refuse` | `true` | Quando a memória não libera, recusa o comando. Desligado, ele roda como veio e pode morrer. |
+| `retry137` | `true` | Repete com um processo só o comando morto com exit 137. |
 
 ## O que grava
 

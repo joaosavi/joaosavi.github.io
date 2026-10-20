@@ -107,6 +107,7 @@ No `/config`, ou em `pluginConfigs` no `~/.claude/settings.json`.
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: sem faixa, sem linha de atividade, sem `/hud`, e o script da status line imprime uma linha vazia. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `band` | `panel` | `panel` desenha duas linhas acima do prompt, `line` uma, `off` nenhuma (o `/hud` continua). Use `off` com a status line. |
 | `activity` | `true` | Mostra a linha de atividade durante o turno. |
 | `memory` | `true` | Mostra a folga de memória na faixa e a linha `MEMORY`. |

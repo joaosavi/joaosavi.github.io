@@ -31,9 +31,39 @@ The same options live under `pluginConfigs` in `~/.claude/settings.json`, keyed 
 | `autoCompactWindow` | `733000` on a 1M model, if you choose it | Claude Code summarizes the conversation at about 70% instead of near the end. |
 | `pluginConfigs` | `band: "off"` for the hud, style, icons, time zone | Your answers to the setup questions. With the status line on, the band goes off so the rows do not show twice. |
 | `enabledPlugins` | `claude-hud@claude-hud` off, when it was on | Its status line is the one the hud replaces. |
+| `pluginConfigs` | `enabled: false` for each mod you turn off, if you ask | Only when you ask the setup to turn mods off. |
 | `extraKnownMarketplaces.cockpit` | `autoUpdate: true` | The mods update by themselves. |
 
 ## Turn one mod off
+
+Every mod has an **Enabled** option. Turn it off in `/config`, or set `"enabled": false` under the mod's `pluginConfigs` entry, then start a new session or run `/reload-plugins`. Off, the mod registers no hook and costs nothing per tool call. `/cockpit:setup` can also turn mods off for you.
+
+~/.claude/settings.json:
+
+```
+{
+  "pluginConfigs": {
+    "loop-breaker@cockpit": { "options": { "enabled": false } },
+    "memory-guard@cockpit": { "options": { "refuse": false } }
+  }
+}
+```
+
+## Turn off one step of a guard
+
+| Mod | Switches |
+| --- | --- |
+| [`secret-guard`](https://joaosavi.github.io/cockpit/md/secret-guard.md) | `fillCommands` |
+| [`collision-guard`](https://joaosavi.github.io/cockpit/md/collision-guard.md) | `editWarnings`, and `git: off` for the git hold |
+| [`memory-guard`](https://joaosavi.github.io/cockpit/md/memory-guard.md) | `reduce`, `wait`, `refuse`, `retry137` |
+| [`loop-breaker`](https://joaosavi.github.io/cockpit/md/loop-breaker.md) | `editCheck`, `errorCheck`, `repeatCheck` |
+| [`usage-limit`](https://joaosavi.github.io/cockpit/md/usage-limit.md) | throttle, commit and pause for each window, and `resume` |
+| [`skill-loader`](https://joaosavi.github.io/cockpit/md/skill-loader.md) | `holdWrites`, `diagnoseReminder` |
+| [`panel`](https://joaosavi.github.io/cockpit/md/panel.md) | `answers`, `autostart` |
+
+Each mod's page says what each switch stops.
+
+## Remove a mod's hooks entirely
 
 Claude Code refuses to disable a plugin that an enabled plugin requires, and the `cockpit` bundle requires every mod. Disable the bundle first, then the mod:
 
@@ -44,4 +74,4 @@ claude plugin disable cockpit@cockpit
 claude plugin disable pipefail@cockpit
 ```
 
-The other mods stay on. Enabling the bundle again turns the mod back on. `spinner-status` also has an **Enabled** option in `/config`, which turns it off without touching the bundle.
+The other mods stay on. Enabling the bundle again turns the mod back on.

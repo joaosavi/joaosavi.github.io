@@ -36,6 +36,7 @@ Os limites de 7 dias valem também para as janelas semanais por modelo, como `se
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: sem freio, commit, pausa nem retomada, e o `/limit` some. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `fiveHourThrottle` | `true` | Freio na janela de 5 horas. |
 | `fiveHourThrottleAt` | `90` | A partir dessa porcentagem da janela de 5 horas, um subagente por vez. |
 | `fiveHourCommit` | `true` | Pedido de commit na janela de 5 horas. |

@@ -21,9 +21,11 @@ Um segredo que chega à conversa vai para o modelo e fica no log da sessão, e a
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: todo valor aparece na saída como é. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `secretsFile` | `~/.secrets` | Arquivo `CHAVE=valor` em que todo valor é segredo, qualquer que seja o nome. |
 | `envRoot` | vazio | Pasta onde procurar arquivos `.env`, 5 níveis abaixo. Vazio não procura nenhum. |
 | `minLength` | `12` | Valor mais curto fica de fora, menos formato conhecido e valor dos arquivos de segredos. |
+| `fillCommands` | `true` | Roda o comando Bash que nomeia `<hidden:NAME>` com o valor real. Desligado, esse comando não roda, e o agente recebe a instrução de ler o valor dentro do comando. |
 
 Por padrão o mod não lê nenhum `.env`. Para cobrir os `.env` dos seus projetos, aponte `envRoot` para a pasta dos repos, como `~/code`. O mod varre a pasta ao começar, procura `.env` novo no máximo uma vez por minuto e refaz a lista pelo menos a cada 10 minutos.
 

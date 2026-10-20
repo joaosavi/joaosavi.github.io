@@ -24,6 +24,7 @@ set -o pipefail; yarn test | tail -20
 
 | Option | Default | What it does |
 | --- | --- | --- |
+| `enabled` | `true` | Off, the mod does nothing: no command is rewritten. Takes effect in the next session, or after `/reload-plugins`. |
 | `extraRunners` | empty list | Script names that also count as runners when a package manager calls them: `yarn <name>`, `npm run <name>`, `pnpm <name>`, `bun run <name>`. |
 
 Add a repo's own check script here when its exit code says whether the code works, such as `verify` for a script that runs lint, types and tests. The mod then rewrites `yarn verify | tail` too.

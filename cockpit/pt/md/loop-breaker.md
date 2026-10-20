@@ -20,9 +20,13 @@ Quando uma contagem chega ao limite, o mod acrescenta uma nota ao resultado da f
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: nada é contado, nenhum empurrão. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `editLimit` | `5` | Tentativas de correção num arquivo, num turno, antes do empurrão. |
 | `errorLimit` | `3` | Vezes que o mesmo erro pode voltar num turno antes do empurrão. |
 | `repeatLimit` | `3` | Chamadas idênticas em sequência antes do empurrão. |
+| `editCheck` | `true` | Empurra depois de `editLimit` tentativas de correção num arquivo. |
+| `errorCheck` | `true` | Empurra depois de o mesmo erro voltar `errorLimit` vezes. |
+| `repeatCheck` | `true` | Empurra depois de `repeatLimit` chamadas idênticas em sequência. |
 
 ## O que grava
 

@@ -45,6 +45,7 @@ On a personal plan it works as installed; on a Team or Enterprise plan it does n
 
 | Option | Default | What it does |
 | --- | --- | --- |
+| `enabled` | `true` | Off, the mod does nothing: the memory section stays as Claude Code wrote it. Takes effect in the next session, or after `/reload-plugins`. |
 | `globalDir` | `~/.claude/global-memory` | Folder of the machine-wide memory, with its own `MEMORY.md`. |
 
 ## What it records

@@ -46,10 +46,12 @@ A metade de baixo da gaveta **Mods** audita os mods pelos diários do último di
 
 | Opção | Padrão | O que faz |
 | --- | --- | --- |
+| `enabled` | `true` | Desligado, o mod não faz nada: sem `/panel`, sem subir servidor, sem respostas; um servidor que já roda continua. Vale na próxima sessão, ou depois de `/reload-plugins`. |
 | `port` | `7777` | A porta da página, no `127.0.0.1`. |
 | `model` | `sonnet` | O modelo do `claude -p` em cada resumo: `sonnet`, `haiku` ou `opus`. |
 | `refreshMinutes` | `5` | Uma sessão cuja conversa mudou ganha resumo novo nesse intervalo. |
 | `autostart` | `true` | Sobe o servidor quando uma sessão começa e a porta não responde. Desligue quando um gerenciador de serviços roda o servidor. |
+| `answers` | `true` | Deixa a página mandar texto para esta sessão como prompt seu. Desligado, a página mostra as opções da sessão em cinza e sem campo de resposta. |
 
 ## Subir o servidor à mão
 
