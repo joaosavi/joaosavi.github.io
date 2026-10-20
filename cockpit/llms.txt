@@ -1,0 +1,46 @@
+# Cockpit 1.2.0
+
+> The 11 Cockpit mods for Claude Code: guards that catch an agent's mistakes, and instruments that show where every session stands.
+
+Each page below is a Markdown file. To install: `claude plugin marketplace add joaosavi/cockpit` and `claude plugin install cockpit@cockpit`, then restart Claude Code and run `/cockpit:setup`.
+
+## Get started
+
+- [Quickstart](https://joaosavi.github.io/cockpit/md/start.md)
+- [Install and set up](https://joaosavi.github.io/cockpit/md/install.md)
+- [Your first session](https://joaosavi.github.io/cockpit/md/first-session.md)
+
+## Guards
+
+- [secret-guard](https://joaosavi.github.io/cockpit/md/secret-guard.md)
+- [collision-guard](https://joaosavi.github.io/cockpit/md/collision-guard.md)
+- [pipefail](https://joaosavi.github.io/cockpit/md/pipefail.md)
+- [memory-guard](https://joaosavi.github.io/cockpit/md/memory-guard.md)
+- [loop-breaker](https://joaosavi.github.io/cockpit/md/loop-breaker.md)
+- [usage-limit](https://joaosavi.github.io/cockpit/md/usage-limit.md)
+
+## Instruments
+
+- [hud](https://joaosavi.github.io/cockpit/md/hud.md)
+- [spinner-status](https://joaosavi.github.io/cockpit/md/spinner-status.md)
+- [panel](https://joaosavi.github.io/cockpit/md/panel.md)
+- [skill-loader](https://joaosavi.github.io/cockpit/md/skill-loader.md)
+
+## Memory
+
+- [global-memory](https://joaosavi.github.io/cockpit/md/global-memory.md)
+
+## Reference
+
+- [Commands](https://joaosavi.github.io/cockpit/md/commands.md)
+- [Configure and turn mods off](https://joaosavi.github.io/cockpit/md/configure.md)
+- [Run on a remote machine](https://joaosavi.github.io/cockpit/md/remote.md)
+- [What leaves your machine](https://joaosavi.github.io/cockpit/md/data.md)
+- [Troubleshooting](https://joaosavi.github.io/cockpit/md/troubleshooting.md)
+- [Update and uninstall](https://joaosavi.github.io/cockpit/md/update.md)
+- [Versions](https://joaosavi.github.io/cockpit/md/versions.md)
+
+## Optional
+
+- [Every page in one file](https://joaosavi.github.io/cockpit/llms-full.txt)
+- [Versão em português](https://joaosavi.github.io/cockpit/pt/llms.txt)

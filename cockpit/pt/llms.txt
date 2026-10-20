@@ -1,0 +1,46 @@
+# Cockpit 1.2.0
+
+> Os 11 mods do Cockpit para o Claude Code: guardas que barram os erros de um agente e instrumentos que mostram em que ponto cada sessão está.
+
+Cada página abaixo é um arquivo Markdown. Para instalar: `claude plugin marketplace add joaosavi/cockpit` e `claude plugin install cockpit@cockpit`, depois reinicie o Claude Code e rode `/cockpit:setup`.
+
+## Começar
+
+- [Início rápido](https://joaosavi.github.io/cockpit/pt/md/start.md)
+- [Como instalar e configurar](https://joaosavi.github.io/cockpit/pt/md/install.md)
+- [O que muda na primeira sessão](https://joaosavi.github.io/cockpit/pt/md/first-session.md)
+
+## Guardas
+
+- [secret-guard](https://joaosavi.github.io/cockpit/pt/md/secret-guard.md)
+- [collision-guard](https://joaosavi.github.io/cockpit/pt/md/collision-guard.md)
+- [pipefail](https://joaosavi.github.io/cockpit/pt/md/pipefail.md)
+- [memory-guard](https://joaosavi.github.io/cockpit/pt/md/memory-guard.md)
+- [loop-breaker](https://joaosavi.github.io/cockpit/pt/md/loop-breaker.md)
+- [usage-limit](https://joaosavi.github.io/cockpit/pt/md/usage-limit.md)
+
+## Instrumentos
+
+- [hud](https://joaosavi.github.io/cockpit/pt/md/hud.md)
+- [spinner-status](https://joaosavi.github.io/cockpit/pt/md/spinner-status.md)
+- [panel](https://joaosavi.github.io/cockpit/pt/md/panel.md)
+- [skill-loader](https://joaosavi.github.io/cockpit/pt/md/skill-loader.md)
+
+## Memória
+
+- [global-memory](https://joaosavi.github.io/cockpit/pt/md/global-memory.md)
+
+## Consultar
+
+- [Os comandos do Cockpit](https://joaosavi.github.io/cockpit/pt/md/commands.md)
+- [Como mudar as opções e desligar um mod](https://joaosavi.github.io/cockpit/pt/md/configure.md)
+- [Como usar numa máquina remota](https://joaosavi.github.io/cockpit/pt/md/remote.md)
+- [O que sai da sua máquina](https://joaosavi.github.io/cockpit/pt/md/data.md)
+- [Algo quebrou? A solução está aqui](https://joaosavi.github.io/cockpit/pt/md/troubleshooting.md)
+- [Como atualizar e desinstalar](https://joaosavi.github.io/cockpit/pt/md/update.md)
+- [Versões](https://joaosavi.github.io/cockpit/pt/md/versions.md)
+
+## Optional
+
+- [Todas as páginas num arquivo só](https://joaosavi.github.io/cockpit/pt/llms-full.txt)
+- [English version](https://joaosavi.github.io/cockpit/llms.txt)

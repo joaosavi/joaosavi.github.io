@@ -1,0 +1,1576 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cockpit for Claude Code</title>
+<meta name="description" content="The 11 Cockpit mods for Claude Code: guards that catch an agent's mistakes, and instruments that show where every session stands.">
+<link rel="alternate" hreflang="en" href="https://joaosavi.github.io/cockpit/">
+<link rel="alternate" hreflang="pt-BR" href="https://joaosavi.github.io/cockpit/pt/">
+<link rel="alternate" type="text/plain" title="llms.txt" href="llms.txt">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: documentação em três colunas. Menu de páginas à esquerda, artigo no centro, sumário da página à direita. O âmbar é o LED de "ligado" do servidor. */
+:root {
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --sunken: #eceef2;
+  --ink: #151922;
+  --muted: #586071;
+  --line: #e0e3e9;
+  --line-strong: #c9ced8;
+  --link: #1d52b3;
+  --led: #d38a06;
+  --led-soft: #fbf0d8;
+  --ok: #1d7a4c;
+  --ok-soft: #e2f2e9;
+  --warn: #9a5a05;
+  --warn-soft: #fcefd9;
+  --danger: #b3261e;
+  --danger-soft: #fce7e5;
+  --info: #1d52b3;
+  --info-soft: #e5edfb;
+  --code-bg: #f0f2f6;
+  --code-ink: #1a2030;
+  --shadow: 0 1px 2px rgba(20, 25, 34, .06), 0 8px 24px rgba(20, 25, 34, .06);
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Public Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --header-h: 60px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1016; --surface: #12161e; --sunken: #181d27; --ink: #e4e7ee; --muted: #9aa2b2;
+    --line: #232a36; --line-strong: #323a49; --link: #8fb4ff; --led: #f0b43c; --led-soft: #2b2312;
+    --ok: #5cc28f; --ok-soft: #10261b; --warn: #f0b43c; --warn-soft: #2b2312; --danger: #ff8b7d; --danger-soft: #34151299;
+    --info: #8fb4ff; --info-soft: #14203a; --code-bg: #0a0d13; --code-ink: #d5dae5;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1016; --surface: #12161e; --sunken: #181d27; --ink: #e4e7ee; --muted: #9aa2b2;
+  --line: #232a36; --line-strong: #323a49; --link: #8fb4ff; --led: #f0b43c; --led-soft: #2b2312;
+  --ok: #5cc28f; --ok-soft: #10261b; --warn: #f0b43c; --warn-soft: #2b2312; --danger: #ff8b7d; --danger-soft: #34151299;
+  --info: #8fb4ff; --info-soft: #14203a; --code-bg: #0a0d13; --code-ink: #d5dae5;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: calc(var(--header-h) + 24px); }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.65 var(--f-body); -webkit-font-smoothing: antialiased; }
+a { color: var(--link); text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--led); outline-offset: 2px; border-radius: 4px; }
+code, kbd, pre { font-family: var(--f-mono); }
+:not(pre) > code { font-size: max(13px, .86em); background: var(--sunken); border: 1px solid var(--line); padding: .08em .38em; border-radius: 5px; overflow-wrap: anywhere; }
+
+/* topo */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; height: var(--header-h); background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 16px; padding-inline: 16px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); flex-shrink: 0; }
+.mark { position: relative; width: 28px; height: 28px; border-radius: 7px; background: var(--ink); display: grid; place-items: center; flex-shrink: 0; }
+.mark svg { width: 16px; height: 16px; stroke: var(--bg); }
+.mark::after { content: ""; position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 50%; background: var(--led); box-shadow: 0 0 0 2px var(--surface); }
+.wordmark { font: 700 16.5px/1 var(--f-display); letter-spacing: -.012em; white-space: nowrap; }
+.brand .sep { width: 1px; height: 18px; background: var(--line-strong); }
+.brand .docs { font: 500 14.5px/1 var(--f-body); color: var(--muted); }
+.topnav { display: flex; align-items: center; gap: 2px; margin-left: 14px; height: 100%; }
+.topnav a { position: relative; display: flex; align-items: center; height: 100%; padding: 0 11px; color: var(--muted); text-decoration: none; font: 500 14px var(--f-body); white-space: nowrap; }
+.topnav a:hover { color: var(--ink); }
+.topnav a.on { color: var(--ink); }
+.topnav a.on::after { content: ""; position: absolute; left: 11px; right: 11px; bottom: -1px; height: 2px; border-radius: 2px; background: var(--led); }
+.ver { font: 500 12px/1 var(--f-mono); color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; white-space: nowrap; flex-shrink: 0; }
+.search { position: relative; flex: 1; max-width: 320px; margin-left: auto; }
+.search kbd { position: absolute; right: 8px; top: 9px; font: 500 11.5px/1 var(--f-mono); color: var(--muted); border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 5px; padding: 3px 6px; background: var(--surface); pointer-events: none; }
+.search input { width: 100%; height: 38px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--bg); color: var(--ink); font: 14px var(--f-body); padding: 0 12px 0 36px; }
+.search svg { position: absolute; left: 11px; top: 11px; width: 16px; height: 16px; stroke: var(--muted); }
+.results { position: absolute; top: 44px; left: 0; right: 0; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 12px; box-shadow: var(--shadow); padding: 6px; max-height: 60vh; overflow: auto; }
+.results button { display: block; width: 100%; text-align: left; border: 0; background: none; color: var(--ink); padding: 8px 10px; border-radius: 8px; cursor: pointer; font: 14px/1.4 var(--f-body); }
+.results button:hover, .results button.on { background: var(--sunken); }
+.results small { display: block; color: var(--muted); font-size: 12.5px; }
+.results .empty { padding: 10px; color: var(--muted); font-size: 14px; }
+.menu-btn { display: none; place-items: center; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); border-radius: 8px; width: 38px; height: 36px; padding: 0; cursor: pointer; flex-shrink: 0; }
+.menu-btn svg { width: 18px; height: 18px; stroke: currentColor; }
+
+/* grade */
+.shell { display: grid; grid-template-columns: 304px minmax(0, 1fr) 220px; max-width: 1440px; margin: 0 auto; }
+.sidebar { position: sticky; top: calc(var(--header-h) + env(safe-area-inset-top, 0px)); height: calc(100vh - var(--header-h)); overflow-y: auto; padding: 24px 16px 40px 20px; border-right: 1px solid var(--line); }
+.nav-group { margin-bottom: 22px; }
+.nav-group h4 { margin: 0 0 6px 10px; font: 600 11.5px/1 var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.nav-group a { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; color: var(--ink); text-decoration: none; font-size: 14.5px; line-height: 1.35; }
+.nav-group a:hover { background: var(--sunken); }
+.nav-group a.active { background: var(--led-soft); color: var(--ink); box-shadow: inset 2px 0 0 var(--led); }
+.nav-group a .tag { margin-left: auto; font: 600 10.5px/1 var(--f-body); letter-spacing: .04em; color: var(--ok); background: var(--ok-soft); padding: 3px 6px; border-radius: 999px; }
+.nav-group a .num { font: 500 12px/1 var(--f-mono); color: var(--muted); width: 1.4em; }
+
+main { min-width: 0; padding: 36px 48px 80px; }
+.page { max-width: 760px; margin: 0 auto; }
+.page[hidden] { display: none; }
+.crumb { font: 500 13px var(--f-body); color: var(--muted); margin-bottom: 10px; }
+h1 { font: 700 clamp(30px, 4vw, 40px)/1.12 var(--f-display); letter-spacing: -.02em; margin: 0 0 14px; text-wrap: balance; }
+h2 { font: 700 24px/1.25 var(--f-display); letter-spacing: -.01em; margin: 48px 0 12px; text-wrap: balance; }
+h3 { font: 600 18px/1.35 var(--f-body); margin: 30px 0 8px; }
+p, li { max-width: 68ch; }
+.lead { font-size: 18.5px; line-height: 1.6; color: var(--muted); margin: 0 0 24px; }
+ul, ol { padding-left: 1.3em; }
+li { margin: 4px 0; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 40px 0; }
+
+/* sumário à direita */
+.toc { position: sticky; top: calc(var(--header-h) + env(safe-area-inset-top, 0px)); height: calc(100vh - var(--header-h)); overflow-y: auto; padding: 36px 16px 40px 8px; }
+.toc h5 { margin: 0 0 10px; font: 600 11.5px/1 var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.toc button { display: block; width: 100%; text-align: left; background: none; border: 0; border-left: 2px solid var(--line); padding: 5px 0 5px 12px; color: var(--muted); font: 13.5px/1.4 var(--f-body); cursor: pointer; }
+.toc button:hover { color: var(--ink); border-left-color: var(--line-strong); }
+.toc button.on { color: var(--ink); border-left-color: var(--led); }
+
+/* componentes */
+.callout { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; padding: 14px 16px; border-radius: 12px; margin: 20px 0; border: 1px solid; }
+.callout > svg { width: 20px; height: 20px; margin-top: 2px; }
+.callout p { margin: 0; }
+.callout p + p, .callout ul { margin-top: 6px; }
+.callout strong.label { display: block; font: 600 13px/1.3 var(--f-body); letter-spacing: .02em; margin-bottom: 2px; }
+.callout.note { background: var(--info-soft); border-color: color-mix(in srgb, var(--info) 30%, transparent); }
+.callout.note > svg { stroke: var(--info); }
+.callout.tip { background: var(--ok-soft); border-color: color-mix(in srgb, var(--ok) 30%, transparent); }
+.callout.tip > svg { stroke: var(--ok); }
+.callout.warn { background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 35%, transparent); }
+.callout.warn > svg { stroke: var(--warn); }
+.callout.danger { background: var(--danger-soft); border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
+.callout.danger > svg { stroke: var(--danger); }
+
+.code { margin: 16px 0; border: 1px solid var(--line); border-radius: 12px; background: var(--code-bg); overflow: hidden; }
+.code-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 8px 6px 14px; border-bottom: 1px solid var(--line); font: 500 13px var(--f-mono); color: var(--muted); }
+.copy { border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); border-radius: 7px; font: 600 13px var(--f-body); padding: 5px 10px; cursor: pointer; }
+.copy:hover { border-color: var(--led); }
+.copy.done { color: var(--ok); border-color: var(--ok); }
+.code pre { margin: 0; padding: 14px 16px; overflow-x: auto; font-size: 13.4px; line-height: 1.6; color: var(--code-ink); tab-size: 4; }
+.code pre .c { color: var(--muted); }
+.code.big pre { max-height: 560px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.steps { list-style: none; padding: 0; counter-reset: s; margin: 20px 0; }
+.steps > li { counter-increment: s; position: relative; padding: 0 0 22px 46px; max-width: none; }
+.steps > li::before { content: counter(s); position: absolute; left: 0; top: -2px; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font: 600 13.5px var(--f-mono); background: var(--surface); border: 1.5px solid var(--line-strong); color: var(--ink); }
+.steps > li::after { content: ""; position: absolute; left: 14.5px; top: 32px; bottom: 4px; width: 1.5px; background: var(--line); }
+.steps > li:last-child::after { display: none; }
+.steps > li > b:first-child { display: block; font-weight: 600; margin-bottom: 2px; }
+
+.table-wrap { overflow-x: auto; margin: 18px 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+th, td { text-align: left; vertical-align: top; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+th { font: 600 13px var(--f-body); letter-spacing: .03em; text-transform: uppercase; color: var(--muted); background: var(--sunken); }
+tr:last-child td { border-bottom: 0; }
+th[scope="row"] { text-transform: none; font: 600 14px/1.4 var(--f-body); letter-spacing: 0; color: var(--ink); background: var(--surface); white-space: normal; }
+tr:last-child th[scope="row"] { border-bottom: 0; }
+td code { overflow-wrap: anywhere; }
+td:first-child code, th code { white-space: nowrap; overflow-wrap: normal; }
+tr.rec td:first-child { box-shadow: inset 3px 0 0 var(--led); }
+.pill { display: inline-block; font: 600 13px/1 var(--f-body); padding: 4px 8px; border-radius: 999px; white-space: nowrap; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.led { background: var(--led-soft); color: var(--warn); }
+.pill.no { background: var(--danger-soft); color: var(--danger); }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin: 18px 0; }
+.card { display: block; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; text-decoration: none; color: var(--ink); transition: border-color .15s, transform .15s; }
+a.card:hover { border-color: var(--led); transform: translateY(-1px); }
+.card h3 { margin: 0 0 6px; font: 700 18px/1.3 var(--f-display); }
+.card p { margin: 0; color: var(--muted); font-size: 14.5px; }
+.card .pill { margin-bottom: 10px; }
+@media (prefers-reduced-motion: reduce) { a.card { transition: none; } a.card:hover { transform: none; } }
+
+.term { white-space: pre; background: #0b0e13; color: #d6dbe5; border-radius: 14px; padding: 16px 18px; font: 13px/1.7 var(--f-mono); overflow-x: auto; box-shadow: var(--shadow); margin: 8px 0 28px; border: 1px solid #1d2330; }
+.term .p { color: #8fb4ff; }
+.term .g { color: #5cc28f; }
+.term .a { color: #f0b43c; }
+.term .d { color: #7d8597; }
+
+.brand-ic { width: 18px; height: 18px; flex-shrink: 0; }
+.nav-ic { display: inline-flex; gap: 3px; margin-top: 1px; flex-shrink: 0; }
+.nav-ic .brand-ic { width: 16px; height: 16px; }
+.h1-ic { display: inline-flex; gap: 8px; margin-right: 12px; vertical-align: -4px; }
+.h1-ic .brand-ic { width: 34px; height: 34px; }
+.chip i .brand-ic { width: 16px; height: 16px; }
+.chip i:has(.brand-ic + .brand-ic) { width: 36px; gap: 2px; display: flex; }
+.tm-group a .nav-ic { margin-right: 6px; vertical-align: -3px; }
+/* Lateral: busca no topo, grupos com ícone, um mini-guia por linha. */
+.sidebar { padding-top: 0; }
+.side-search { position: sticky; top: 0; z-index: 2; margin: 0 -16px 14px -20px; padding: 16px 16px 12px 20px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.side-search svg { position: absolute; left: 31px; top: 28px; width: 16px; height: 16px; stroke: var(--muted); }
+.side-search input { width: 100%; height: 40px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); font: 14.5px var(--f-body); padding: 0 34px 0 36px; }
+.side-search input:focus { outline: 2px solid var(--led); outline-offset: 0; border-color: transparent; }
+.side-search kbd { position: absolute; right: 26px; top: 26px; font: 500 12px/1 var(--f-mono); color: var(--muted); border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 5px; padding: 3px 6px; background: var(--surface); pointer-events: none; }
+.side-empty { margin: 4px 10px; color: var(--muted); font-size: 14px; }
+.nav-group { margin-bottom: 18px; }
+.nav-group h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 6px 10px; font: 700 13px/1 var(--f-body); letter-spacing: .02em; text-transform: none; color: var(--ink); }
+.nav-group h4 svg { width: 16px; height: 16px; stroke: var(--led); flex-shrink: 0; }
+.nav-group a { align-items: flex-start; gap: 9px; padding: 7px 10px; font-size: 14px; line-height: 1.4; color: var(--muted); }
+.nav-group a:hover { color: var(--ink); }
+.nav-group a.active { color: var(--ink); }
+.nav-group a .num { flex-shrink: 0; width: 20px; height: 20px; margin-top: 0; border-radius: 50%; display: grid; place-items: center; font: 600 12px/1 var(--f-mono); color: var(--muted); background: var(--sunken); }
+.nav-group a.active .num { background: var(--led); color: var(--surface); }
+.nav-group a .lbl { flex: 1; min-width: 0; }
+.nav-group a .tag { margin-top: 1px; font-size: 13px; padding: 3px 7px; color: var(--warn); background: var(--led-soft); }
+.nav-group a .snip { display: block; margin-top: 3px; font-size: 13px; color: var(--muted); font-weight: 400; }
+.nav-group a .snip b { color: var(--ink); font-weight: 600; }
+mark.hit { background: var(--led-soft); color: inherit; box-shadow: 0 0 0 2px var(--led); border-radius: 3px; }
+
+/* Antes e no fim de cada mini-guia. */
+.brief { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; margin: 0 0 28px; border: 1px solid var(--line); border-radius: 12px; background: var(--line); overflow: hidden; }
+.brief-col { display: flex; flex-direction: column; gap: 4px; padding: 12px 16px; background: var(--surface); font-size: 14.5px; }
+.brief-col p { margin: 0; }
+.brief-k { font: 700 13px var(--f-body); color: var(--warn); }
+@media (max-width: 640px) { .brief { grid-template-columns: 1fr; } }
+
+/* Quickstart. */
+.quick { list-style: none; padding: 0; margin: 8px 0 14px; display: grid; gap: 12px; }
+.quick > li { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 14px; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow); max-width: none; }
+.quick .q-n { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font: 700 18px var(--f-display); background: var(--led); color: var(--surface); }
+.quick b { display: block; font: 700 19px/1.3 var(--f-display); }
+.quick p { margin: 4px 0 10px; color: var(--muted); }
+.q-go { font-weight: 600; text-decoration: none; }
+.q-go:hover { text-decoration: underline; }
+.q-copy { border: 0; border-radius: 9px; padding: 9px 14px; margin-right: 12px; background: var(--ink); color: var(--bg); font: 600 14.5px var(--f-body); cursor: pointer; }
+.q-copy.done { background: var(--ok); color: var(--surface); }
+.q-alt { color: var(--muted); }
+
+/* Mapa de mini-guias. */
+.taskmap { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 18px 0; }
+.tm-group { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 16px 18px; }
+.tm-group h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font: 700 16px var(--f-display); }
+.tm-group h3 svg { width: 18px; height: 18px; stroke: var(--led); }
+.tm-group ul { margin: 0; padding: 0; list-style: none; }
+.tm-group li { padding: 5px 0; border-top: 1px solid var(--line); font-size: 14.5px; }
+.tm-group li:first-child { border-top: 0; }
+.tm-group a { text-decoration: none; }
+.tm-group a:hover { text-decoration: underline; }
+
+.refs { columns: 2 260px; column-gap: 28px; padding-left: 18px; }
+.refs li { break-inside: avoid; margin-bottom: 6px; font-size: 14.5px; }
+@media (max-width: 880px) { .side-search { margin: 0 -16px 14px -20px; } }
+/* Desenhos em HTML: se reorganizam no celular. */
+.d-s, .d-l { font-size: 13px; }
+.arch { display: grid; grid-template-columns: minmax(0, 1.1fr) 28px minmax(0, .8fr) 28px minmax(0, 2fr); align-items: center; gap: 0; margin: 18px 0 8px; }
+.arch-col { display: flex; flex-direction: column; gap: 8px; }
+.arch-k { font: 700 13px var(--f-body); color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 2px; }
+.chip { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 14px; line-height: 1.3; }
+.chip i { display: grid; place-items: center; width: 20px; flex-shrink: 0; }
+.chip i svg { width: 18px; height: 18px; stroke: var(--led); }
+.chip small { display: block; color: var(--muted); font-size: 13px; }
+.arrow { justify-self: center; color: var(--muted); font-size: 20px; }
+.arrow::before { content: "→"; }
+.cloud { padding: 12px; border: 1.5px dashed var(--line-strong); border-radius: 14px; text-align: center; font-size: 14px; background: var(--sunken); }
+.cloud b { display: block; font-size: 15px; }
+.cloud small { color: var(--muted); font-size: 13px; }
+.vps { padding: 12px; border: 2px solid var(--led); border-radius: 16px; background: var(--led-soft); display: grid; gap: 10px; }
+.vps > .arch-k { color: var(--warn); }
+.slice { padding: 10px; border: 1.5px solid var(--line-strong); border-radius: 12px; background: var(--surface); display: grid; gap: 8px; }
+.slice-h { display: flex; justify-content: space-between; gap: 8px; font: 600 13.5px var(--f-body); }
+.slice-h span:last-child { color: var(--muted); font-weight: 500; }
+.agents { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 6px; }
+.agent { padding: 7px 9px; border-radius: 9px; background: var(--sunken); font-size: 13.5px; }
+.agent small { display: block; color: var(--muted); font-size: 13px; }
+.agent.main { background: var(--ink); color: var(--bg); }
+.agent.main small { color: var(--bg); opacity: .75; }
+.vps-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px; }
+.vps-row .chip { font-size: 13.5px; padding: 7px 9px; }
+@media (max-width: 760px) {
+  .arch { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .arrow::before { content: "↓"; }
+  .arch-col { flex-direction: row; flex-wrap: wrap; }
+  .arch-col .arch-k { flex-basis: 100%; }
+  .arch-col .chip { flex: 1 1 140px; }
+}
+
+.flow { list-style: none; padding: 0; margin: 18px 0 8px; display: flex; flex-wrap: wrap; gap: 8px 0; counter-reset: f; }
+.flow li { counter-increment: f; display: flex; align-items: center; max-width: none; }
+.flow li > span { display: block; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 14px; line-height: 1.35; }
+.flow li > span::before { content: counter(f); display: inline-grid; place-items: center; width: 20px; height: 20px; margin-right: 7px; border-radius: 50%; background: var(--led); color: var(--surface); font: 700 12.5px var(--f-mono); vertical-align: -3px; }
+.flow li > span small { display: block; color: var(--muted); font-size: 13px; margin-left: 27px; }
+.flow li:not(:last-child)::after { content: "→"; color: var(--muted); margin: 0 7px; font-size: 18px; }
+@media (max-width: 640px) { .flow { flex-direction: column; gap: 0; } .flow li { flex-direction: column; align-items: stretch; } .flow li:not(:last-child)::after { content: "↓"; text-align: center; margin: 2px 0; } }
+
+.vs { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14.5px; }
+.vs th { text-transform: none; letter-spacing: 0; font: 700 14px var(--f-body); color: var(--ink); white-space: normal; text-align: center; }
+.vs th:first-child { text-align: left; }
+.vs th.us { background: var(--led-soft); box-shadow: inset 0 3px 0 var(--led); }
+.vs td { text-align: center; }
+.vs td:first-child { text-align: left; }
+.vs td.us { background: color-mix(in srgb, var(--led-soft) 55%, transparent); }
+.y, .n, .p { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; font: 700 14px var(--f-body); }
+.y { background: var(--ok-soft); color: var(--ok); }
+.y::before { content: "✓"; }
+.n { background: var(--danger-soft); color: var(--danger); }
+.n::before { content: "✕"; }
+.p { background: var(--warn-soft); color: var(--warn); }
+.p::before { content: "~"; }
+@media (max-width: 640px) { .vs th, .vs td { padding: 8px 6px; font-size: 13.5px; } .vs td:first-child { min-width: 128px; } }
+
+.memmap { margin: 18px 0 8px; padding: 12px; border: 2px solid var(--line-strong); border-radius: 16px; display: grid; grid-template-columns: 2.4fr 1fr 1fr; gap: 10px; }
+.memmap > .arch-k { grid-column: 1 / -1; }
+.memmap .slice.ag { border-color: var(--led); background: var(--led-soft); }
+.memmap .slice.rec { border-color: var(--ok); background: var(--ok-soft); }
+.memmap .slice.sys { background: var(--sunken); }
+@media (max-width: 640px) { .memmap { grid-template-columns: 1fr; } }
+/* Telas da Oracle: wireframes próprios, com cursor que anda até o campo do passo. */
+.demo { margin: 18px 0 22px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); overflow: hidden; }
+.demo-screen { position: relative; background: var(--bg); }
+.demo-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: var(--sunken); border-bottom: 1px solid var(--line); font: 13px var(--f-mono); color: var(--muted); }
+.demo-bar i { width: 9px; height: 9px; border-radius: 50%; background: var(--line-strong); flex-shrink: 0; }
+.demo-bar span { margin-left: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.frame { padding: 16px 18px 20px; min-height: 300px; font: 13px/1.45 var(--f-body); color: var(--ink); }
+.frame[hidden] { display: none; }
+.m-top { display: flex; align-items: center; gap: 10px; margin: -16px -18px 14px; padding: 9px 18px; background: var(--ink); color: var(--bg); font-size: 13px; }
+.m-top b { font-weight: 600; }
+.m-top .m-sp { flex: 1; }
+.m-crumb { color: var(--muted); margin-bottom: 4px; }
+.m-h { font: 700 17px/1.3 var(--f-display); margin: 0 0 12px; }
+.m-h2 { font-weight: 600; margin: 14px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--line); }
+.m-row { display: flex; flex-wrap: wrap; gap: 14px; }
+.m-wiz { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 18px; }
+.m-steps { display: flex; flex-direction: column; gap: 2px; border-right: 1px solid var(--line); padding-right: 10px; }
+.m-steps span { padding: 5px 8px; border-radius: 6px; color: var(--muted); }
+.m-steps span.on { background: var(--sunken); color: var(--ink); font-weight: 600; box-shadow: inset 3px 0 0 var(--led); }
+.m-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; min-width: 140px; }
+.m-field > label { font-weight: 600; }
+.m-in { border: 1px solid var(--line-strong); border-radius: 6px; padding: 6px 9px; background: var(--surface); min-height: 32px; }
+.m-btn { display: inline-block; border: 1px solid var(--line-strong); border-radius: 6px; padding: 6px 12px; background: var(--surface); font-weight: 600; }
+.m-btn.pri { background: var(--link); border-color: var(--link); color: var(--surface); }
+.m-opt { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+.m-opt::before { content: ""; width: 14px; height: 14px; border: 1.5px solid var(--line-strong); border-radius: 50%; flex-shrink: 0; background: var(--surface); }
+.m-opt.sq::before { border-radius: 3px; }
+.m-opt.on::before { border-color: var(--link); background: radial-gradient(circle, var(--link) 0 40%, var(--surface) 46%); }
+.m-opt.sq.on::before { background: var(--link); box-shadow: inset 0 0 0 2px var(--surface); }
+.m-card { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--surface); flex: 1; min-width: 180px; }
+.m-card small { display: block; color: var(--muted); font-size: 13px; }
+.m-free { display: inline-block; font-size: 13px; font-weight: 600; color: var(--ok); background: var(--ok-soft); padding: 1px 7px; border-radius: 999px; }
+.m-warnbar { border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent); background: var(--warn-soft); border-radius: 6px; padding: 6px 10px; margin: 8px 0; }
+.m-tabs { display: flex; gap: 16px; border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+.m-tabs span { padding: 6px 0; color: var(--muted); }
+.m-tabs span.on { color: var(--ink); font-weight: 600; box-shadow: inset 0 -2px 0 var(--link); }
+.m-tbl { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); border: 1px solid var(--line); }
+.m-tbl th { font: 600 13px var(--f-body); text-transform: none; letter-spacing: 0; padding: 6px 9px; }
+.m-tbl td { padding: 6px 9px; }
+.m-tbl td code { font-size: 13px; }
+.m-link { color: var(--link); text-decoration: underline; text-underline-offset: 2px; }
+.m-modal { position: relative; max-width: 440px; margin: 10px auto 0; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); box-shadow: var(--shadow); padding: 14px 16px; }
+.m-drop { border: 1.5px dashed var(--line-strong); border-radius: 8px; padding: 10px; text-align: center; color: var(--muted); }
+.m-menu { display: inline-flex; flex-direction: column; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--surface); box-shadow: var(--shadow); }
+.m-menu span { padding: 5px 14px; }
+.m-dim { color: var(--muted); }
+[data-hit] { position: relative; border-radius: 6px; transition: box-shadow .3s; }
+.demo.hit [data-hit] { box-shadow: 0 0 0 3px var(--led); animation: m-pulse 1.4s ease-out infinite; }
+@keyframes m-pulse { 0% { box-shadow: 0 0 0 3px var(--led), 0 0 0 3px color-mix(in srgb, var(--led) 50%, transparent); } 100% { box-shadow: 0 0 0 3px var(--led), 0 0 0 12px transparent; } }
+.demo-cursor { position: absolute; left: 0; top: 0; width: 22px; height: 22px; pointer-events: none; transition: transform .8s cubic-bezier(.4, 0, .2, 1); z-index: 2; }
+.demo-cursor svg { width: 22px; height: 22px; fill: var(--ink); stroke: var(--surface); stroke-width: 1.5; }
+.demo-ctl { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-top: 1px solid var(--line); }
+.demo-ctl button { border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink); border-radius: 8px; height: 34px; min-width: 34px; padding: 0 10px; font: 600 14px var(--f-body); cursor: pointer; flex-shrink: 0; }
+.demo-cap { flex: 1; font-size: 14.5px; min-width: 0; }
+.demo-n { font: 500 13px var(--f-mono); color: var(--muted); flex-shrink: 0; }
+@media (max-width: 640px) { .demo-ctl { flex-wrap: wrap; } .demo-cap { flex-basis: 100%; order: -1; } .m-wiz { grid-template-columns: 1fr; } .m-steps { flex-direction: row; flex-wrap: wrap; border-right: 0; border-bottom: 1px solid var(--line); padding: 0 0 6px; } .frame { padding: 14px 12px 18px; } .m-top { margin: -14px -12px 12px; padding: 9px 12px; } }
+@media (prefers-reduced-motion: reduce) { .demo-cursor { transition: none; } .demo.hit [data-hit] { animation: none; } }
+.video { margin: 18px 0 8px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); }
+.video iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; background: var(--sunken); }
+.video p { margin: 0; padding: 10px 14px; font-size: 14.5px; }
+.figure { margin: 18px 0 8px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px; overflow-x: auto; }
+.figure svg { display: block; width: 100%; min-width: 560px; height: auto; }
+.figcap { font-size: 13.5px; color: var(--muted); margin: 6px 2px 0; }
+.d-box { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1.25; }
+.d-main { fill: var(--led-soft); stroke: var(--led); stroke-width: 2; }
+.d-in { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1.25; }
+.d-t { fill: var(--ink); font: 600 13px var(--f-body); }
+.d-s { fill: var(--muted); font: 12.5px var(--f-body); }
+.d-l { fill: var(--muted); font: 11.5px var(--f-body); }
+.d-line { stroke: var(--muted); stroke-width: 1.25; fill: none; }
+.d-arrow { fill: var(--muted); }
+
+.tabs { margin: 18px 0; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.tablist { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; border-bottom: 1px solid var(--line); }
+.tablist button { border: 0; background: none; color: var(--muted); font: 600 14px var(--f-body); padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+.tablist button[aria-selected="true"] { background: var(--sunken); color: var(--ink); box-shadow: inset 0 -2px 0 var(--led); }
+.tabpanel { padding: 4px 18px 10px; }
+
+.chooser { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin: 22px 0; box-shadow: var(--shadow); }
+.chooser h3 { margin: 0 0 4px; font: 700 19px/1.3 var(--f-display); }
+.chooser > p { margin: 0 0 14px; color: var(--muted); font-size: 14.5px; }
+.q { border: 0; margin: 0 0 14px; padding: 0; }
+.q legend { font-weight: 600; margin-bottom: 8px; font-size: 15px; }
+.opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.opts label { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line-strong); border-radius: 10px; padding: 8px 12px; cursor: pointer; font-size: 14.5px; background: var(--bg); }
+.opts input { accent-color: var(--led); }
+.opts label:has(input:checked) { border-color: var(--led); background: var(--led-soft); }
+.verdict { margin-top: 6px; border-radius: 12px; padding: 16px; background: var(--sunken); border: 1px dashed var(--line-strong); }
+.verdict.on { background: var(--led-soft); border: 1px solid var(--led); }
+.verdict b { display: block; font: 700 17px/1.3 var(--f-display); margin-bottom: 4px; }
+.verdict p { margin: 0; font-size: 14.5px; }
+.verdict a { font-weight: 600; }
+
+.pager { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 56px; }
+.pager a { display: block; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; text-decoration: none; color: var(--ink); background: var(--surface); }
+.pager a:hover { border-color: var(--led); }
+.pager small { display: block; color: var(--muted); font-size: 12.5px; margin-bottom: 2px; }
+.pager .next { text-align: right; grid-column: 2; }
+.pager b { font-weight: 600; }
+
+.checklist { list-style: none; padding: 0; }
+.checklist li { position: relative; padding-left: 30px; margin: 10px 0; }
+.checklist li::before { content: ""; position: absolute; left: 0; top: 4px; width: 16px; height: 16px; border: 1.5px solid var(--line-strong); border-radius: 4px; background: var(--surface); }
+
+.foot { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+
+/* telas menores */
+@media (max-width: 1280px) { .ver { display: none; } }
+@media (max-width: 1200px) { .shell { grid-template-columns: 292px minmax(0, 1fr); } .toc { display: none; } }
+@media (max-width: 1080px) { .topnav { display: none; } }
+@media (max-width: 880px) {
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .menu-btn { display: inline-grid; }
+  .sidebar { position: fixed; top: calc(var(--header-h) + env(safe-area-inset-top, 0px)); left: 0; bottom: 0; width: min(86vw, 320px); height: auto; background: var(--surface); z-index: 25; transform: translateX(-100%); transition: transform .2s; box-shadow: var(--shadow); }
+  .sidebar.open { transform: none; }
+  main { padding: 28px 16px 64px; }
+  .brand .sep, .brand .docs { display: none; }
+  .pager { grid-template-columns: 1fr; }
+  .pager .next { grid-column: 1; }
+}
+@media (max-width: 880px) { .sidebar { visibility: hidden; transition: transform .2s, visibility .2s; } .sidebar.open { visibility: visible; } }
+@media (max-width: 520px) { .search { max-width: none; } .search kbd { display: none; } }
+@media (max-width: 460px) { .wordmark { display: none; } }
+/* Ajustes da revisão de UI. */
+.mark::after { display: none; }
+h1 { text-wrap: pretty; font-size: clamp(28px, 3.2vw, 36px); }
+.quick > li { box-shadow: none; border-radius: 8px; grid-template-columns: 28px minmax(0, 1fr); padding: 16px; }
+.quick .q-n { width: 26px; height: 26px; font-size: 14px; background: var(--sunken); color: var(--ink); }
+.flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 0; }
+.flow li:nth-child(3n)::after { content: none; }
+.flow li > span::before { background: var(--sunken); color: var(--ink); }
+.flow li > span { flex: 1; }
+@media (max-width: 640px) { .flow { display: flex; } }
+.long-code { margin: 18px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.long-code > summary { padding: 12px 14px; cursor: pointer; font-weight: 600; }
+.long-code[open] > summary { border-bottom: 1px solid var(--line); }
+.long-code .code { margin: 0; border: 0; border-radius: 0 0 10px 10px; }
+.code.big.folded pre { max-height: 360px; overflow: hidden; -webkit-mask-image: linear-gradient(#000 70%, transparent); mask-image: linear-gradient(#000 70%, transparent); }
+.code.big:not(.folded) pre { max-height: none; }
+.code.big:not(.folded) .unfold { display: none; }
+.unfold { display: block; width: 100%; border: 0; border-top: 1px solid var(--line); padding: 12px; background: var(--surface); color: var(--link); font: 600 14.5px var(--f-body); cursor: pointer; border-radius: 0 0 12px 12px; }
+.demo-bar i { display: none; }
+.demo.hit [data-hit] { animation-iteration-count: 2; }
+.frame { min-height: auto; }
+.scrim { position: fixed; inset: 0; background: rgb(0 0 0 / .35); z-index: 24; }
+body.menu-open { overflow: hidden; }
+@media (hover: none) { .side-search kbd { display: none; } .side-search input { padding-right: 12px; } }
+@media (max-width: 880px) { .brand .wordmark { display: inline; font-size: 15px; } }
+@media (max-width: 640px) {
+  .table-wrap.stack table, .table-wrap.stack tbody, .table-wrap.stack tr, .table-wrap.stack td { display: block; }
+  .table-wrap.stack tr:first-child { display: none; }
+  .table-wrap.stack tr { padding: 10px 14px; border-bottom: 1px solid var(--line); }
+  .table-wrap.stack td { padding: 2px 0; border: 0; }
+  .table-wrap.stack td:first-child { font-weight: 600; }
+}
+.membar { margin: 18px 0 8px; }
+.mb-track { display: flex; height: 54px; border-radius: 10px; overflow: hidden; border: 1px solid var(--line-strong); font-size: 13px; }
+.mb-track > span, .mb-ag > span { display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 4px; min-width: 0; overflow: hidden; }
+.mb-sys { background: var(--sunken); color: var(--muted); }
+.mb-rec { background: var(--ok-soft); color: var(--ok); border-left: 1px solid var(--line-strong); }
+.mb-ag { display: flex; background: var(--surface); border-left: 1px solid var(--line-strong); }
+.mb-orch { background: var(--ink); color: var(--bg); }
+.mb-a { background: var(--info-soft); color: var(--info); border-left: 1px solid var(--surface); }
+.mb-a.over { background: var(--danger-soft); color: var(--danger); }
+.mb-ctl { display: flex; align-items: center; gap: 10px; margin-top: 12px; font-size: 14.5px; }
+.mb-msg { margin: 6px 0 0; font-size: 14.5px; color: var(--muted); }
+
+/* Ações da página, progresso e grupos que fecham. */
+.page-actions { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: -6px 0 22px; padding-bottom: 14px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.page-actions button, .page-actions a { border: 0; background: none; padding: 0; color: var(--muted); font: 500 14px var(--f-body); cursor: pointer; text-decoration: none; }
+.page-actions button:hover, .page-actions a:hover { color: var(--ink); text-decoration: underline; }
+.page-actions .done { color: var(--ok); }
+.done-btn { margin: 32px 0 0; border: 1px solid var(--line-strong); border-radius: 10px; padding: 10px 16px; background: var(--surface); color: var(--ink); font: 600 14.5px var(--f-body); cursor: pointer; }
+.done-btn:hover { border-color: var(--ink); }
+.done-btn.is-done { background: var(--ok-soft); border-color: var(--ok); color: var(--ok); }
+.progress { display: flex; align-items: center; gap: 12px; margin: 4px 0 14px; font-size: 14px; color: var(--muted); }
+.progress-bar { flex: 1; max-width: 320px; height: 8px; border-radius: 99px; background: var(--sunken); overflow: hidden; }
+.progress-bar span { display: block; height: 100%; width: 0; background: var(--ok); transition: width .3s; }
+
+.nav-group a.is-done .num { background: var(--ok); color: var(--surface); }
+.ng-toggle { display: flex; align-items: center; gap: 8px; width: 100%; border: 0; background: none; padding: 0; color: inherit; font: inherit; letter-spacing: inherit; cursor: pointer; text-align: left; }
+.ng-caret { margin-left: auto; margin-right: 6px; width: 7px; height: 7px; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted); transform: rotate(45deg); transition: transform .15s; }
+.nav-group.closed .ng-caret { transform: rotate(-45deg); }
+.nav-group.closed a { display: none; }
+a.chip, a.agent { text-decoration: none; color: inherit; transition: border-color .15s, transform .15s; }
+a.chip:hover { border-color: var(--led); transform: translateY(-1px); }
+a.agent.main:hover { outline: 2px solid var(--led); }
+.slice-h a { color: inherit; text-decoration: none; }
+.slice-h a:hover { text-decoration: underline; }
+@media (prefers-reduced-motion: reduce) { a.chip:hover { transform: none; } }
+.vals { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: -10px 0 22px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.vals label { display: flex; flex-direction: column; gap: 4px; font-size: 13.5px; color: var(--muted); }
+.vals input { height: 36px; border: 1px solid var(--line-strong); border-radius: 8px; padding: 0 10px; background: var(--bg); color: var(--ink); font: 14px var(--f-mono); }
+
+/* Rodada 2 da revisão. */
+td.ic, th.ic { width: 1%; text-align: center; }
+td.ic { white-space: nowrap; }
+th.ic { min-width: 84px; }
+@media (max-width: 640px) { th.ic { min-width: 0; } .table-wrap.stack td[data-label]::before { content: attr(data-label); display: block; font-size: 13px; color: var(--muted); } .table-wrap.stack td.ic { width: auto; text-align: left; } }
+.mb-limit::after { content: none; }
+.membar { overflow: hidden; padding: 8px 2px 2px; }
+.mb-legend li.lim::before { background: none; border: 2px dashed var(--ink); width: 8px; height: 8px; }
+.vs th .s { display: none; }
+@media (max-width: 640px) { .vs th .l { display: none; } .vs th .s { display: inline; } }
+.slice-h a small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
+:root { --shadow: 0 1px 2px rgba(20, 25, 34, .06); }
+.demo.hit [data-hit] { animation: none; box-shadow: 0 0 0 3px var(--led); }
+a.chip:hover { transform: none; border-color: var(--ink); }
+a.chip, a.agent { position: relative; cursor: pointer; }
+a.chip { padding-right: 22px; }
+a.agent::after { content: "›"; position: absolute; right: 8px; top: 6px; opacity: .6; }
+a.chip::after { content: "›"; position: absolute; right: 8px; top: 6px; color: var(--muted); font-size: 15px; }
+.nav-group h4 svg { stroke: var(--muted); }
+.tm-group h3 svg, .chip i svg { stroke: var(--muted); }
+.nav-group a.is-done .lbl::after { color: var(--muted); }
+.nav-group a.is-done .num { background: var(--sunken); color: var(--muted); }
+.nav-group a.active .num { background: var(--ink); color: var(--surface); }
+.sidebar { scroll-padding-top: 80px; }
+.page-actions { gap: 8px; }
+.page-actions button, .page-actions a { border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; font-size: 13.5px; color: var(--ink); }
+.page-actions button:hover, .page-actions a:hover { border-color: var(--ink); text-decoration: none; }
+.code.prose pre, .code.big pre { white-space: pre-wrap; word-break: break-word; }
+.side-progress { margin: 0 10px 16px; font-size: 13.5px; color: var(--muted); }
+.side-progress .progress-bar { max-width: none; height: 6px; margin-bottom: 6px; }
+.side-progress a { display: block; margin-top: 2px; color: var(--ink); font-weight: 600; text-decoration: none; }
+.side-progress a:hover { text-decoration: underline; }
+.mb-scale { position: relative; height: 46px; border-radius: 8px; background: var(--sunken); overflow: visible; display: flex; }
+.mb-scale > span { height: 100%; border-right: 1px solid var(--surface); }
+.mb-scale > span:first-child { border-radius: 8px 0 0 8px; }
+.mb-limit { position: absolute; top: -6px; bottom: -6px; border-left: 2px dashed var(--ink); }
+.mb-limit::after { content: "fim da memória"; position: absolute; top: -20px; left: -40px; width: 120px; font-size: 13px; color: var(--ink); }
+.mb-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 10px 0 0; padding: 0; list-style: none; font-size: 13.5px; }
+.mb-legend li::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; background: var(--c); vertical-align: -1px; }
+td code.cp { cursor: copy; }
+td code.cp.ok { background: var(--ok-soft); }
+.mods { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin: 14px 0 26px; }
+.mod { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 14px 16px; }
+.mod-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.mod-h code { font-weight: 600; font-size: 14px; white-space: nowrap; background: none; padding: 0; }
+.mod-cmd { font: 500 13px/1 var(--f-mono); color: var(--muted); border: 1px solid var(--line-strong); border-radius: 6px; padding: 4px 7px; white-space: nowrap; }
+.mod p { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--ink); }
+.mod p code { overflow-wrap: normal; }
+/* O item da lateral não muda de largura ao ficar ativo ou feito: o texto quebra sempre no mesmo lugar. */
+.nav-group a { position: relative; padding-right: 26px; }
+.nav-group a.is-done::after { content: "✓"; position: absolute; right: 9px; top: 7px; color: var(--ok); font-weight: 700; font-size: 13px; }
+@media (max-width: 640px) { .table-wrap.stack td:first-child code { white-space: normal; overflow-wrap: anywhere; } }
+/* Todo item da lateral tem o mesmo espaço de ícone, então o texto começa sempre no mesmo lugar. */
+.nav-group a .nav-ic, .tm-group a .nav-ic { width: 36px; justify-content: flex-start; }
+.gen-ic { width: 16px; height: 16px; stroke: var(--muted); flex-shrink: 0; }
+.nav-group a.active .gen-ic { stroke: var(--ink); }
+@media (max-width: 640px) { .table-wrap.stack tr.rec td:first-child { box-shadow: none; } .table-wrap.stack tr.rec { box-shadow: inset 3px 0 0 var(--led); } }
+/* Topo: o site vem antes do guia, como uma migalha. */
+.site-home { margin-left: 0; color: color-mix(in srgb, var(--ink) 82%, transparent); font: 500 14.5px var(--f-body); text-decoration: none; padding: 6px 8px; margin-right: -8px; border-radius: 8px; }
+.site-home:hover { color: var(--ink); background: var(--sunken); text-decoration: none; }
+.site-sep { color: var(--line-strong); font-size: 18px; margin: 0 -4px; }
+/* Rolagem da lateral: fina e só aparece com o mouse em cima. */
+.sidebar { scrollbar-width: thin; scrollbar-color: transparent transparent; scrollbar-gutter: stable; }
+.sidebar:hover, .sidebar:focus-within { scrollbar-color: var(--line-strong) transparent; }
+</style>
+<style>[hidden]:not([hidden=until-found i]) { display: none !important; }</style>
+<style>
+/* Cockpit: clickable mod cards, page meta, terminal output, language switch. */
+a.mod { display: block; text-decoration: none; color: var(--ink); transition: border-color .15s; }
+a.mod:hover { border-color: var(--led); }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; margin: -4px 0 22px; }
+.meta .pill { font-family: var(--f-mono); font-weight: 500; }
+.pill.mute { background: var(--sunken); color: var(--muted); }
+/* terminal window: title bar over the real output */
+.tw { margin: 12px 0 28px; border: 1px solid #1d2330; border-radius: 14px; overflow: hidden; background: #0b0e13; box-shadow: var(--shadow); }
+.tw-bar { display: flex; align-items: center; gap: 6px; padding: 9px 12px; background: #11151d; border-bottom: 1px solid #1d2330; }
+.tw-bar i { width: 10px; height: 10px; border-radius: 50%; background: #2a313f; }
+.tw-bar span { margin-left: 8px; font: 500 13px/1 var(--f-mono); color: #7d8597; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tw pre.term { margin: 0; border: 0; border-radius: 0; box-shadow: none; }
+.term b { font-weight: 700; }
+.term .bl { color: #8fb4ff; }
+.spin { position: relative; color: transparent !important; }
+.spin::before { content: "✻"; position: absolute; left: 0; color: #f0b43c; }
+@media (prefers-reduced-motion: no-preference) { .spin::before { animation: spin-glyph 1.2s steps(1) infinite; } }
+@keyframes spin-glyph { 0% { content: "·"; } 16% { content: "✢"; } 33% { content: "✳"; } 50% { content: "✶"; } 66% { content: "✻"; } 83% { content: "✽"; } }
+.shot { margin: 18px 0 8px; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); }
+.shot img { display: block; width: 100%; height: auto; }
+.nav-group a code { background: none; border: 0; padding: 0; font-size: 13.5px; color: inherit; }
+.top-right { margin-left: auto; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.gh, .lang-sw a { font: 500 13px/1 var(--f-mono); color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; white-space: nowrap; text-decoration: none; }
+.gh:hover, .lang-sw a:hover { color: var(--ink); border-color: var(--line-strong); }
+.lang-sw { display: flex; }
+.lang-sw a + a { margin-left: -1px; }
+.lang-sw a:first-child { border-radius: 6px 0 0 6px; }
+.lang-sw a:last-child { border-radius: 0 6px 6px 0; }
+.lang-sw a[aria-current] { color: var(--ink); background: var(--sunken); }
+@media (max-width: 520px) { .gh { display: none; } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <button class="menu-btn" id="menuBtn" aria-controls="sidebar" aria-expanded="false" aria-label="Open the menu"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <a class="site-home" href="../">joaosavi</a><span class="site-sep" aria-hidden="true">/</span>
+  <a class="brand" href="#start" aria-label="Cockpit, documentation">
+    <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l4-4M3.34 19a10 10 0 1 1 17.32 0"/></svg></span>
+    <span class="wordmark">Cockpit</span>
+  </a>
+  <div class="top-right"><nav class="lang-sw" aria-label="Language"><a href="./" data-lang-link aria-current="true">EN</a><a href="pt/" data-lang-link>PT</a></nav><a class="gh" href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">v1.2.0 on GitHub</a></div>
+</header>
+
+<div class="shell">
+<nav class="sidebar" id="sidebar" aria-label="Pages">
+  <div class="side-search"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="Search the docs" autocomplete="off" aria-label="Search the docs"><kbd aria-hidden="true">/</kbd></div>
+  <p class="side-empty" id="sideEmpty" hidden>Nothing found. Try another word.</p>
+  <div class="nav-group"><h4><button type="button" class="ng-toggle" aria-expanded="true"><svg class="" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Get started</button></h4>
+    <a href="#start" data-id="start"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2zM9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg></span><span class="lbl">Quickstart</span></a>
+    <a href="#install" data-id="install"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></span><span class="lbl">Install and set up</span></a>
+    <a href="#first-session" data-id="first-session"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8"/></svg></span><span class="lbl">Your first session</span></a>
+  </div>
+  <div class="nav-group"><h4><button type="button" class="ng-toggle" aria-expanded="true"><svg class="" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>Guards<span class="ng-caret" aria-hidden="true"></span></button></h4>
+    <a href="#secret-guard" data-id="secret-guard"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 11h14v10H5zM7 11V7a5 5 0 0 1 10 0v4"/></svg></span><span class="lbl"><code>secret-guard</code></span></a>
+    <a href="#collision-guard" data-id="collision-guard"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3v12M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 21a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM18 9a9 9 0 0 1-9 9"/></svg></span><span class="lbl"><code>collision-guard</code></span></a>
+    <a href="#pipefail" data-id="pipefail"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg></span><span class="lbl"><code>pipefail</code></span></a>
+    <a href="#memory-guard" data-id="memory-guard"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 19v-3M10 19v-3M14 19v-3M18 19v-3M8 11V9M16 11V9M12 11V9M2 15h20M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/></svg></span><span class="lbl"><code>memory-guard</code></span></a>
+    <a href="#loop-breaker" data-id="loop-breaker"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M8 16H3v5"/></svg></span><span class="lbl"><code>loop-breaker</code></span></a>
+    <a href="#usage-limit" data-id="usage-limit"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 14l4-4M3.34 19a10 10 0 1 1 17.32 0"/></svg></span><span class="lbl"><code>usage-limit</code></span></a>
+  </div>
+  <div class="nav-group"><h4><button type="button" class="ng-toggle" aria-expanded="true"><svg class="" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 14l4-4M3.34 19a10 10 0 1 1 17.32 0"/></svg>Instruments<span class="ng-caret" aria-hidden="true"></span></button></h4>
+    <a href="#hud" data-id="hud"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h18v16H3zM3 15h18M7 18h4"/></svg></span><span class="lbl"><code>hud</code></span></a>
+    <a href="#spinner-status" data-id="spinner-status"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></span><span class="lbl"><code>spinner-status</code></span></a>
+    <a href="#panel" data-id="panel"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg></span><span class="lbl"><code>panel</code></span></a>
+    <a href="#skill-loader" data-id="skill-loader"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span><span class="lbl"><code>skill-loader</code></span></a>
+  </div>
+  <div class="nav-group"><h4><button type="button" class="ng-toggle" aria-expanded="true"><svg class="" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8c4.97 0 9-1.34 9-3s-4.03-3-9-3-9 1.34-9 3 4.03 3 9 3zM3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>Memory</button></h4>
+    <a href="#global-memory" data-id="global-memory"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span><span class="lbl"><code>global-memory</code></span></a>
+  </div>
+  <div class="nav-group"><h4><button type="button" class="ng-toggle" aria-expanded="true"><svg class="" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5"/></svg>Reference<span class="ng-caret" aria-hidden="true"></span></button></h4>
+    <a href="#commands" data-id="commands"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11l2-2-2-2M11 13h4M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/></svg></span><span class="lbl">Commands</span></a>
+    <a href="#configure" data-id="configure"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></span><span class="lbl">Configure and turn mods off</span></a>
+    <a href="#remote" data-id="remote"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 2h20v8H2zM2 14h20v8H2zM6 6h.01M6 18h.01"/></svg></span><span class="lbl">Run on a remote machine</span></a>
+    <a href="#data" data-id="data"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg></span><span class="lbl">What leaves your machine</span></a>
+    <a href="#troubleshooting" data-id="troubleshooting"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.73 18l-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3M12 9v4M12 17h.01"/></svg></span><span class="lbl">Troubleshooting</span></a>
+    <a href="#update" data-id="update"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 8l5-5 5 5M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg></span><span class="lbl">Update and uninstall</span></a>
+    <a href="#versions" data-id="versions"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2H2v10l9.29 9.29a1 1 0 0 0 1.41 0l6.59-6.59a1 1 0 0 0 0-1.41zM7 7h.01"/></svg></span><span class="lbl">Versions</span></a>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="page" id="start" data-title="Quickstart">
+  <div class="crumb">Get started</div>
+  <h1>Quickstart</h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="start">Copy for your agent</button><a href="md/start.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<p class="lead">Cockpit is a bundle of 11 mods for <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a>. The guards stop an agent's mistake before it costs you: a secret in tool output, a pipe that hides a failed test, a build killed by the memory limit, a commit that sweeps in another session's edits. The instruments show where the session stands, under the prompt, under the spinner, and on a page with every session on the machine.</p>
+<pre id="install-text" hidden>claude plugin marketplace add joaosavi/cockpit
+claude plugin install cockpit@cockpit</pre>
+<ol class="quick">
+  <li><span class="q-n">1</span><div><b>Install the bundle</b><p>In a terminal, add the marketplace and install <code>cockpit</code>. It brings the 11 mods as dependencies.</p><button type="button" class="q-copy" data-copy-target="install-text">Copy the commands</button> <a class="q-go" href="#install">See every install step</a></div></li>
+  <li><span class="q-n">2</span><div><b>Restart and run the setup</b><p>Restart Claude Code and type <code>/cockpit:setup</code>. It asks four questions with previews, writes the status line, the spinner tip and when to compact, and keeps a backup of the file it changed.</p><a class="q-go" href="#install">See what the setup asks</a></div></li>
+  <li><span class="q-n">3</span><div><b>Work as usual</b><p>The guards stay quiet until they act. Type <code>/panel</code> for the address of the session page, and <code>/limit</code> for the plan limits.</p><a class="q-go" href="#first-session">What changes in your first session</a></div></li>
+</ol>
+
+<h2>What it looks like</h2>
+<div class="tw" data-search="skip"><div class="tw-bar" aria-hidden="true"><i></i><i></i><i></i><span>claude · ~/acme-api</span></div><pre class="term"><span class="a spin">✻</span> Propagating… <span class="d">(6s · ↓ 90 tokens)</span>
+  <span class="d">⎿</span>  <b>Now:</b> Running the tests after the fix to the date filter
+
+<span class="d">────────────────────────────────────────────────────────────────</span>
+<span class="d">❯</span> 
+<span class="d">────────────────────────────────────────────────────────────────</span>
+<span style="font-weight:700">Opus 5.5</span>   <span style="font-weight:700">acme-api</span>   <span style="color:#c678dd">feat/billing</span>  <span style="color:#e5c07b">● 1</span>  <span style="opacity:.55">? 1</span>     <span style="opacity:.55">43m</span><span style="opacity:.55">  ·  </span><span style="opacity:.55">0 calls</span>
+<span style="opacity:.55">ctx </span><span style="color:#00c850">●</span><span style="color:#66c850">●</span><span style="opacity:.55">○○○○</span><span style="color:#c2c850"> 38%</span>   <span style="opacity:.55">5h </span><span style="color:#00c850">●</span><span style="color:#66c850">●</span><span style="color:#ccc850">●</span><span style="color:#ffa050">●</span><span style="opacity:.55">○○</span><span style="color:#ff9050"> 64%</span><span style="opacity:.55"> 2h20m</span>   <span style="opacity:.55">7d </span><span style="color:#00c850">●</span><span style="color:#66c850">●</span><span style="color:#ccc850">●</span><span style="color:#ffa050">●</span><span style="color:#ff5050">●</span><span style="opacity:.55">○</span><span style="color:#ff4c50"> 81%</span>   <span style="opacity:.55">mem </span><span style="color:#7ec699">2.4G</span></pre></div>
+<p class="figcap">A turn in progress: the <code>spinner-status</code> line, the prompt, and the <code>hud</code> status line in the <code>refined</code> style. Real output from the mods.</p>
+
+<h2>Guards</h2>
+<p>Stop a mistake before it lands.</p>
+<div class="mods"><a class="mod" href="#secret-guard"><div class="mod-h"><code>secret-guard</code></div><p>Replaces every secret value in tool output with <code>&lt;hidden:NAME&gt;</code> before the agent reads it, and writes the real value back when the agent edits a <code>.env</code> file.</p></a><a class="mod" href="#collision-guard"><div class="mod-h"><code>collision-guard</code></div><p>Warns when another session on this machine edited the same file, and holds a git command once when it would take that session's uncommitted edits along.</p></a><a class="mod" href="#pipefail"><div class="mod-h"><code>pipefail</code></div><p>Adds <code>set -o pipefail;</code> to a test, typecheck or lint run piped into <code>tail</code>, <code>head</code> or <code>grep</code>, so a failed run cannot exit 0.</p></a><a class="mod" href="#memory-guard"><div class="mod-h"><code>memory-guard</code> <span class="mod-cmd">/ram</span></div><p>Keeps typecheck, build, test and Playwright runs under the memory limit: as written, with one process, after a wait, or refused. Reruns a command killed with exit 137 with one process.</p></a><a class="mod" href="#loop-breaker"><div class="mod-h"><code>loop-breaker</code></div><p>Tells the agent to stop and change approach when it repeats the same error, the same fix or the same call.</p></a><a class="mod" href="#usage-limit"><div class="mod-h"><code>usage-limit</code> <span class="mod-cmd">/limit</span></div><p>Limits each plan window on its own: one subagent at a time, a work-in-progress commit, a pause that keeps a reserve for you, and a resume when the window resets.</p></a></div>
+<h2>Instruments</h2>
+<p>Show where the session stands.</p>
+<div class="mods"><a class="mod" href="#hud"><div class="mod-h"><code>hud</code> <span class="mod-cmd">/hud</span></div><p>Model, project, git branch and PR, context window, plan limits and memory, in a status line under the prompt. Four styles.</p></a><a class="mod" href="#spinner-status"><div class="mod-h"><code>spinner-status</code></div><p>Replaces the tip under the spinner with one line from Haiku: where the session stands, or a tip about these mods.</p></a><a class="mod" href="#panel"><div class="mod-h"><code>panel</code> <span class="mod-cmd">/panel</span></div><p>A local web page with a card for every session on this machine: its state, what it needs from you, the tool running now and the next step.</p></a><a class="mod" href="#skill-loader"><div class="mod-h"><code>skill-loader</code></div><p>Delivers the right skill when the agent touches a matching file or writes a commit, and reminds it to diagnose before fixing when you paste an error.</p></a></div>
+<h2>Memory</h2>
+<div class="mods"><a class="mod" href="#global-memory"><div class="mod-h"><code>global-memory</code></div><p>Adds a machine-wide memory folder beside the per-project memory, so facts about the machine reach every session.</p></a></div>
+
+<h2>Requirements</h2>
+<ul>
+  <li>Claude Code 2.1.287 or later, on macOS, Windows or Linux. Mods use Claude Code's function hooks, which are in early access and may change between releases.</li>
+  <li>Node 22.18 or later, for the status line script.</li>
+  <li>Python 3.9 or later and <code>curl</code>, for the <code>panel</code> page. macOS and Windows 10 or later ship <code>curl</code>.</li>
+  <li>A <a href="https://www.nerdfonts.com/" target="_blank" rel="noopener">Nerd Font</a> in your terminal, for the status line icons. Without one, choose the plain icons during setup.</li>
+</ul>
+<p>The status line, the spinner line and the panes are part of Claude Code's terminal interface. Run <code>claude</code> in a terminal: Terminal or iTerm on macOS, Windows Terminal or PowerShell on Windows, or the terminal panel of VS Code or JetBrains. The mods are not tested in the Desktop app or in the chat panel of the IDE extensions.</p>
+</article>
+
+<article class="page" id="install" data-title="Install and set up" hidden>
+  <div class="crumb">Get started</div>
+  <h1>Install and set up</h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="install">Copy for your agent</button><a href="md/install.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<p class="lead">Two commands in a terminal, a restart, and a setup with four questions. It takes about five minutes.</p>
+<h2>Install</h2>
+<ol class="steps">
+  <li><b>Add the marketplace and install the bundle</b><div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin marketplace add joaosavi/cockpit
+claude plugin install cockpit@cockpit</pre></div><p>The second command lists the mods it installs, as <code>+ 11 dependencies</code>.</p></li>
+  <li><b>Restart Claude Code</b><p>The new session loads the mods. A session that was already open picks them up with <code>/reload-plugins</code>.</p></li>
+  <li><b>Run the setup</b><div class="code"><div class="code-head"><span>inside Claude Code</span><button class="copy">Copy</button></div><pre>/cockpit:setup</pre></div><p>A plugin cannot write the status line, the spinner tip or when to compact by itself, because they live in your <code>settings.json</code>. The setup writes them, keeps a backup of the file it changed, and tells you what you will notice.</p></li>
+</ol>
+
+<h2>What the setup asks</h2>
+<div class="table-wrap"><table><tr><th>Question</th><th>Options</th></tr><tr><td>Status line style</td><td><code>refined</code> (recommended), <code>blocks</code>, <code>minimal</code> or <code>compact</code>, each with a preview drawn by the real script, with your own folder and branch.</td></tr><tr><td>Icons</td><td>The setup prints three Nerd Font icons and asks whether they show. If you see boxes, it uses plain arrows and marks that every terminal draws.</td></tr><tr><td>Time zone</td><td>Only when the system is on UTC. It sets the clock times the mods show and what counts as today.</td></tr><tr><td>When to compact</td><td>Earlier, at about 70% of a 1M model (recommended, <code>733000</code>), Claude Code's default near the end, or at about half (<code>500000</code>). Skipped when the model's window is under 200K.</td></tr></table></div>
+<p>The setup also turns on auto-update for the marketplace, without asking. Run <code>/cockpit:setup</code> again to change an answer: it reads what is set and asks only about what you want to change.</p>
+
+<h2>Check the install</h2>
+<div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin list</pre></div>
+<p>You should see 12 entries ending in <code>@cockpit</code>, each marked <code>enabled</code>: the bundle and the 11 mods. An entry marked <code>failed to load</code> points to a version mismatch; see <a href="#troubleshooting">Troubleshooting</a>.</p>
+
+<h2>Updates install by themselves</h2>
+<p>With auto-update on, a few minutes after the first message of a session, Claude Code updates every mod with a new version, installs any mod added to the bundle, and shows <code>Plugin updated: &lt;name&gt; · Run /reload-plugins to apply</code>. To turn it off, open <code>/plugin</code>, go to <b>Marketplaces</b>, and select <code>cockpit</code>.</p>
+
+<h2>macOS, Windows and Linux</h2>
+<p>Every mod runs on all three systems, and they are tested on Linux only. Two things differ:</p>
+<ul>
+  <li><code>memory-guard</code> and the memory figure of the <code>hud</code> read cgroup limits and <code>/proc/meminfo</code> on Linux. On macOS they read <code>vm_stat</code> and on Windows PowerShell, and there they compare against the whole machine's memory. The macOS and Windows readings are tested only against simulated output.</li>
+  <li>The <code>panel</code> page shows memory by cgroup, systemd services and the share of CPU time spent waiting on disk only on Linux.</li>
+</ul>
+<p>On Windows, the setup points the status line at Node instead of the <code>.sh</code> script, because PowerShell cannot run a shell script.</p>
+
+<h2>On a Team or Enterprise plan</h2>
+<p>Every mod works the same on every plan, except <code>global-memory</code>. Team and Enterprise plans run a built-in guard that skips plugins you install yourself on the two hooks it needs, so it installs and does nothing until your organization lists it in managed settings. The other mods run as usual. The <a href="#global-memory">global-memory page</a> shows the two settings.</p>
+<div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 16v-4M12 8h.01"/></svg><div><strong class="label">Coming from the agent marketplace</strong><p>Cockpit was called <code>agent</code> before October 2026. Rename every <code>@agent</code> key to <code>@cockpit</code> in <code>~/.claude/settings.json</code>, then run <code>claude plugin marketplace remove agent</code> before the steps above. Removing a marketplace deletes the saved options of its plugins, so rename the keys first, or run <code>/cockpit:setup</code> again afterwards.</p></div></div>
+</article>
+
+<article class="page" id="first-session" data-title="Your first session" hidden>
+  <div class="crumb">Get started</div>
+  <h1>Your first session</h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="first-session">Copy for your agent</button><a href="md/first-session.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<p class="lead">After the setup and a restart, three things show on screen. The guards stay out of sight until they act.</p>
+<h2>The status line</h2>
+<p>The <code>hud</code> draws two rows under the prompt: the model, the folder, the git branch and its changes, then the context window, the 5-hour and 7-day plan windows, and the memory headroom.</p>
+<div class="tw" data-search="skip"><div class="tw-bar" aria-hidden="true"><i></i><i></i><i></i><span>status line · refined</span></div><pre class="term"><span style="font-weight:700">Opus 5.5</span>   <span style="font-weight:700">acme-api</span>   <span style="color:#c678dd">feat/billing</span>  <span style="color:#e5c07b">● 1</span>  <span style="opacity:.55">? 1</span>     <span style="opacity:.55">43m</span><span style="opacity:.55">  ·  </span><span style="opacity:.55">0 calls</span>
+<span style="opacity:.55">ctx </span><span style="color:#00c850">●</span><span style="color:#66c850">●</span><span style="opacity:.55">○○○○</span><span style="color:#c2c850"> 38%</span>   <span style="opacity:.55">5h </span><span style="color:#00c850">●</span><span style="color:#66c850">●</span><span style="color:#ccc850">●</span><span style="color:#ffa050">●</span><span style="opacity:.55">○○</span><span style="color:#ff9050"> 64%</span><span style="opacity:.55"> 2h20m</span>   <span style="opacity:.55">7d </span><span style="color:#00c850">●</span><span style="color:#66c850">●</span><span style="color:#ccc850">●</span><span style="color:#ffa050">●</span><span style="color:#ff5050">●</span><span style="opacity:.55">○</span><span style="color:#ff4c50"> 81%</span>   <span style="opacity:.55">mem </span><span style="color:#7ec699">2.4G</span></pre></div>
+<p>The bars turn from green to red as they fill. The <code>2h20m</code> after the 5-hour percent is the time until that window resets. The other three styles are on the <a href="#hud">hud page</a>.</p>
+<h2>The line under the spinner</h2>
+<p>While a turn runs, Claude Code shows a tip under the spinner. <code>spinner-status</code> replaces it with one line from Haiku about what the agent is doing right now.</p>
+<div class="tw" data-search="skip"><div class="tw-bar" aria-hidden="true"><i></i><i></i><i></i><span>claude · ~/acme-api</span></div><pre class="term"><span class="a spin">✻</span> Propagating… <span class="d">(6s · ↓ 90 tokens)</span>
+  <span class="d">⎿</span>  <b>Now:</b> Running the tests after the fix to the date filter</pre></div>
+<p><code>Now:</code> is where the session stands. <code>Mods:</code> is a tip about the mods you have.</p>
+<h2>The session page</h2>
+<p><code>panel</code> starts a local web page with every session on the machine. Type <code>/panel</code> for its address.</p>
+<div class="tw" data-search="skip"><div class="tw-bar" aria-hidden="true"><i></i><i></i><i></i><span>claude · ~/acme-api</span></div><pre class="term"><span class="d">❯</span> /panel
+  <span class="d">⎿</span>  panel: http://localhost:7777
+     4 sessions: <b class="a">1 need you</b>, <span class="bl">2 working</span>.</pre></div>
+<p>Open the address in a browser. A session that waits for you comes first, with the options it offered as buttons. The <a href="#panel">panel page</a> shows its five views.</p>
+<h2>Commands to try</h2>
+<div class="table-wrap"><table><tr><th>Command</th><th>What it shows</th></tr><tr><td><code>/limit</code></td><td>The plan windows, when each resets, and what the mod holds back near the limit.</td></tr><tr><td><code>/hud</code></td><td>The full heads-up display: session, limits, memory, what runs now, and today's mod actions.</td></tr><tr><td><code>/ram</code></td><td>Memory headroom per group, or of the machine, and the measured peak of each heavy command.</td></tr></table></div>
+<h2>When a guard acts</h2>
+<p>The agent reads a short note that starts with the mod's name, such as <code>pipefail:</code> or <code>Loop check</code>, and usually tells you about it. The latest note also shows in the band above the prompt while the turn runs.</p>
+</article>
+
+<article class="page" id="secret-guard" data-title="secret-guard" hidden>
+  <div class="crumb">Guards</div>
+  <h1><code style="font-size:.82em;background:none;border:0;padding:0">secret-guard</code></h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="secret-guard">Copy for your agent</button><a href="md/secret-guard.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<div class="meta"><span class="pill mute">v1.1.0</span></div>
+<p class="lead">Hides every secret value in tool output before the agent reads it.</p>
+<h2>Why</h2>
+<p>A secret that reaches the transcript is sent to the model and kept in the session log, and from then on it must be rotated. Tool output leaks secrets easily: <code>env</code>, <code>cat .env</code>, a stack trace with a connection string. This mod replaces each value with <code>&lt;hidden:NAME&gt;</code> in every tool result, built-in, MCP and subagent alike.</p>
+<h2>What it does</h2>
+<ul>
+  <li>The values come from the secrets file and every file in the folder beside it named like it plus <code>.d</code> (<code>~/.secrets.d/</code> by default), from every <code>.env*</code> file under the <code>.env</code> root (5 levels deep) when you set one, from environment variables with a secret-looking name (<code>TOKEN</code>, <code>SECRET</code>, <code>PASSWORD</code>, <code>KEY</code>, <code>AUTH</code> and others), and from the password of every <code>scheme://user:password@</code> URL.</li>
+  <li>Known token formats are hidden even when no list has them: GitHub, Anthropic, OpenAI, AWS, Google, Stripe, Slack, JWT and private key blocks. They show as <code>&lt;hidden:github&gt;</code>, <code>&lt;hidden:jwt&gt;</code> and so on.</li>
+  <li>A tool that hands out secrets, such as a password vault CLI, can keep its own <code>NAME="value"</code> list in a file in the secrets folder, without touching your secrets file. A file whose name starts with a dot is skipped, so the tool can write a temporary file and rename it into place.</li>
+  <li>A value that also appears in a <code>.example</code> file is already public and stays visible.</li>
+  <li>When the agent writes <code>&lt;hidden:NAME&gt;</code> into a <code>.env</code> file or the secrets file, the mod writes the real value in its place. The agent edits those files without ever seeing a value.</li>
+  <li>When the agent writes <code>&lt;hidden:NAME&gt;</code> in a Bash command, the mod runs the command with the real value, and the output comes back hidden as usual. The transcript keeps the command as written. The agent can call an API with a token it never sees.</li>
+  <li>A placeholder the mod cannot fill stops the command instead: a token known only by its format, or a name with two different values in your files, such as the same <code>DATABASE_URL</code> in two projects. The agent is told to read the value inside the command, from its variable or <code>.env</code> file.</li>
+  <li>If the mod itself fails, it withholds the output instead of passing it unchecked.</li>
+</ul>
+<h2>Options</h2>
+<div class="table-wrap stack"><table><tr><th>Option</th><th>Default</th><th>What it does</th></tr><tr><td><code>secretsFile</code></td><td><code>~/.secrets</code></td><td><code>KEY=value</code> file whose every value is a secret, whatever its name.</td></tr><tr><td><code>envRoot</code></td><td>empty</td><td>Folder searched for <code>.env</code> files, 5 levels deep. Empty searches none.</td></tr><tr><td><code>minLength</code></td><td><code>12</code></td><td>Shorter values are left alone, except known token formats and the values of the secrets files.</td></tr></table></div>
+<p>By default the mod reads no <code>.env</code> files. To cover your projects' <code>.env</code> files too, set <code>envRoot</code> to the folder that holds your repos, such as <code>~/code</code>. The mod then scans it at start, checks its folders for new <code>.env</code> files at most once a minute, and rebuilds the list at least every 10 minutes.</p>
+<h2>What it records</h2><p><code>~/.local/state/mods/secret-guard/&lt;day&gt;-&lt;session&gt;.jsonl</code>: one line each time the list is rebuilt (with how long it took), a result is redacted, a placeholder is restored or filled in a command, or a command is stopped, with secret names and counts only, plus one <code>session-summary</code> line. The values live only in the mod's memory, never on disk. Each line has <code>at</code>, <code>session</code> and <code>event</code>.</p>
+<h2>Cost</h2>
+<p>The hook added about 64 ms per tool call on the author's Linux machine (60 calls measured in October 2026, an estimate), with <code>envRoot</code> set to a folder of about 140 subfolders, most of it checking whether a source file changed.</p>
+<h2>Limits</h2>
+<ul>
+  <li>A secret shorter than <code>minLength</code> that matches no known format stays visible. A value from the secrets file or its folder is hidden from 6 characters, because a vault hands out passwords of 8 to 11; under 6, a value is a PIN or a word, and hiding it would garble ordinary output.</li>
+  <li>A secret that the agent already saw before this mod loaded is still in the transcript.</li>
+  <li>A <code>.env</code> file outside <code>envRoot</code> is not read, so its values stay visible unless another source has them.</li>
+  <li>Filling a placeholder in a command lets the agent use a secret, including sending it to a server. It cannot do more than it already could with <code>source .env</code>, but the command runs without a prompt of its own.</li>
+  <li>Placeholders are filled back in Bash commands only. On Windows without Git Bash, a PowerShell command with a placeholder runs as written. Output of every tool is still hidden.</li>
+  <li>Tested on Linux only. The macOS and Windows paths are covered by unit tests with a simulated environment.</li>
+</ul>
+<h2>Install this mod alone</h2><p>The <code>cockpit</code> bundle already installs <code>secret-guard</code> with the other mods. To install it alone:</p><div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin marketplace add joaosavi/cockpit
+claude plugin install secret-guard@cockpit</pre></div>
+</article>
+
+<article class="page" id="collision-guard" data-title="collision-guard" hidden>
+  <div class="crumb">Guards</div>
+  <h1><code style="font-size:.82em;background:none;border:0;padding:0">collision-guard</code></h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="collision-guard">Copy for your agent</button><a href="md/collision-guard.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<div class="meta"><span class="pill mute">v1.0.0</span></div>
+<p class="lead">Warns when two Claude Code sessions on the same machine work on the same files, and holds a git command once when it would take another session's uncommitted edits along.</p>
+<h2>Why</h2>
+<p>Running several sessions at once is common, and two of them often land in the same repo. On the author's Linux machine, 11 pairs of sessions edited the same repo less than 30 minutes apart in 8 days, and 5 of those pairs edited the same file. Claude Code's Edit already refuses a file changed since it was read, so one session does not silently overwrite the other. What it does not catch is git: <code>git add -A</code> or <code>git commit -a</code> in one session stages the other session's half-done edits, and <code>git stash</code>, <code>checkout</code> or <code>reset --hard</code> moves or discards them.</p>
+<h2>What it does</h2>
+<ul>
+  <li>Each session keeps one record in <code>~/.local/state/mods/collision-guard/sessions/&lt;session&gt;.json</code> with the files it edited. Only that session writes it.</li>
+  <li>After an edit, when another live session also edited that file and git still shows its change, the agent reads a note naming the session and how long ago, and you see a toast. Outside any git repo, the other edit counts for <code>windowMinutes</code>. Each edit of the other session warns once.</li>
+  <li>Before a git command that would stage, commit, stash, switch away from or discard another session's uncommitted edits, the mod holds it and lists those files. The agent can name its own files instead, or run the same command again within 2 minutes to let it through.</li>
+  <li>It reads <code>cd</code> earlier in the line and <code>git -C &lt;dir&gt;</code> to find the repo. Quoted text, such as a commit message, is not read as a command.</li>
+  <li>A command that names paths, such as <code>git add -A mods/</code> or <code>git checkout -- src/a.ts</code>, is held only for the other session's edits under those paths. A wildcard or <code>:/</code> counts as the whole repo.</li>
+  <li>Ended sessions mark their record, and records older than <code>expireHours</code> are removed when a session starts.</li>
+</ul>
+<h2>Options</h2>
+<div class="table-wrap stack"><table><tr><th>Option</th><th>Default</th><th>What it does</th></tr><tr><td><code>git</code></td><td><code>confirm</code></td><td><code>confirm</code> holds a risky git command once. <code>note</code> lets it run and tells the agent afterwards. <code>off</code> leaves git commands alone.</td></tr><tr><td><code>windowMinutes</code></td><td><code>30</code></td><td>How long another session's edit to a file outside any git repo still counts. Inside a repo, an edit counts while git shows the file as changed.</td></tr><tr><td><code>expireHours</code></td><td><code>24</code></td><td>A session silent this long counts as gone, and its record is removed.</td></tr></table></div>
+<h2>What it records</h2><p><code>~/.local/state/mods/collision-guard/&lt;day&gt;-&lt;session&gt;.jsonl</code>: one line per warning (<code>edit-warned</code>, <code>git-held</code>, <code>git-confirmed</code>, <code>git-noted</code>) with the git operation and how many files, never a file's content, plus one <code>session-summary</code> line. Each line has <code>at</code>, <code>session</code> and <code>event</code>.</p>
+<h2>Cost</h2>
+<p>A tool call that is neither an edit nor a git command costs nothing measurable. An edit reads the other sessions' records and runs <code>git rev-parse</code> once per folder; when another session edited the same file, it also runs <code>git status</code> on it. In the first live test, the edit that found a collision took 444 ms of hook time, and the others under 60 ms (7 calls, October 2026).</p>
+<h2>Limits</h2>
+<ul>
+  <li>Sessions must share the machine and the home folder. Sessions on another computer, or in a container with its own home, are not seen.</li>
+  <li>A file changed by a Bash command (<code>sed -i</code>, a script, a formatter) is not recorded as an edit. Only Edit, Write, MultiEdit and NotebookEdit are.</li>
+  <li><code>git checkout &lt;name&gt;</code> reads the same whether <code>&lt;name&gt;</code> is a branch or a file, so the note says "to another branch or an older version".</li>
+  <li>Tested on Linux only. On Windows, paths are compared with forward slashes, as git prints them, and git commands through the PowerShell tool are checked like Bash ones. A <code>cd</code> to a Git Bash path such as <code>/c/work</code> is not followed.</li>
+</ul>
+<h2>Install this mod alone</h2><p>The <code>cockpit</code> bundle already installs <code>collision-guard</code> with the other mods. To install it alone:</p><div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin marketplace add joaosavi/cockpit
+claude plugin install collision-guard@cockpit</pre></div>
+</article>
+
+<article class="page" id="pipefail" data-title="pipefail" hidden>
+  <div class="crumb">Guards</div>
+  <h1><code style="font-size:.82em;background:none;border:0;padding:0">pipefail</code></h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="pipefail">Copy for your agent</button><a href="md/pipefail.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<div class="meta"><span class="pill mute">v1.0.0</span></div>
+<p class="lead">Adds <code>set -o pipefail;</code> to a command that pipes a test, typecheck or lint run into <code>tail</code>, <code>head</code> or <code>grep</code>.</p>
+<h2>Why</h2>
+<p>A pipeline exits with the code of its last command. <code>yarn test | tail -20</code> exits 0 when tests fail, because <code>tail</code> succeeded, and the agent reads a pass. Rewriting the command costs nothing and saves the agent a wrong conclusion.</p>
+<h2>What it does</h2>
+<ul>
+  <li>Matches a runner where it runs: <code>yarn</code>, <code>npm run</code>, <code>pnpm</code> or <code>bun run</code> with <code>test</code>, <code>e2e</code>, <code>typecheck</code>, <code>lint</code>, <code>check</code> and similar scripts, or with a script named in <code>extraRunners</code>, plus <code>turbo run</code>, <code>vitest</code>, <code>jest</code>, <code>playwright test</code>, <code>tsc</code>, <code>vue-tsc</code>, <code>eslint</code>, <code>pytest</code>, <code>go test</code> and <code>cargo test</code>. Quoted text and heredoc bodies do not count.</li>
+  <li>Puts <code>set -o pipefail;</code> in front, runs the command, and tells the agent that a <code>| head</code> can make a runner exit 141 (SIGPIPE).</li>
+  <li>Leaves alone a command that already mentions <code>pipefail</code>.</li>
+</ul>
+<div class="code"><div class="code-head"><span>what the mod rewrites</span><button class="copy">Copy</button></div><pre>yarn test | tail -20
+# becomes
+set -o pipefail; yarn test | tail -20</pre></div>
+<h2>Options</h2>
+<div class="table-wrap stack"><table><tr><th>Option</th><th>Default</th><th>What it does</th></tr><tr><td><code>extraRunners</code></td><td>empty list</td><td>Script names that also count as runners when a package manager calls them: <code>yarn &lt;name&gt;</code>, <code>npm run &lt;name&gt;</code>, <code>pnpm &lt;name&gt;</code>, <code>bun run &lt;name&gt;</code>.</td></tr></table></div>
+<p>Add a repo's own check script here when its exit code says whether the code works, such as <code>verify</code> for a script that runs lint, types and tests. The mod then rewrites <code>yarn verify | tail</code> too.</p>
+<h2>What it records</h2><p><code>~/.local/state/mods/pipefail/&lt;day&gt;-&lt;session&gt;.jsonl</code>: one line per rewrite naming the runner (<code>yarn vitest</code>, never the whole command), plus one <code>session-summary</code> line. Each line has <code>at</code>, <code>session</code> and <code>event</code>.</p>
+<h2>Cost</h2>
+<p>The hook added about 2 ms per Bash call on the author's Linux machine (56 calls measured in October 2026, an estimate).</p>
+<h2>Limits</h2>
+<ul>
+  <li>Only <code>tail</code>, <code>head</code> and <code>grep</code> as the filter. Other filters, such as <code>sed</code> or <code>awk</code>, are left alone.</li>
+  <li>A runner hidden inside a script the command calls is not seen.</li>
+  <li>Only the Bash tool. On Windows without Git Bash, commands run through the PowerShell tool and the mod leaves them alone. Tested on Linux only.</li>
+</ul>
+<h2>Install this mod alone</h2><p>The <code>cockpit</code> bundle already installs <code>pipefail</code> with the other mods. To install it alone:</p><div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin marketplace add joaosavi/cockpit
+claude plugin install pipefail@cockpit</pre></div>
+</article>
+
+<article class="page" id="memory-guard" data-title="memory-guard" hidden>
+  <div class="crumb">Guards</div>
+  <h1><code style="font-size:.82em;background:none;border:0;padding:0">memory-guard</code></h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="memory-guard">Copy for your agent</button><a href="md/memory-guard.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<div class="meta"><span class="pill mute">v1.0.0</span><span class="pill led">/ram</span></div>
+<p class="lead">Keeps typecheck, build, test and Playwright runs under the memory limit, and reruns a command killed with exit 137 with one process. On Linux the limit is the tightest cgroup limit or the machine's memory; on macOS and Windows it is the machine's memory.</p>
+<h2>Why</h2>
+<p>On Linux, when memory runs out, or a cgroup reaches its <code>memory.max</code>, the kernel kills the largest process, which is usually the heavy command, and the agent sees exit 137 without knowing why. This mod checks the headroom before a heavy command runs and adapts the command to it.</p>
+<h2>What it does</h2>
+<p>Before a heavy command runs, the mod compares its expected peak with the headroom, minus the margin. The headroom is the machine's available memory, or the room left under the tightest cgroup limit when the session runs in one, as under a systemd service or in a container:</p>
+<ol class="steps">
+  <li><b>It fits</b><p>It runs as written.</p></li>
+  <li><b>Only a single process fits</b><p>The mod adds <code>--concurrency=1</code>, <code>--workers=1</code> or <code>--maxWorkers=1</code> and tells the agent.</p></li>
+  <li><b>Nothing fits</b><p>The mod waits up to <code>waitSeconds</code> for memory to free up.</p></li>
+  <li><b>Memory does not free up</b><p>The mod refuses the command and tells the agent what uses the memory.</p></li>
+</ol>
+<p>After the command, the mod stores its measured peak for the next estimate, and reruns with a single process a command that died with exit 137. Until a command is measured, the estimates are 1 GB for typecheck and build, 600 MB for tests and 500 MB for Playwright.</p>
+<p>Without a cgroup limit, as on most Linux desktops and laptops, the headroom is <code>MemAvailable</code> from <code>/proc/meminfo</code>. On macOS it is the free, inactive, speculative and purgeable pages of <code>vm_stat</code>, against the total of <code>sysctl -n hw.memsize</code>. On Windows it is <code>FreePhysicalMemory</code> against <code>TotalVisibleMemorySize</code>, read through PowerShell. Under a cgroup limit, it counts the working set: <code>memory.current</code> minus <code>inactive_file</code>, which the kernel frees before it kills anything.</p>
+<h2>Commands</h2>
+<p><code>/ram</code> shows the headroom, each cgroup's use and limits when there are any, and the measured peaks. It says there is no memory reading when the system gives none. In a terminal it also opens the Memory pane: a bar per cgroup with the high mark, refreshed every 2 seconds. Press <code>r</code> to refresh and <code>esc</code> to close.</p>
+<h2>Options</h2>
+<div class="table-wrap stack"><table><tr><th>Option</th><th>Default</th><th>What it does</th></tr><tr><td><code>margin</code></td><td><code>2</code></td><td>Share of memory kept free: of each cgroup's <code>memory.max</code>, or of the machine's total without a cgroup limit. The high mark counts only for a cgroup with no max.</td></tr><tr><td><code>waitSeconds</code></td><td><code>120</code></td><td>How long a heavy command waits for memory before it is refused.</td></tr></table></div>
+<h2>What it records</h2>
+<ul>
+  <li><code>~/.local/state/mods/memory-guard/&lt;day&gt;-&lt;session&gt;.jsonl</code>: one line per reduced, refused or retried command and per measured peak, plus one <code>session-summary</code> line with the time commands waited.</li>
+  <li>The last 3 measured peaks of each command, in the shared mod store under <code>peaks</code>.</li>
+</ul>
+<h2>Cost</h2>
+<p>The hook added about 4 ms per Bash call on the author's Linux machine, not counting the time commands waited for memory (56 calls measured in October 2026, an estimate). Each heavy command also reads the memory files once a second while it runs, to measure its peak. On macOS and Windows a reading runs a command instead, and stays fresh for 10 seconds: <code>sysctl</code> and <code>vm_stat</code> take a few milliseconds, and PowerShell about a second to start (an estimate).</p>
+<h2>Limits</h2>
+<ul>
+  <li>The peak is measured on the whole cgroup, or the whole machine without one, so another session starting at the same time inflates it. Keeping only the last 3 measurements lets an inflated one age out.</li>
+  <li><code>tsc</code> has no flag for a single process, so a typecheck that does not fit waits or is refused.</li>
+  <li>A background command returns at once and gives no measurement.</li>
+  <li>The macOS and Windows readings are tested only against simulated <code>vm_stat</code>, <code>sysctl</code> and PowerShell output. There the headroom is the whole machine's, with no per-session limit, and a reading can be up to 10 seconds old.</li>
+  <li>When the reading fails, heavy commands run as they came, nothing waits or is refused, and no peak is stored. <code>/ram</code> says there is no reading. The rerun with one process after an exit 137 still applies.</li>
+</ul>
+<h2>Install this mod alone</h2><p>The <code>cockpit</code> bundle already installs <code>memory-guard</code> with the other mods. To install it alone:</p><div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin marketplace add joaosavi/cockpit
+claude plugin install memory-guard@cockpit</pre></div>
+</article>
+
+<article class="page" id="loop-breaker" data-title="loop-breaker" hidden>
+  <div class="crumb">Guards</div>
+  <h1><code style="font-size:.82em;background:none;border:0;padding:0">loop-breaker</code></h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="loop-breaker">Copy for your agent</button><a href="md/loop-breaker.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<div class="meta"><span class="pill mute">v1.0.0</span></div>
+<p class="lead">Notices when the agent goes in circles and tells it to stop and change approach.</p>
+<h2>Why</h2>
+<p>An agent that keeps editing the same file after the same failure burns tokens and time without getting closer. A short nudge at the right moment makes it step back, which a rule in <code>CLAUDE.md</code> does not do reliably.</p>
+<h2>What it does</h2>
+<p>The mod counts three signals per agent loop (the main conversation and each subagent), reset at the end of each turn:</p>
+<ul>
+  <li>Fix attempts: edits to one file while a command that failed has not passed again.</li>
+  <li>Repeated errors: the same error coming back, with numbers, paths and quoted values ignored.</li>
+  <li>Repeated calls: the same tool with the same arguments, in a row.</li>
+</ul>
+<p>When a count reaches its limit, the mod adds a note to the tool result. The note starts with <code>Loop check</code> and asks the agent to write what it tried, then re-read the code, form a new hypothesis, or ask you. Nothing is refused.</p>
+<h2>Options</h2>
+<div class="table-wrap stack"><table><tr><th>Option</th><th>Default</th><th>What it does</th></tr><tr><td><code>editLimit</code></td><td><code>5</code></td><td>Fix attempts on one file in one turn before the nudge.</td></tr><tr><td><code>errorLimit</code></td><td><code>3</code></td><td>Times the same error may come back in one turn before the nudge.</td></tr><tr><td><code>repeatLimit</code></td><td><code>3</code></td><td>Identical tool calls in a row before the nudge.</td></tr></table></div>
+<h2>What it records</h2><p><code>~/.local/state/mods/loop-breaker/&lt;day&gt;-&lt;session&gt;.jsonl</code>: one line per nudge with its kind and count, plus one <code>session-summary</code> line. Each line has <code>at</code>, <code>session</code> and <code>event</code>.</p>
+<h2>Cost</h2>
+<p>The hook added about 2 ms per tool call on the author's Linux machine (60 calls measured in October 2026, an estimate).</p>
+<h2>Limits</h2>
+<ul>
+  <li>A failure is read from the exit code and from failure words in the output, so a tool that fails silently is not counted.</li>
+  <li>Counts reset at the end of each turn, so a loop that spans several turns is not caught.</li>
+  <li>Tested on Linux only.</li>
+</ul>
+<h2>Install this mod alone</h2><p>The <code>cockpit</code> bundle already installs <code>loop-breaker</code> with the other mods. To install it alone:</p><div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin marketplace add joaosavi/cockpit
+claude plugin install loop-breaker@cockpit</pre></div>
+</article>
+
+<article class="page" id="usage-limit" data-title="usage-limit" hidden>
+  <div class="crumb">Guards</div>
+  <h1><code style="font-size:.82em;background:none;border:0;padding:0">usage-limit</code></h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="usage-limit">Copy for your agent</button><a href="md/usage-limit.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<div class="meta"><span class="pill mute">v1.2.0</span><span class="pill led">/limit</span></div>
+<p class="lead">Keeps the account usage limit from running out in the middle of a task.</p>
+<h2>Why</h2>
+<p>When a 5-hour or 7-day window reaches 100%, the session stops wherever it is, often mid-edit, and nothing resumes it. This mod slows down before that point, has the agent commit its work, stops at a reserve you keep for yourself, and resumes the session on its own when the window resets.</p>
+<h2>The three stages</h2>
+<p>Each window has three stages, each with its own switch and percentage:</p>
+<div class="table-wrap"><table><tr><th>Stage</th><th>5-hour window</th><th>7-day window</th></tr><tr><td>Throttle: one subagent at a time</td><td>90%</td><td>97%</td></tr><tr><td>Commit: ask for a <code>wip:</code> commit</td><td>97%</td><td>98%</td></tr><tr><td>Pause: keep the rest for you</td><td>98%</td><td>99%</td></tr></table></div>
+<p>The 7-day limits also apply to the per-model weekly windows, such as <code>seven_day_opus</code>. Each window is judged by its own limits, and the most restrictive result applies: a paused window beats a throttled one. When two windows are paused, the one that resets last holds the session.</p>
+<h2>What it does</h2>
+<ul>
+  <li>From the throttle, only one subagent runs at a time.</li>
+  <li>From the commit stage, the agent is asked once per window to commit its work in progress in each repository it changed, with a <code>wip:</code> message and without pushing. It stages only the files it changed, so the work of another session in the same repository stays out. Only the main conversation gets the request.</li>
+  <li>At the pause, every tool call is refused except a command that only stages and commits (<code>git add</code>, <code>git commit</code>, <code>cd</code>, chained with <code>&amp;&amp;</code>), so the work still gets committed when a burst of requests jumps straight past the commit stage. The agent writes in up to 3 lines where it stopped, and the mod schedules the resume for the reset time plus 2 minutes.</li>
+  <li>A prompt you type during the pause gets one turn without subagents, spent from the reserve.</li>
+  <li>A prompt nobody typed (a routine, another session, a task notification) is held and delivered with the resume.</li>
+  <li>The band above the prompt shows each window with a bar, its own pause mark, the percent and the reset time, from 75% by default. Each bar turns yellow from its window's throttle or commit stage and red from its pause.</li>
+  <li>The status line under the prompt shows the state while the mod holds something back.</li>
+</ul>
+<h2>Commands</h2>
+<p><code>/limit</code> shows each window with its stages, the state, and what is held for the resume. Plain text, so it reads the same in Remote Control.</p>
+<h2>Options</h2>
+<div class="table-wrap stack"><table><tr><th>Option</th><th>Default</th><th>What it does</th></tr><tr><td><code>fiveHourThrottle</code></td><td><code>true</code></td><td>Throttle in the 5-hour window.</td></tr><tr><td><code>fiveHourThrottleAt</code></td><td><code>90</code></td><td>From this share of the 5-hour window, one subagent at a time.</td></tr><tr><td><code>fiveHourCommit</code></td><td><code>true</code></td><td>Commit request in the 5-hour window.</td></tr><tr><td><code>fiveHourCommitAt</code></td><td><code>97</code></td><td>From this share of the 5-hour window, ask the agent once per window to commit without pushing.</td></tr><tr><td><code>fiveHourPause</code></td><td><code>true</code></td><td>Pause in the 5-hour window.</td></tr><tr><td><code>fiveHourPauseAt</code></td><td><code>98</code></td><td>The session pauses at this share of the 5-hour window.</td></tr><tr><td><code>sevenDayThrottle</code></td><td><code>true</code></td><td>Throttle in the 7-day windows.</td></tr><tr><td><code>sevenDayThrottleAt</code></td><td><code>97</code></td><td>From this share of a 7-day window, one subagent at a time.</td></tr><tr><td><code>sevenDayCommit</code></td><td><code>true</code></td><td>Commit request in the 7-day windows.</td></tr><tr><td><code>sevenDayCommitAt</code></td><td><code>98</code></td><td>From this share of a 7-day window, ask the agent once per window to commit without pushing.</td></tr><tr><td><code>sevenDayPause</code></td><td><code>true</code></td><td>Pause in the 7-day windows.</td></tr><tr><td><code>sevenDayPauseAt</code></td><td><code>99</code></td><td>The session pauses at this share of a 7-day window.</td></tr><tr><td><code>timeZone</code></td><td>empty</td><td>IANA time zone of the reset times shown, such as <code>America/New_York</code>. Empty uses the system time zone.</td></tr><tr><td><code>resume</code></td><td><code>true</code></td><td>Resume the session when the window resets, after the pause or after the limit error. Off, you resume it, and automatic prompts that arrive during the pause are dropped instead of held. The older name <code>resumeOnError</code> still works.</td></tr><tr><td><code>bandFrom</code></td><td><code>75</code></td><td>Show the band from this share of the fullest window.</td></tr></table></div>
+<p>The window options have no default in the manifest, so the settings from before 1.2 still apply where they are unset. <code>alert</code> sets the throttle of every window, <code>commitAt</code> the commit (<code>0</code> turns it off), and <code>reserve</code> the pause at 100 minus its value. A window option always wins over them for its own stage.</p>
+<h2>What it records</h2>
+<ul>
+  <li><code>~/.local/state/mods/usage-limit/&lt;day&gt;-&lt;session&gt;.jsonl</code>: one line per state change, refusal, held prompt and resume, plus one <code>session-summary</code> line when the session ends.</li>
+  <li>The last reading of the windows, in the shared mod store under <code>windows</code>, so a new session starts from the reading another session took.</li>
+</ul>
+<h2>Cost</h2>
+<p>The <code>tool.call</code> hook added about 6 ms per tool call on the author's Linux machine (60 calls measured in October 2026, an estimate).</p>
+<h2>Limits</h2>
+<ul>
+  <li>The reading arrives with each model response, so a burst of parallel requests can pass the pause before the next reading. The resume after the limit error and the commit allowed during the pause cover that case.</li>
+  <li>A prompt with an origin Claude Code cannot classify counts as yours and spends the reserve.</li>
+  <li><code>/clear</code>, <code>/resume</code> and <code>/branch</code> cancel the scheduled resume and drop the held messages of the previous conversation.</li>
+  <li>In the pause, the commit-only command passes through the Bash tool or, on Windows without Git Bash, the PowerShell tool.</li>
+  <li>Tested on Linux only.</li>
+</ul>
+<h2>Install this mod alone</h2><p>The <code>cockpit</code> bundle already installs <code>usage-limit</code> with the other mods. To install it alone:</p><div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin marketplace add joaosavi/cockpit
+claude plugin install usage-limit@cockpit</pre></div>
+</article>
+
+<article class="page" id="hud" data-title="hud" hidden>
+  <div class="crumb">Instruments</div>
+  <h1><code style="font-size:.82em;background:none;border:0;padding:0">hud</code></h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="hud">Copy for your agent</button><a href="md/hud.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<div class="meta"><span class="pill mute">v1.0.0</span><span class="pill led">/hud</span></div>
+<p class="lead">Shows the model, the project and its git branch, the context window, the plan limits and the memory headroom, under the prompt as a status line or above it in the band. While a turn runs, the band adds the latest note another mod added to a tool result, which only the model reads otherwise.</p>
+<h2>The four styles</h2>
+<p>Pick one with the <code>style</code> option. Each style drops its least useful fields first when the terminal is narrow, so no row passes the width. Below is the real output of <code>statusline.sh</code> for the same session.</p>
+<h3><code>refined</code></h3><p>Two rows with gradient bars. The default.</p><div class="tw" data-search="skip"><div class="tw-bar" aria-hidden="true"><i></i><i></i><i></i><span>status line · refined</span></div><pre class="term"><span style="font-weight:700">Opus 5.5</span>   <span style="font-weight:700">acme-api</span>   <span style="color:#c678dd">feat/billing</span>  <span style="color:#e5c07b">● 1</span>  <span style="opacity:.55">? 1</span>     <span style="opacity:.55">43m</span><span style="opacity:.55">  ·  </span><span style="opacity:.55">0 calls</span>
+<span style="opacity:.55">ctx </span><span style="color:#00c850">●</span><span style="color:#66c850">●</span><span style="opacity:.55">○○○○</span><span style="color:#c2c850"> 38%</span>   <span style="opacity:.55">5h </span><span style="color:#00c850">●</span><span style="color:#66c850">●</span><span style="color:#ccc850">●</span><span style="color:#ffa050">●</span><span style="opacity:.55">○○</span><span style="color:#ff9050"> 64%</span><span style="opacity:.55"> 2h20m</span>   <span style="opacity:.55">7d </span><span style="color:#00c850">●</span><span style="color:#66c850">●</span><span style="color:#ccc850">●</span><span style="color:#ffa050">●</span><span style="color:#ff5050">●</span><span style="opacity:.55">○</span><span style="color:#ff4c50"> 81%</span>   <span style="opacity:.55">mem </span><span style="color:#7ec699">2.4G</span></pre></div><h3><code>blocks</code></h3><p>Each field on its own colored background.</p><div class="tw" data-search="skip"><div class="tw-bar" aria-hidden="true"><i></i><i></i><i></i><span>status line · blocks</span></div><pre class="term"><span style="background:#4e4e4e;font-weight:700"> Opus 5.5 </span> <span style="background:#303030"> acme-api </span> <span style="color:#c678dd;background:#303030"> feat/billing  ● 1  ? 1 </span>               <span style="opacity:.55">43m</span>
+<span style="color:#c2c850;background:#303030"> ctx 38% </span> <span style="color:#ff9050;background:#303030"> 5h 64% </span><span style="opacity:.55"> resets 2h20m</span> <span style="color:#ff4c50;background:#303030"> 7d 81% </span> <span style="color:#7ec699;background:#303030"> mem 2.4G free </span></pre></div><h3><code>minimal</code></h3><p>Fields spelled out in words, thin bars.</p><div class="tw" data-search="skip"><div class="tw-bar" aria-hidden="true"><i></i><i></i><i></i><span>status line · minimal</span></div><pre class="term"><span style="font-weight:700">acme-api</span>  <span style="color:#c678dd">feat/billing</span>  <span style="color:#e5c07b">1 modified</span><span style="opacity:.55"> · </span><span style="opacity:.55">1 untracked</span>  Opus 5.5<span style="opacity:.55"> · </span><span style="opacity:.55">43m</span>
+<span style="opacity:.55">ctx </span><span style="color:#00c850">━</span><span style="color:#66c850">━</span><span style="opacity:.55">────</span><span style="color:#c2c850"> 38%</span>   <span style="opacity:.55">5h </span><span style="color:#00c850">━</span><span style="color:#66c850">━</span><span style="color:#ccc850">━</span><span style="color:#ffa050">━</span><span style="opacity:.55">──</span><span style="color:#ff9050"> 64%</span><span style="opacity:.55"> 2h20m</span>   <span style="opacity:.55">7d </span><span style="color:#00c850">━</span><span style="color:#66c850">━</span><span style="color:#ccc850">━</span><span style="color:#ffa050">━</span><span style="color:#ff5050">━</span><span style="opacity:.55">─</span><span style="color:#ff4c50"> 81%</span>   <span style="opacity:.55">2.4G free</span></pre></div><h3><code>compact</code></h3><p>One row when it fits, two when it does not.</p><div class="tw" data-search="skip"><div class="tw-bar" aria-hidden="true"><i></i><i></i><i></i><span>status line · compact</span></div><pre class="term"><span style="font-weight:700">acme-api</span>  <span style="color:#c678dd">feat/billing</span> <span style="color:#e5c07b">● 1</span> <span style="opacity:.55">? 1</span>                          <span style="opacity:.55">Opus 5.5</span>
+<span style="color:#c2c850">ctx 38%</span><span style="opacity:.55"> │ </span><span style="color:#ff9050">5h 64%</span><span style="opacity:.55"> 2h20m</span><span style="opacity:.55"> │ </span><span style="color:#ff4c50">7d 81%</span><span style="opacity:.55"> │ </span><span style="color:#7ec699">mem 2.4G</span></pre></div>
+<h2>The status line</h2>
+<p>A mod cannot draw rows under the prompt: that place belongs to the status line command of the settings. The mod ships one, <code>statusline/statusline.sh</code>, and <code>/cockpit:setup</code> writes it for you. To set it by hand on macOS or Linux, put this in <code>~/.claude/settings.json</code>, with <code>band</code> set to <code>off</code> so the rows do not show twice:</p>
+<div class="code"><div class="code-head"><span>~/.claude/settings.json</span><button class="copy">Copy</button></div><pre>{
+  &quot;statusLine&quot;: { &quot;type&quot;: &quot;command&quot;, &quot;command&quot;: &quot;~/.claude/plugins/marketplaces/cockpit/hud/statusline/statusline.sh&quot;, &quot;refreshInterval&quot;: 5 },
+  &quot;pluginConfigs&quot;: { &quot;hud@cockpit&quot;: { &quot;options&quot;: { &quot;band&quot;: &quot;off&quot;, &quot;style&quot;: &quot;refined&quot;, &quot;icons&quot;: &quot;nerd&quot; } } }
+}</pre></div>
+<p>The script needs Node 22.18 or later. <code>refreshInterval</code> re-runs the script every 5 seconds, so git, the PR and the session time stay current while the session is idle. On Windows, PowerShell cannot run a <code>.sh</code> file: point the command at <code>node ~/.claude/plugins/marketplaces/cockpit/hud/statusline/statusline.ts</code>, with forward slashes.</p>
+<h3>Git and the PR</h3>
+<p>The git field shows the branch, then commits to push, commits to pull, files staged, files changed outside the stage and untracked files, or <code>synced</code> when there is nothing. The PR is the branch's open pull request from <code>gh pr view</code>, with its checks: passing, failing or running. <code>gh</code> takes about a second, so the script runs it in the background at most once a minute and shows the last answer meanwhile. Without <code>gh</code>, or without an open PR, the field is left out.</p>
+<h3>Icons</h3>
+<p>With <code>icons</code> set to <code>nerd</code>, the default, the git, folder, model and memory fields use Nerd Font glyphs, which show only when the terminal's font is a Nerd Font. With <code>unicode</code>, they use <code>↑ ↓ + ● ? ✓</code> and no glyph for the folder, the model and the memory.</p>
+<h2>The band above the prompt</h2>
+<p>Without the status line, the hud draws in the band above the prompt. With <code>band</code> at <code>panel</code>, the default, it draws two rows, with the right side of the first row flush with the last column:</p>
+<div class="tw" data-search="skip"><div class="tw-bar" aria-hidden="true"><i></i><i></i><i></i><span>band · panel</span></div><pre class="term"><b>Opus 5.5</b> · my-app  <span class="bl">main</span><span class="a">●</span>                              <span class="d">38m · 214 calls</span>
+ctx <span class="g">▰▰▰▰</span><span class="d">▱▱▱▱▱▱</span>  <span class="g">42%</span>   5h <span class="g">▰▰▰▰▰▰</span><span class="d">▱▱▱▱</span>  <span class="g">61%</span> <span class="d">resets 2h30m</span>   7d <span class="g">▰▰▰▰</span><span class="d">▱▱▱▱▱▱</span>  <span class="g">44%</span>   mem <span class="g">1.9G free</span></pre></div>
+<p>While a turn runs and another mod left a note, the activity row follows, such as <code>loop-breaker: repeated error</code>. It hides when the turn ends. Claude Code already draws the running tool, its errors, the subagents and the turn's time, so the band leaves them out.</p>
+<div class="table-wrap"><table><tr><th>Field</th><th>Colors</th></tr><tr><td><code>ctx</code>, the context window</td><td>green below 60%, yellow below 85%, red from 85%</td></tr><tr><td><code>5h</code> and <code>7d</code>, the plan windows</td><td>green below 75%, yellow below 90%, red from 90%</td></tr><tr><td><code>mem</code>, the memory that still fits</td><td>yellow below 1 GB, red below 500 MB</td></tr><tr><td>Activity row</td><td>yellow</td></tr></table></div>
+<p>In a narrow terminal the band drops fields instead of wrapping: first it shortens the bars, then drops <code>mem</code>, then shows <code>ctx</code>, <code>5h</code> and <code>7d</code> as percents only, then drops the reset countdown. With <code>band</code> at <code>line</code>, it draws one row:</p>
+<div class="tw" data-search="skip"><div class="tw-bar" aria-hidden="true"><i></i><i></i><i></i><span>band · line</span></div><pre class="term"><b>Opus 5.5</b> <span class="d">│</span> my-app  <span class="bl">main</span><span class="a">●</span> <span class="d">│</span> ctx <span class="g">42%</span> <span class="d">│</span> 5h <span class="g">61%</span> <span class="d">│</span> 7d <span class="g">44%</span> <span class="d">│</span> mem <span class="g">1.9G</span></pre></div>
+<h2>The /hud pane</h2>
+<div class="tw" data-search="skip"><div class="tw-bar" aria-hidden="true"><i></i><i></i><i></i><span>/hud</span></div><pre class="term"><b class="d">SESSION</b>   <b>Opus 5.5</b> · my-app  <span class="bl">main</span><span class="a">●</span> · 38m · 214 calls · ctx <span class="g">42%</span>
+<b class="d">LIMITS</b>    5h <span class="g">61%</span> <span class="d">resets 2h30m</span> · 7d <span class="g">44%</span> <span class="d">resets 3d20h</span>
+<b class="d">MEMORY</b>    session 1.5G · slice 3.0/5.0G · <span class="g">1.9G fits</span>
+<b class="d">NOW</b>       <span class="a">Bash</span> yarn turbo run test <span class="d">0:42</span> · 2 subagents
+<b class="d">TODAY</b>     2 skills · 1 loop nudge · 0 refusals</pre></div>
+<p><code>MEMORY</code> names the session's own cgroup and the group whose limit sets the headroom, or the machine's memory without a cgroup limit. <code>TODAY</code> counts today's lines in the other mods' diaries. The pane refreshes every 2 seconds while it is open; press <code>r</code> to refresh now and <code>esc</code> to close it.</p>
+<h2>Options</h2>
+<p>In <code>/config</code>, or under <code>pluginConfigs</code> in <code>~/.claude/settings.json</code>.</p>
+<div class="table-wrap stack"><table><tr><th>Option</th><th>Default</th><th>What it does</th></tr><tr><td><code>band</code></td><td><code>panel</code></td><td><code>panel</code> draws two rows above the prompt, <code>line</code> one, <code>off</code> none (<code>/hud</code> still works). Use <code>off</code> with the status line.</td></tr><tr><td><code>activity</code></td><td><code>true</code></td><td>Shows the activity row while a turn runs.</td></tr><tr><td><code>memory</code></td><td><code>true</code></td><td>Shows the memory headroom in the band and the <code>MEMORY</code> row.</td></tr><tr><td><code>bar</code></td><td><code>dots</code></td><td>The bar glyphs: <code>blocks</code> (▰▱), <code>solid</code> (█░), <code>line</code> (━─), <code>dots</code> (●○) or <code>squares</code> (■□).</td></tr><tr><td><code>barWidth</code></td><td><code>10</code></td><td>Cells of a full-width bar, 4 to 30. A narrow terminal still shrinks the bars.</td></tr><tr><td><code>colors</code></td><td>empty</td><td>The colors for ok, warning and critical, separated by spaces: a name, <code>#rrggbb</code> or a 256-color number. Empty uses green, yellow and red.</td></tr><tr><td><code>hide</code></td><td>empty</td><td>Fields to leave out, separated by commas: <code>model</code>, <code>project</code>, <code>branch</code>, <code>age</code>, <code>calls</code>, <code>ctx</code>, <code>5h</code>, <code>7d</code>, <code>reset</code>, <code>mem</code>.</td></tr><tr><td><code>barColor</code></td><td><code>gradient</code></td><td><code>gradient</code> colors each cell by its place, green to red. <code>solid</code> colors the whole bar by its percent. <code>tone</code> keeps the three colors of <code>colors</code>.</td></tr><tr><td><code>style</code></td><td><code>refined</code></td><td>The status line layout: <code>refined</code>, <code>blocks</code>, <code>minimal</code> or <code>compact</code>.</td></tr><tr><td><code>icons</code></td><td><code>nerd</code></td><td><code>nerd</code> for Nerd Font glyphs, <code>unicode</code> for plain marks.</td></tr><tr><td><code>contextBase</code></td><td><code>compact</code></td><td>What <code>ctx</code> measures against. <code>compact</code>: 100% is the auto-compact window, when smaller than the model's. <code>window</code>: the model's full window. The status line only.</td></tr><tr><td><code>timeZone</code></td><td>empty</td><td>The IANA time zone for the times shown and for what counts as today. Empty uses the system time zone.</td></tr></table></div>
+<h2>Cost</h2>
+<p>The band's render hook does no I/O: it lays out values that events and timers already read. Every 15 seconds, idle or not, it runs one <code>git status</code> (3-second timeout) and a memory reading. During a turn, a 1-second timer reads the agent list for <code>/hud</code>, and redraws only while the pane is open. Each tool call adds two redraw requests, and Claude Code throttles redraws to 10 a second.</p>
+<h2>Limits</h2>
+<ul>
+  <li>On macOS and Windows there is no per-session limit, so the memory field shows the whole machine. Those readings are tested only against simulated output.</li>
+  <li>When the reading fails, the memory field is left out.</li>
+  <li>The PR field needs the GitHub CLI, <code>gh</code>, signed in.</li>
+  <li>The band, the status line and the pane are part of the terminal interface. Tested only in a terminal, and the Windows setup is not tested.</li>
+</ul>
+<h2>Install this mod alone</h2><p>The <code>cockpit</code> bundle already installs <code>hud</code> with the other mods. To install it alone:</p><div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin marketplace add joaosavi/cockpit
+claude plugin install hud@cockpit</pre></div>
+</article>
+
+<article class="page" id="spinner-status" data-title="spinner-status" hidden>
+  <div class="crumb">Instruments</div>
+  <h1><code style="font-size:.82em;background:none;border:0;padding:0">spinner-status</code></h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="spinner-status">Copy for your agent</button><a href="md/spinner-status.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<div class="meta"><span class="pill mute">v1.0.0</span><span class="pill led">calls Haiku</span></div>
+<p class="lead">Replaces the tip under the spinner with one short line of its own: where the session stands, written by Haiku, or a tip about the mods you have installed that fits the moment.</p>
+<div class="tw" data-search="skip"><div class="tw-bar" aria-hidden="true"><i></i><i></i><i></i><span>claude · ~/acme-api</span></div><pre class="term"><span class="a spin">✻</span> Propagating… <span class="d">(6s · ↓ 90 tokens)</span>
+  <span class="d">⎿</span>  <b>Now:</b> Running the tests after the fix to the date filter</pre></div>
+<p>The spinner itself stays as Claude Code draws it. The line goes under it, cut to the width of the screen and to 100 characters. A bold label says what the line is: <code>Now:</code> for where the session stands and <code>Mods:</code> for a tip about the mods.</p>
+<h2>Turn off the native tip</h2>
+<p>A mod cannot remove Claude Code's own tip line. Turn it off in <code>settings.json</code>, or the two lines show together. <code>/cockpit:setup</code> already does this, and it is the same switch as the <b>Show tips</b> row of <code>/config</code>.</p>
+<div class="code"><div class="code-head"><span>~/.claude/settings.json</span><button class="copy">Copy</button></div><pre>{ &quot;spinnerTipsEnabled&quot;: false }</pre></div>
+<h2>The modes</h2>
+<div class="table-wrap"><table><tr><th>Mode</th><th>What the line shows</th><th>Model calls</th></tr><tr><td><code>mixed</code></td><td>The session summary, then a tip Haiku picked for the moment, swapping every 15 seconds. Before the first reply, a tip from the catalog. The default.</td><td>One per turn</td></tr><tr><td><code>tips</code></td><td>A tip from the catalog, a new one each turn.</td><td>None</td></tr><tr><td><code>summary</code></td><td>The session summary only. Before the first reply, nothing extra.</td><td>One per turn</td></tr></table></div>
+<p>The catalog has one tip for each command and mod of Cockpit: <code>/panel</code>, <code>/hud</code>, <code>/limit</code>, <code>/ram</code>, and what <code>memory-guard</code>, <code>loop-breaker</code>, <code>secret-guard</code>, <code>pipefail</code> and <code>usage-limit</code> do. The labels and the catalog are English. In <code>mixed</code> and <code>summary</code> modes, Haiku writes the line in Claude Code's <code>language</code> setting when it is set, and otherwise in the language you write in.</p>
+<h2>Options</h2>
+<div class="table-wrap stack"><table><tr><th>Option</th><th>Default</th><th>What it does</th></tr><tr><td><code>enabled</code></td><td><code>true</code></td><td>Off, the mod does nothing and makes no model call.</td></tr><tr><td><code>mode</code></td><td><code>mixed</code></td><td><code>mixed</code>, <code>tips</code> or <code>summary</code>.</td></tr><tr><td><code>model</code></td><td><code>claude-haiku-4-5-20251001</code></td><td>The model that writes the line: an alias such as <code>haiku</code>, or a full model id.</td></tr></table></div>
+<h2>Cost</h2>
+<p>Each main-loop turn starts at most one model call, in the background, when the turn starts. The spinner never waits for it: it keeps the previous line until the new one arrives. The model reads the last 3 prompts you typed and the agent's text between them, 3,000 characters at most, with no tool calls and no tool output. The reply is capped at 150 tokens.</p>
+<p>In a test session, three turns spent 1,574 input and 139 output tokens in all: about 525 in and 46 out per turn, or about $0.0008 per turn at Haiku 4.5 prices. Each call took about one second.</p>
+<h2>The reply is data</h2>
+<p>The line Haiku writes is shown, never acted on. The mod keeps only the <code>NOW:</code> and <code>TIP:</code> lines, removes control characters and markup, folds each line to one, and cuts it to the width. The instructions tell the model that the session excerpt is data and not instructions.</p>
+<h2>What it records</h2>
+<p>At the end of each session, one <code>session-summary</code> line in <code>~/.local/state/mods/spinner-status/&lt;day&gt;-&lt;session&gt;.jsonl</code>, with the turns, the model calls by outcome, the calls skipped because one was still running, the tokens, the model time and the excerpt size. It never writes the excerpt or the line.</p>
+<h2>Limits</h2>
+<ul>
+  <li>The model call goes through Claude Code itself, with no command of its own, so it works the same on macOS, Windows and Linux. Tested on Linux only.</li>
+  <li>The spinner line is drawn by Claude Code's terminal interface. Tested only in a terminal.</li>
+</ul>
+<h2>Install this mod alone</h2><p>The <code>cockpit</code> bundle already installs <code>spinner-status</code> with the other mods. To install it alone:</p><div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin marketplace add joaosavi/cockpit
+claude plugin install spinner-status@cockpit</pre></div>
+</article>
+
+<article class="page" id="panel" data-title="panel" hidden>
+  <div class="crumb">Instruments</div>
+  <h1><code style="font-size:.82em;background:none;border:0;padding:0">panel</code></h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="panel">Copy for your agent</button><a href="md/panel.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<div class="meta"><span class="pill mute">v1.0.0</span><span class="pill led">/panel</span><span class="pill led">calls claude -p</span></div>
+<p class="lead">A local web page with every Claude Code session on your computer: whether it waits for you, what it needs, what it is doing now, and what it finished. Each session's summary comes from <code>claude -p</code>, refreshed every few minutes and when you ask.</p>
+<div class="shot"><img src="img/panel-dark.png" alt="The panel page in the Inbox view: the machine in the header, the sessions by urgency on the left, and the selected session on the right" loading="lazy"></div>
+<p class="figcap">The page with made-up sessions, in the Inbox view.</p>
+<h2>Open the page</h2>
+<p>Type <code>/panel</code> in any session for the address, <code>http://localhost:7777</code> by default, and open it in your browser. The server starts with the first session after you install the mod, and keeps running after that session ends. The page listens only on <code>127.0.0.1</code>, so only your own computer reaches it. When the sessions run on another machine, see <a href="#remote">Run on a remote machine</a>.</p>
+<h2>What the page shows</h2>
+<ul>
+  <li>The header shows the computer in one line: the plan's 5-hour and weekly usage with the time left to each reset, memory, the CPU over the last minute, disk, and the tokens the sessions used in the last 24 hours, hour by hour. A figure turns amber at 75% and red at 90%. On the right are <b>Notify</b>, <b>Refresh all</b> and <b>Mods</b>.</li>
+  <li>Each session shows its state (<code>Working</code>, <code>Waiting for you</code>, <code>Blocked</code>, <code>Done</code>, <code>Idle</code>), a title, the project, the git branch with its changed files and commits ahead or behind, the model, your last message, the tool running now, the summary of where the task stands, the next step and what it finished. Four figures close it: the context used against the point where it compacts, the tokens of the last 24 hours, the memory of the session's processes, and how long it has run.</li>
+  <li>The <b>Mods</b> drawer shows the computer in full, the latest actions of the guards, what each guard did today, and how many summaries the page made today with their tokens and their price at API list prices. On Linux it also shows the memory of each cgroup with a limit and the state of their systemd services.</li>
+</ul>
+<h2>The five views</h2>
+<p>The switcher under the header picks the view, and the page remembers it. The address also takes a view as its hash, such as <code>#board</code>, and <code>#mods</code> opens the drawer.</p>
+<div class="table-wrap stack"><table><tr><th>View</th><th>What it shows</th><th>Keys</th></tr><tr><td><b>Inbox</b></td><td>The default. The sessions by urgency on the left, and the selected one in full on the right.</td><td><code>j</code> and <code>k</code> or the arrows move, <code>1</code> to <code>4</code> pick an option, <code>r</code> goes to the reply field</td></tr><tr><td><b>Board</b></td><td>Columns by state, with small cards. A card opens the session in a side drawer.</td><td><code>1</code> to <code>4</code> in the drawer, <code>esc</code> closes it</td></tr><tr><td><b>Deck</b></td><td>A grid of full cards, with filters for all sessions, the ones that need you, working, done and ended.</td><td></td></tr><tr><td><b>Focus</b></td><td>One large card for the session that needs you most, and the others below it.</td><td><code>n</code> and <code>p</code> or the arrows move</td></tr><tr><td><b>Timeline</b></td><td>A row per session with its tokens hour by hour over the last 24 hours, and a row for all sessions together.</td><td></td></tr></table></div>
+<p><b>Working</b> comes from Claude Code itself, as soon as a turn starts. <b>Waiting for you</b>, <b>Blocked</b>, <b>Done</b> and <b>Idle</b> come from the summary, which <code>claude -p</code> writes from the transcript: 20 seconds after a turn ends, every 5 minutes for a session that changed, and when you press <b>Refresh</b>.</p>
+<h2>Answer a session from the page</h2>
+<p>When a session waits for a decision, its options are buttons. Press one, or its number key, check the text, and confirm. The reply field sends any text the same way. The page leaves the text in the session's inbox, the <code>panel</code> mod in that session checks the inbox every 2 seconds and submits the text as your prompt, and Claude Code runs it once the session is idle. It works on macOS, Windows and Linux, in a terminal, the Desktop app, an IDE or Remote Control, with or without tmux.</p>
+<div class="callout note"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 16v-4M12 8h.01"/></svg><div><strong class="label">Greyed-out options</strong><p>A session takes answers only when its mod checked the inbox in the last 15 seconds. Until then its options are greyed out and its reply field is hidden. A session that loaded an older <code>panel</code> mod stays that way until you run <code>/reload-plugins</code> in it. When a session does not take a message within 6 seconds, the page withdraws it and says so.</p></div></div>
+<h2>Audit the mods</h2>
+<p>The lower half of the <b>Mods</b> drawer audits the mods from their diaries over the last day, 7 days or 30 days. Each row shows the mod's version, whether it is on, how many sessions it ran in, what it did, its failures in red, the time its hooks added per tool call, its slowest hook call, the API cost of its model calls, and its last action. A mod with nothing recorded for a week does no work on your machine.</p>
+<div class="shot"><img src="img/panel-mods.png" alt="The Mods drawer: the computer, the guards, and one row per mod with its actions, failures and time per tool call" loading="lazy"></div>
+<h2>Options</h2>
+<div class="table-wrap stack"><table><tr><th>Option</th><th>Default</th><th>What it does</th></tr><tr><td><code>port</code></td><td><code>7777</code></td><td>The port the page listens on, on <code>127.0.0.1</code>.</td></tr><tr><td><code>model</code></td><td><code>sonnet</code></td><td>The model <code>claude -p</code> uses for each summary: <code>sonnet</code>, <code>haiku</code> or <code>opus</code>.</td></tr><tr><td><code>refreshMinutes</code></td><td><code>5</code></td><td>A session whose transcript changed gets a new summary this often.</td></tr><tr><td><code>autostart</code></td><td><code>true</code></td><td>Start the server when a session starts and the port does not answer. Turn it off when a service manager runs the server.</td></tr></table></div>
+<h2>Start the server by hand</h2>
+<p>The page needs Python 3.9 or later, as <code>python3</code>, <code>python</code> or <code>py</code>, and <code>curl</code>. With <code>autostart</code> on, the first session starts the server, and it keeps running after that session ends. To start it yourself, run the server file from the plugin folder, which is the <code>installPath</code> of <code>panel@cockpit</code> in <code>~/.claude/plugins/installed_plugins.json</code>:</p>
+<div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>python3 -I &lt;plugin folder&gt;/server/panel.py</pre></div>
+<p>On Windows, use <code>python</code> or <code>py</code> in place of <code>python3</code>. Set <code>PANEL_CLAUDE</code> to the path of <code>claude</code> when it is not on the <code>PATH</code>.</p>
+<h2>How the summary is made</h2>
+<p>The server builds a digest of the transcript, at most 48,000 characters long: the message that opened the task, then the newest rows that fit, each tool call cut to one line. It sends the digest to <code>claude -p --safe-mode --tools "" --no-session-persistence</code> with a JSON schema. The call loads no hooks, plugins or tools, keeps no transcript of its own, and answers in a fixed shape, in the language you write in.</p>
+<h2>Cost</h2>
+<p>Each summary is one <code>claude -p</code> call, and it counts toward your plan's usage limits. On the author's Linux machine in October 2026, a summary of a long session read about 48,000 tokens and took 6 to 10 seconds, and the server's memory peaked at 213 MB during the call. At API list prices with <code>sonnet</code>, a summary cost about $0.07, and with four sessions working the page spent up to $2.40 an hour. On a Pro or Max plan the calls spend plan usage, not money. <code>haiku</code> costs about 20 times less per token, with shorter and less exact summaries.</p>
+<h2>What it records</h2>
+<ul>
+  <li><code>~/.local/state/mods/panel/summaries/&lt;session&gt;.json</code>: the last summary of each session, with the time it was made and the transcript size it read.</li>
+  <li><code>~/.local/state/mods/panel/&lt;day&gt;-server.jsonl</code>: one line per summary with the reason, the time, the state and the tokens, one line per failure, and one line per sent answer with its length. It never writes the session's content or what you sent.</li>
+</ul>
+<h2>Limits</h2>
+<ul>
+  <li>The sessions must run on the same machine, under the same user as the server.</li>
+  <li>The page has no login. Anyone who can connect to the port on that machine can read it, start summaries and type into the sessions, so keep it on <code>127.0.0.1</code>. The server refuses a request that comes from a page on another site.</li>
+  <li>An answer sent from the page waits until the session is idle. While a turn runs, it does not reach the agent, and it runs as a new turn after the current one ends.</li>
+  <li>The state comes from the model and can lag behind the session. A busy session always shows <code>Working</code>.</li>
+  <li>On macOS and Windows there are no memory groups, no services and no disk wait. Tested on Linux; the macOS and Windows code paths run only through simulated tests.</li>
+</ul>
+<h2>Install this mod alone</h2><p>The <code>cockpit</code> bundle already installs <code>panel</code> with the other mods. To install it alone:</p><div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin marketplace add joaosavi/cockpit
+claude plugin install panel@cockpit</pre></div>
+</article>
+
+<article class="page" id="skill-loader" data-title="skill-loader" hidden>
+  <div class="crumb">Instruments</div>
+  <h1><code style="font-size:.82em;background:none;border:0;padding:0">skill-loader</code></h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="skill-loader">Copy for your agent</button><a href="md/skill-loader.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<div class="meta"><span class="pill mute">v1.0.0</span></div>
+<p class="lead">Loads the right skill at the right moment, so <code>CLAUDE.md</code> needs no "load skill X before Y" rules.</p>
+<h2>Why</h2>
+<p>A rule in <code>CLAUDE.md</code> that says "load this skill before editing that file" works only when the agent remembers it. This mod watches the tool calls and delivers the skill itself.</p>
+<h2>What it does</h2>
+<div class="table-wrap"><table><tr><th>When the agent</th><th>Skill</th></tr><tr><td>Reads or writes a <code>.ts</code>, <code>.tsx</code>, <code>.mts</code> or <code>.cts</code> file</td><td><code>typescript-best-practices</code></td></tr><tr><td>Reads or writes <code>SKILL.md</code>, <code>AGENTS.md</code> or <code>CLAUDE.md</code></td><td><code>writing-for-agents</code></td></tr><tr><td>Reads or writes <code>CONTEXT.md</code>, <code>CONTEXT-MAP.md</code> or a file under <code>adr/</code>, <code>adrs/</code> or <code>decisions/</code></td><td><code>domain-modeling</code></td></tr><tr><td>Reads or writes a <code>README</code>, or runs <code>git commit</code>, <code>gh pr create</code> or <code>gh pr edit</code></td><td><code>technical-writing</code></td></tr></table></div>
+<ul>
+  <li>On a read, the skill's full text comes with the file. Edit requires a read first, so the skill arrives before the edit.</li>
+  <li>On a write without a read (a new file, a commit, a PR), the mod holds the call once, with the skill's text in the refusal, and the agent makes the call again.</li>
+  <li>When your prompt carries an error or says something broke, the mod reminds the agent to load <code>diagnosing-bugs</code>.</li>
+</ul>
+<p>Each skill loads once per conversation. Compaction resets the list, because the summary can drop a skill's text.</p>
+<h2>The skills</h2>
+<p>The mod ships the five skills it delivers, in its <code>skills/</code> folder, so it works with nothing else installed. Claude Code also lists them as <code>skill-loader:&lt;name&gt;</code>. The mod reads a skill from its own folder first, then from <code>&lt;project&gt;/.claude/skills/&lt;name&gt;/SKILL.md</code>, then from <code>~/.claude/skills/&lt;name&gt;/SKILL.md</code>. The skills are by Matt Pocock, under the MIT license.</p>
+<h2>Options</h2>
+<p>None.</p>
+<h2>What it records</h2><p><code>~/.local/state/mods/skill-loader/&lt;day&gt;-&lt;session&gt;.jsonl</code>: one line per skill loaded, held call, missing skill and reminder, plus one <code>session-summary</code> line. Each line has <code>at</code>, <code>session</code> and <code>event</code>.</p>
+<h2>Cost</h2>
+<p>The hook added about 2 ms per tool call on the author's Linux machine (60 calls measured in October 2026, an estimate). A held write costs the agent one extra call.</p>
+<h2>Limits</h2>
+<ul>
+  <li>Subagents are left alone: a skill delivered there would land in the main conversation.</li>
+  <li>The error detection matches common English and Portuguese phrases and stack-trace shapes, so it misses an error described in other words.</li>
+  <li>Tested on Linux only.</li>
+</ul>
+<h2>Install this mod alone</h2><p>The <code>cockpit</code> bundle already installs <code>skill-loader</code> with the other mods. To install it alone:</p><div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin marketplace add joaosavi/cockpit
+claude plugin install skill-loader@cockpit</pre></div>
+</article>
+
+<article class="page" id="global-memory" data-title="global-memory" hidden>
+  <div class="crumb">Memory</div>
+  <h1><code style="font-size:.82em;background:none;border:0;padding:0">global-memory</code></h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="global-memory">Copy for your agent</button><a href="md/global-memory.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<div class="meta"><span class="pill mute">v1.0.0</span></div>
+<p class="lead">Adds a machine-wide memory folder beside the per-project auto memory, so facts about the machine reach every session from any folder.</p>
+<h2>Why</h2>
+<p>Claude Code's auto memory is per project. A fact about the machine, such as where a tool lives or how a service is reached, saved in one project's memory is missing from every other project. This mod adds one global folder that every session reads, and tells the agent which memories go there.</p>
+<h2>What it does</h2>
+<ul>
+  <li>Rewrites the memory section of the system prompt to describe both folders and where each type of memory goes: <code>user</code> and <code>feedback</code> default to global, <code>reference</code> goes global when it is about the machine, and <code>project</code> always stays in the project.</li>
+  <li>Adds the global <code>MEMORY.md</code> to the instruction files, so its index reaches every session the way the project index does.</li>
+  <li>Keeps core's mode. When memory is read-only, the global folder is described as read-only too. When auto memory is off, or the global folder or its <code>MEMORY.md</code> is missing, the mod changes nothing.</li>
+</ul>
+<h2>Turn it on</h2>
+<p>The mod creates nothing. Make the folder and an empty <code>MEMORY.md</code> in it, and the mod starts on the next session:</p>
+<div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>mkdir -p ~/.claude/global-memory &amp;&amp; touch ~/.claude/global-memory/MEMORY.md</pre></div>
+<p><code>globalDir</code> can point to a folder inside a git repo, such as <code>~/dotfiles/memory</code>, so the memories are versioned and can follow you to another machine.</p>
+<div class="callout warn"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.73 18l-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3M12 9v4M12 17h.01"/></svg><div><strong class="label">No credentials</strong><p>Every session on the machine reads the global folder. Never save a password or a key there.</p></div></div>
+<h2>On a Team or Enterprise plan</h2>
+<p>The built-in guard <code>sec-default@builtin</code> skips mods you install yourself on <code>prompt.section</code> and <code>prompt.context</code>, the two events this mod needs. List it in <code>prependPlugins</code> in managed settings, ahead of the guard, so it counts as your organization's:</p>
+<div class="code"><div class="code-head"><span>managed settings</span><button class="copy">Copy</button></div><pre>{
+  &quot;enabledPlugins&quot;: { &quot;global-memory@cockpit&quot;: true },
+  &quot;prependPlugins&quot;: [&quot;global-memory@cockpit&quot;, &quot;sec-default@builtin&quot;]
+}</pre></div>
+<p>On a personal plan it works as installed; on a Team or Enterprise plan it does nothing until these settings are in place.</p>
+<h2>Options</h2>
+<div class="table-wrap stack"><table><tr><th>Option</th><th>Default</th><th>What it does</th></tr><tr><td><code>globalDir</code></td><td><code>~/.claude/global-memory</code></td><td>Folder of the machine-wide memory, with its own <code>MEMORY.md</code>.</td></tr></table></div>
+<h2>What it records</h2><p><code>~/.local/state/mods/global-memory/&lt;day&gt;-&lt;session&gt;.jsonl</code>: one line each time the memory section is rewritten, the global index is added, or the mod steps aside and why, plus one <code>session-summary</code> line. Each line has <code>at</code>, <code>session</code> and <code>event</code>.</p>
+<h2>Cost</h2>
+<p>None per tool call: the mod has no <code>tool.call</code> hook. It reads the global <code>MEMORY.md</code> when the system prompt and the first context are built. The rewritten text depends only on its input, so the prompt cache stays warm.</p>
+<h2>Limits</h2>
+<ul>
+  <li>The rewrite matches the wording of the memory section Claude Code 2.1.292 sends. A different wording is left alone and logged as <code>skipped-unrecognized</code>.</li>
+  <li>Tested on Linux only.</li>
+</ul>
+<h2>Install this mod alone</h2><p>The <code>cockpit</code> bundle already installs <code>global-memory</code> with the other mods. To install it alone:</p><div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin marketplace add joaosavi/cockpit
+claude plugin install global-memory@cockpit</pre></div>
+</article>
+
+<article class="page" id="commands" data-title="Commands" hidden>
+  <div class="crumb">Reference</div>
+  <h1>Commands</h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="commands">Copy for your agent</button><a href="md/commands.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<p class="lead">Every command Cockpit adds. Each one also answers in plain text, so it works where no pane is drawn, such as Remote Control.</p>
+<div class="table-wrap stack"><table><tr><th>Command</th><th>Mod</th><th>What it shows</th></tr><tr><td><code>/panel</code></td><td><a href="#panel">panel</a></td><td>The address of the session page, and how many sessions need you. Starts the server when it does not answer. In a session opened over SSH, also prints the tunnel command.</td></tr><tr><td><code>/hud</code></td><td><a href="#hud">hud</a></td><td>The full heads-up display: session, limits, memory, now, today.</td></tr><tr><td><code>/limit</code></td><td><a href="#usage-limit">usage-limit</a></td><td>The plan windows with their stages, the state, and what is held for the resume.</td></tr><tr><td><code>/ram</code></td><td><a href="#memory-guard">memory-guard</a></td><td>Memory headroom per group, or of the machine, and the measured peak of each heavy command.</td></tr><tr><td><code>/cockpit:setup</code></td><td>cockpit</td><td>Runs the setup again, to change the style or any other answer.</td></tr></table></div>
+<h2>Keys inside a pane</h2>
+<p>Press <code>r</code> to refresh it and <code>esc</code> to close it.</p>
+<h2>Keys on the panel page</h2>
+<p>Press <code>r</code> to summarize every session again, or <code>R</code> in Inbox, where <code>r</code> goes to the reply field. <code>esc</code> closes the send dialog, then the Mods drawer, then the Board drawer. Each view adds its own keys, listed on the <a href="#panel">panel page</a>.</p>
+</article>
+
+<article class="page" id="configure" data-title="Configure and turn mods off" hidden>
+  <div class="crumb">Reference</div>
+  <h1>Configure and turn mods off</h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="configure">Copy for your agent</button><a href="md/configure.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<p class="lead">Every mod option is a row in <code>/config</code>. The setup handles the few settings a plugin cannot write itself.</p>
+<h2>Change an option</h2>
+<p>Open <code>/config</code> and scroll to the mod. Each mod's page lists its options, their defaults and what they do. The status line picks up a change within five seconds; for the other mods, restart Claude Code or run <code>/reload-plugins</code>.</p>
+<h2>In the settings file</h2>
+<p>The same options live under <code>pluginConfigs</code> in <code>~/.claude/settings.json</code>, keyed by <code>&lt;mod&gt;@cockpit</code>. This is useful to share a setup across machines:</p>
+<div class="code"><div class="code-head"><span>~/.claude/settings.json</span><button class="copy">Copy</button></div><pre>{
+  &quot;pluginConfigs&quot;: {
+    &quot;hud@cockpit&quot;: { &quot;options&quot;: { &quot;style&quot;: &quot;blocks&quot;, &quot;icons&quot;: &quot;unicode&quot; } },
+    &quot;usage-limit@cockpit&quot;: { &quot;options&quot;: { &quot;timeZone&quot;: &quot;Europe/Lisbon&quot; } },
+    &quot;collision-guard@cockpit&quot;: { &quot;options&quot;: { &quot;git&quot;: &quot;note&quot; } }
+  }
+}</pre></div>
+<h2>What the setup writes</h2>
+<div class="table-wrap stack"><table><tr><th>Setting</th><th>Value</th><th>Why</th></tr><tr><td><code>statusLine</code></td><td>the <code>hud</code> script, with <code>refreshInterval: 5</code></td><td>A plugin cannot draw under the prompt.</td></tr><tr><td><code>spinnerTipsEnabled</code></td><td><code>false</code></td><td>So the <code>spinner-status</code> line replaces Claude Code's tip instead of sitting under it.</td></tr><tr><td><code>autoCompactWindow</code></td><td><code>733000</code> on a 1M model, if you choose it</td><td>Claude Code summarizes the conversation at about 70% instead of near the end.</td></tr><tr><td><code>pluginConfigs</code></td><td><code>band: "off"</code> for the hud, style, icons, time zone</td><td>Your answers to the setup questions. With the status line on, the band goes off so the rows do not show twice.</td></tr><tr><td><code>enabledPlugins</code></td><td><code>claude-hud@claude-hud</code> off, when it was on</td><td>Its status line is the one the hud replaces.</td></tr><tr><td><code>extraKnownMarketplaces.cockpit</code></td><td><code>autoUpdate: true</code></td><td>The mods update by themselves.</td></tr></table></div>
+<h2>Turn one mod off</h2>
+<p>Claude Code refuses to disable a plugin that an enabled plugin requires, and the <code>cockpit</code> bundle requires every mod. Disable the bundle first, then the mod:</p>
+<div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin disable cockpit@cockpit
+claude plugin disable pipefail@cockpit</pre></div>
+<p>The other mods stay on. Enabling the bundle again turns the mod back on. <code>spinner-status</code> also has an <b>Enabled</b> option in <code>/config</code>, which turns it off without touching the bundle.</p>
+</article>
+
+<article class="page" id="remote" data-title="Run on a remote machine" hidden>
+  <div class="crumb">Reference</div>
+  <h1>Run on a remote machine</h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="remote">Copy for your agent</button><a href="md/remote.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<p class="lead">If you run Claude Code on a remote Linux machine over SSH, the mods work the same, and a few parts do more.</p>
+<h2>Open the page through a tunnel</h2>
+<p><code>panel</code> listens only on <code>127.0.0.1</code> of the machine where the sessions run. From your computer, open an SSH tunnel, then open <code>http://localhost:7777</code>. In a session opened over SSH, <code>/panel</code> prints this command with the machine's name.</p>
+<div class="code"><div class="code-head"><span>on your computer</span><button class="copy">Copy</button></div><pre>ssh -N -L 7777:127.0.0.1:7777 &lt;host&gt;</pre></div>
+<p>To open the tunnel with every SSH login, add one line to the host's entry in <code>~/.ssh/config</code> on your computer:</p>
+<div class="code"><div class="code-head"><span>~/.ssh/config</span><button class="copy">Copy</button></div><pre>Host &lt;host&gt;
+  LocalForward 7777 127.0.0.1:7777</pre></div>
+<h2>Run the page as a service</h2>
+<p>Instead of letting a session start the page, run it under systemd. Set the <code>panel</code> option <code>autostart</code> to <code>false</code>, then run the server as a unit:</p>
+<div class="code"><div class="code-head"><span>systemd unit</span><button class="copy">Copy</button></div><pre>[Service]
+User=&lt;user&gt;
+ExecStart=/usr/bin/python3 -I /home/&lt;user&gt;/.claude/plugins/marketplaces/cockpit/panel/server/panel.py
+Environment=PANEL_CLAUDE=/home/&lt;user&gt;/.local/bin/claude
+Restart=always</pre></div>
+<p><code>PANEL_PORT</code>, <code>PANEL_MODEL</code> and <code>PANEL_REFRESH_MINUTES</code> set the server's options. Set <code>PANEL_GROUPS</code> to a comma-separated list of cgroup paths, such as <code>agents.slice</code>, to show those groups and everything under them on the page.</p>
+<h2>Memory limits</h2>
+<p>When sessions run under a cgroup v2 memory limit, as a systemd service or a container sets, <code>memory-guard</code> keeps heavy commands under the tightest limit, the <code>hud</code> shows the room left under it, <code>/ram</code> shows each group, and the page shows each group's memory and the state of its systemd services.</p>
+<h2>Remote Control and tmux</h2>
+<p>Every Cockpit command also answers in plain text, so it works when you drive a session over <a href="https://code.claude.com/docs/en/remote-control" target="_blank" rel="noopener">Remote Control</a> from claude.ai or the mobile app, where no pane is drawn. The page links a session to claude.ai when the session runs with Remote Control. For a session that runs in tmux, its <b>tmux</b> button copies the command that attaches to its pane.</p>
+</article>
+
+<article class="page" id="data" data-title="What leaves your machine" hidden>
+  <div class="crumb">Reference</div>
+  <h1>What leaves your machine</h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="data">Copy for your agent</button><a href="md/data.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<p class="lead">Cockpit runs inside Claude Code on your machine. Two mods send an excerpt of the session to a model, through your own account. Everything else stays local.</p>
+<h2>What leaves</h2>
+<div class="table-wrap stack"><table><tr><th>Mod</th><th>Sends</th><th>When</th></tr><tr><td><code>panel</code></td><td>An excerpt of each session's transcript, through <code>claude -p</code>, to <code>sonnet</code> by default</td><td>On <b>Refresh</b>, when a session goes idle after a turn, and every 5 minutes for a session that changed</td></tr><tr><td><code>spinner-status</code></td><td>The last few prompts and the agent's last text, at most 3,000 characters, to Haiku</td><td>Once per turn, or never in <code>tips</code> mode</td></tr><tr><td><code>hud</code></td><td>A <code>gh pr view</code> request for the current branch, to GitHub</td><td>At most once a minute, when <code>gh</code> is installed</td></tr></table></div>
+<p>These calls use the same account and the same data terms as the rest of your Claude Code session. No other mod calls a model.</p>
+<h2>What stays</h2>
+<ul>
+  <li>Every mod writes a diary under <code>~/.local/state/mods/&lt;mod&gt;/</code>, one line per action and one summary per session. A diary never holds a secret value or a file's content.</li>
+  <li><code>collision-guard</code> keeps the list of files each session edited. An ended session marks its record, and records older than <code>expireHours</code> (24 hours by default) are removed when a session starts.</li>
+  <li><code>secret-guard</code> holds secret values in memory only, never on disk.</li>
+  <li><code>panel</code> keeps the last summary of each session. The page has no login and listens only on <code>127.0.0.1</code>. Anyone who can reach that port can read it and type into your sessions, so do not expose it.</li>
+</ul>
+</article>
+
+<article class="page" id="troubleshooting" data-title="Troubleshooting" hidden>
+  <div class="crumb">Reference</div>
+  <h1>Troubleshooting</h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="troubleshooting">Copy for your agent</button><a href="md/troubleshooting.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<p class="lead">The problems people hit most, and the fix for each.</p><div class="table-wrap stack"><table><tr><th>Symptom</th><th>Fix</th></tr><tr><td>The status line does not show, or only changes when a message arrives</td><td>The <code>statusLine</code> setting is missing, or has no <code>refreshInterval</code>. Run <code>/cockpit:setup</code> again, then restart Claude Code.</td></tr><tr><td>The status line shows nothing at all</td><td>The script needs Node 22.18 or later. Run <code>node --version</code>, and update Node if it is older.</td></tr><tr><td>Icons show as boxes or question marks</td><td>The terminal font has no Nerd Font glyphs. Set <code>icons</code> to <code>unicode</code> under <code>hud</code> in <code>/config</code>, or install a Nerd Font and select it in your terminal.</td></tr><tr><td>The bars look like a single blurred shape</td><td>Some fonts draw the bar glyphs joined together. Set <code>bar</code> under <code>hud</code> to <code>dots</code> or <code>squares</code>.</td></tr><tr><td>Two lines show under the spinner</td><td>Claude Code's own tip is still on. Set <code>"spinnerTipsEnabled": false</code> in your settings, or run the setup again.</td></tr><tr><td>A mod shows <code>failed to load</code> in <code>claude plugin list</code></td><td>The marketplace copy and the installed version are out of step. Run <code>claude plugin marketplace update cockpit</code>, then <code>claude plugin update cockpit@cockpit</code>, and restart.</td></tr><tr><td>The mod options are gone</td><td>Removing a marketplace deletes the saved options of its plugins. Run <code>/cockpit:setup</code> again to write them back.</td></tr><tr><td><code>global-memory</code> does nothing on a Team or Enterprise plan</td><td>Those plans skip user-installed plugins on the hooks it needs. It must run as an organization plugin; its <a href="#global-memory">page</a> shows the managed settings.</td></tr><tr><td><code>/panel</code> says the page server is not running</td><td>The server starts when a session starts, unless <code>autostart</code> is off. Check that Python 3.9 or later is installed as <code>python3</code>, <code>python</code> or <code>py</code>, and that <code>curl</code> runs, then start a new session. The server writes its errors to <code>~/.local/state/mods/panel/server.log</code>.</td></tr><tr><td>The page greys out the options of a session</td><td>The session has not checked its inbox in the last 15 seconds, usually because it loaded an older <code>panel</code> mod. Run <code>/reload-plugins</code> in that session.</td></tr><tr><td>The Mods drawer shows no memory groups or services</td><td>That is expected on macOS and Windows. The page shows memory by group only for Linux cgroup v2 groups with a limit, and services only under systemd.</td></tr><tr><td><code>/ram</code> says there is no memory reading</td><td><code>memory-guard</code> found no <code>/proc/meminfo</code>, and the system command failed: <code>sysctl</code> and <code>vm_stat</code> on macOS, or PowerShell on Windows, missing or slower than its timeout. Until a reading works, heavy commands run as written.</td></tr><tr><td>A git command was refused with a list of files</td><td><code>collision-guard</code> held it, because another session on this machine has uncommitted edits in the same repo, under the paths the command names. Name your own files instead, or run the same command again within 2 minutes.</td></tr></table></div>
+</article>
+
+<article class="page" id="update" data-title="Update and uninstall" hidden>
+  <div class="crumb">Reference</div>
+  <h1>Update and uninstall</h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="update">Copy for your agent</button><a href="md/update.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<p class="lead">Updates arrive by themselves, a few minutes after the first message of a session. You can also update by hand, and remove everything in two commands.</p>
+<h2>Automatic updates</h2>
+<p>The setup turns on auto-update for the <code>cockpit</code> marketplace. Claude Code then refreshes the marketplace once per session and updates every Cockpit mod with a new version, each one on its own. The open session keeps the versions it loaded until you run <code>/reload-plugins</code>; the next session loads the new ones.</p>
+<h2>Update by hand</h2>
+<p>Updating the bundle does not update the mods: each mod is its own plugin. To update them all now:</p>
+<div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin marketplace update cockpit
+for m in $(claude plugin list | grep -o &#x27;[a-z-]*@cockpit&#x27;); do claude plugin update &quot;$m&quot;; done</pre></div>
+<p>To update one mod, name it: <code>claude plugin update hud@cockpit</code>.</p>
+<h2>Uninstall</h2>
+<div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin uninstall cockpit@cockpit
+claude plugin prune</pre></div>
+<p>Uninstalling the bundle leaves the mods installed; <code>claude plugin prune</code> removes them. The setup wrote <code>statusLine</code>, <code>spinnerTipsEnabled</code> and <code>autoCompactWindow</code> to your settings file and kept a backup next to it. Remove those keys by hand, or restore the backup.</p>
+<h2>Remove the data</h2>
+<p>The mods leave their diaries in <code>~/.local/state/mods/</code>. Delete that folder to remove everything Cockpit wrote.</p>
+</article>
+
+<article class="page" id="versions" data-title="Versions" hidden>
+  <div class="crumb">Reference</div>
+  <h1>Versions</h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="versions">Copy for your agent</button><a href="md/versions.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<p class="lead">Cockpit 1.2.0. The bundle carries the version of the release, and each mod carries the version of the release where it last changed.</p>
+<p>A mod that did not change in a release keeps its version, so Claude Code does not update it.</p>
+<div class="table-wrap"><table><tr><th>Mod</th><th>Version</th></tr><tr><td><code>cockpit</code> (bundle)</td><td>1.2.0</td></tr><tr><td><a href="#secret-guard"><code>secret-guard</code></a></td><td>1.1.0</td></tr><tr><td><a href="#collision-guard"><code>collision-guard</code></a></td><td>1.0.0</td></tr><tr><td><a href="#pipefail"><code>pipefail</code></a></td><td>1.0.0</td></tr><tr><td><a href="#memory-guard"><code>memory-guard</code></a></td><td>1.0.0</td></tr><tr><td><a href="#loop-breaker"><code>loop-breaker</code></a></td><td>1.0.0</td></tr><tr><td><a href="#usage-limit"><code>usage-limit</code></a></td><td>1.2.0</td></tr><tr><td><a href="#hud"><code>hud</code></a></td><td>1.0.0</td></tr><tr><td><a href="#spinner-status"><code>spinner-status</code></a></td><td>1.0.0</td></tr><tr><td><a href="#panel"><code>panel</code></a></td><td>1.0.0</td></tr><tr><td><a href="#skill-loader"><code>skill-loader</code></a></td><td>1.0.0</td></tr><tr><td><a href="#global-memory"><code>global-memory</code></a></td><td>1.0.0</td></tr></table></div>
+<h2>What changed</h2>
+<ul>
+  <li><b>1.2.0</b>: <code>usage-limit</code> limits each window on its own, with a separate throttle, commit and pause for the 5-hour and 7-day windows, each with its own switch and percentage.</li>
+  <li><b>1.1.0</b>: <code>secret-guard</code> reads the secrets folder beside the secrets file.</li>
+</ul>
+</article>
+
+<nav class="pager" id="pager" aria-label="Previous and next page"></nav>
+<div class="foot">Cockpit 1.2.0 · <a href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">github.com/joaosavi/cockpit</a> · MIT license · Not affiliated with Anthropic · <a href="llms.txt">llms.txt</a> · Reviewed on October 20, 2026</div>
+</main>
+
+<aside class="toc" id="toc" aria-label="On this page"><h5>On this page</h5><div id="tocList"></div></aside>
+</div>
+
+<script>
+(function () {
+  var pages = Array.prototype.slice.call(document.querySelectorAll('article.page'));
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav-group a'));
+  var tocList = document.getElementById('tocList');
+  var pager = document.getElementById('pager');
+  var sidebar = document.getElementById('sidebar');
+  var menuBtn = document.getElementById('menuBtn');
+  var current = null;
+
+  function pageById(id) { for (var i = 0; i < pages.length; i++) if (pages[i].id === id) return pages[i]; return null; }
+
+  function buildToc(page) {
+    tocList.innerHTML = '';
+    var hs = page.querySelectorAll('h2');
+    hs.forEach(function (h, i) {
+      if (!h.id) h.id = page.id + '-s' + i;
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = h.textContent;
+      b.addEventListener('click', function () { h.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' }); });
+      b.dataset.target = h.id;
+      tocList.appendChild(b);
+    });
+    document.getElementById('toc').style.visibility = hs.length ? 'visible' : 'hidden';
+  }
+
+  function buildPager(idx) {
+    pager.innerHTML = '';
+    var cur = pages[idx];
+    var pick = function (key, fallback) { var v = cur.dataset[key]; return v === undefined ? fallback : (v ? pageById(v) : null); };
+    var prev = pick('prev', pages[idx - 1]), next = pick('next', pages[idx + 1]);
+    if (prev) { var a = document.createElement('a'); a.href = '#' + prev.id; a.innerHTML = '<small>Previous</small><b></b>'; a.querySelector('b').textContent = '← ' + prev.dataset.title; pager.appendChild(a); }
+    if (next) { var n = document.createElement('a'); n.href = '#' + next.id; n.className = 'next'; n.innerHTML = '<small>Next</small><b></b>'; n.querySelector('b').textContent = next.dataset.title + ' →'; pager.appendChild(n); }
+  }
+
+  function route() {
+    var id = (location.hash || '#start').slice(1);
+    var page = pageById(id) || pages[0];
+    pages.forEach(function (p) { p.hidden = p !== page; });
+    navLinks.forEach(function (a) { a.classList.toggle('active', a.getAttribute('href') === '#' + page.id); });
+    var side = document.querySelector('.nav-group a[href="#' + page.id + '"]');
+    var group = side ? side.closest('.nav-group').querySelector('h4').textContent : '';
+    document.querySelectorAll('.topnav a').forEach(function (a) { a.classList.toggle('on', a.dataset.group === group); });
+    buildToc(page);
+    buildPager(pages.indexOf(page));
+    if (current !== page) window.scrollTo(0, 0);
+    current = page;
+    sidebar.classList.remove('open');
+    menuBtn.setAttribute('aria-expanded', 'false');
+  }
+  window.addEventListener('hashchange', route);
+
+  // sumário acompanha a rolagem
+  window.addEventListener('scroll', function () {
+    var btns = tocList.querySelectorAll('button');
+    var on = null;
+    btns.forEach(function (b) { var h = document.getElementById(b.dataset.target); if (h && h.getBoundingClientRect().top < 140) on = b; });
+    btns.forEach(function (b) { b.classList.toggle('on', b === on); });
+  }, { passive: true });
+
+  menuBtn.addEventListener('click', function () {
+    var open = sidebar.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+
+  // copiar
+  document.querySelectorAll('.code').forEach(function (box) {
+    var btn = box.querySelector('.copy');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var pre = box.querySelector('pre');
+      var text = pre.textContent;
+      var done = function () { var old = btn.textContent; btn.textContent = 'Copied'; btn.classList.add('done'); setTimeout(function () { btn.textContent = old; btn.classList.remove('done'); }, 1600); };
+      var fallback = function () { var old = btn.textContent; var r = document.createRange(); r.selectNodeContents(pre); var s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = 'Selected, press Ctrl+C'; setTimeout(function () { btn.textContent = old; }, 3000); };
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+        else fallback();
+      } catch (e) { fallback(); }
+    });
+  });
+
+  // abas
+  document.querySelectorAll('[data-tabs]').forEach(function (tabs) {
+    var btns = tabs.querySelectorAll('[role="tab"]');
+    btns.forEach(function (o) { o.tabIndex = o.getAttribute('aria-selected') === 'true' ? 0 : -1; });
+    btns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        btns.forEach(function (o) { o.setAttribute('aria-selected', o === b ? 'true' : 'false'); o.tabIndex = o === b ? 0 : -1; document.getElementById(o.getAttribute('aria-controls')).hidden = o !== b; });
+      });
+    });
+    tabs.querySelector('[role="tablist"]').addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      var list = Array.prototype.slice.call(btns), i = list.indexOf(document.activeElement);
+      var n = list[(i + (e.key === 'ArrowRight' ? 1 : list.length - 1)) % list.length];
+      n.click(); n.focus();
+    });
+  });
+
+  // busca da lateral: filtra os mini-guias pelo título e pelo texto
+  var q = document.getElementById('q');
+  var sideEmpty = document.getElementById('sideEmpty');
+  var norm = function (t) { return t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); };
+  var index = {};
+  pages.forEach(function (p) {
+    // o pedido do setup repete o guia inteiro e ficaria em toda busca
+    var c = p.cloneNode(true); c.querySelectorAll('#prompt-text, .page-actions, .done-btn, [data-search="skip"]').forEach(function (e) { e.remove(); });
+    // espaço entre os blocos, para o trecho achado não colar palavras vizinhas
+    c.querySelectorAll('*').forEach(function (e) { e.prepend(' '); e.append(' '); });
+    var raw = c.textContent.replace(/\s+/g, ' ');
+    index[p.id] = { title: norm(p.dataset.title), text: norm(raw), raw: raw };
+  });
+  var term = '';
+  function filter() {
+    term = norm(q.value.trim());
+    var any = false;
+    document.querySelectorAll('.nav-group').forEach(function (g) {
+      var shown = 0;
+      g.querySelectorAll('a').forEach(function (a) {
+        var it = index[a.dataset.id], old = a.querySelector('.snip');
+        if (old) old.remove();
+        var hit = !term || it.title.indexOf(term) !== -1 || it.text.indexOf(term) !== -1;
+        a.hidden = !hit;
+        if (hit) shown++;
+        if (hit && term && it.title.indexOf(term) === -1) {
+          var pos = it.text.indexOf(term), start = Math.max(0, pos - 30);
+          var sn = document.createElement('span');
+          sn.className = 'snip';
+          sn.append((start ? '…' : '') + it.raw.slice(start, pos));
+          var b = document.createElement('b'); b.textContent = it.raw.slice(pos, pos + term.length); sn.append(b);
+          sn.append(it.raw.slice(pos + term.length, pos + term.length + 40) + '…');
+          a.querySelector('.lbl').append(sn);
+        }
+      });
+      g.hidden = !shown;
+      any = any || shown > 0;
+    });
+    sideEmpty.hidden = any;
+  }
+  function markFirst(page) {
+    document.querySelectorAll('mark.hit').forEach(function (m) { m.replaceWith(document.createTextNode(m.textContent)); });
+    if (!term) return;
+    var walker = document.createTreeWalker(page, NodeFilter.SHOW_TEXT), n, found = [];
+    while ((n = walker.nextNode())) {
+      if (n.parentElement.closest('pre, .demo, svg, [data-search="skip"]')) continue;
+      if (norm(n.nodeValue).indexOf(term) !== -1) found.push(n);
+    }
+    var first = null;
+    found.forEach(function (node) {
+      var i = norm(node.nodeValue).indexOf(term);
+      while (i !== -1) {
+        var r = document.createRange(); r.setStart(node, i); r.setEnd(node, i + term.length);
+        var m = document.createElement('mark'); m.className = 'hit'; r.surroundContents(m);
+        first = first || m;
+        node = m.nextSibling; if (!node || node.nodeType !== 3) break;
+        i = norm(node.nodeValue).indexOf(term);
+      }
+    });
+    if (first) setTimeout(function () { first.scrollIntoView({ block: 'center' }); }, 50);
+  }
+
+  q.addEventListener('input', function () { filter(); if (!term) document.querySelectorAll('mark.hit').forEach(function (m) { m.replaceWith(document.createTextNode(m.textContent)); }); });
+  q.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { var vis = [].slice.call(document.querySelectorAll('.nav-group a:not([hidden])')); var a = vis.filter(function (x) { return !x.querySelector('.snip'); })[0] || vis[0]; if (a) { location.hash = a.dataset.id; if (location.hash === '#' + a.dataset.id) markFirst(document.getElementById(a.dataset.id)); } }
+    else if (e.key === 'Escape') { q.value = ''; filter(); q.blur(); }
+  });
+  window.addEventListener('hashchange', function () { var p = document.getElementById(location.hash.slice(1)); if (p && term) markFirst(p); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === '/' && document.activeElement !== q && !/input|textarea/i.test(document.activeElement.tagName)) {
+      e.preventDefault();
+      if (getComputedStyle(menuBtn).display !== 'none' && !sidebar.classList.contains('open')) menuBtn.click();
+      q.focus();
+    }
+  });
+
+  // botão que copia o pedido de outra página
+  document.querySelectorAll('[data-copy-target]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = document.getElementById(btn.dataset.copyTarget).textContent, old = btn.textContent;
+      var done = function () { btn.textContent = 'Copied'; btn.classList.add('done'); setTimeout(function () { btn.textContent = old; btn.classList.remove('done'); }, 1600); };
+      try { navigator.clipboard.writeText(text).then(done, function () { location.hash = 'install'; }); } catch (e) { location.hash = 'install'; }
+    });
+  });
+
+  // grupos da lateral: abre o grupo da página atual, a busca abre todos
+  function openGroupOf(id) {
+    document.querySelectorAll('.nav-group').forEach(function (g) {
+      if (g.querySelector('a[data-id="' + id + '"]')) { g.classList.remove('closed'); g.querySelector('.ng-toggle').setAttribute('aria-expanded', 'true'); }
+    });
+  }
+  document.querySelectorAll('.ng-toggle').forEach(function (t) {
+    t.addEventListener('click', function () {
+      var g = t.closest('.nav-group'); var c = g.classList.toggle('closed'); t.setAttribute('aria-expanded', c ? 'false' : 'true');
+      try { var k = JSON.parse(localStorage.getItem('cpClosed') || '{}'); k[t.textContent.trim()] = c; localStorage.setItem('cpClosed', JSON.stringify(k)); } catch (e) {}
+    });
+    if (!t.querySelector('.ng-caret')) t.disabled = true;
+    try { if (JSON.parse(localStorage.getItem('cpClosed') || '{}')[t.textContent.trim()]) { t.closest('.nav-group').classList.add('closed'); t.setAttribute('aria-expanded', 'false'); } } catch (e) {}
+  });
+  window.addEventListener('hashchange', function () { openGroupOf((location.hash || '#start').slice(1)); });
+  openGroupOf((location.hash || '#start').slice(1));
+  q.addEventListener('input', function () { if (q.value.trim()) document.querySelectorAll('.nav-group').forEach(function (g) { g.classList.remove('closed'); }); });
+
+  // menu do celular: fundo escuro, Esc e toque fora fecham
+  var scrim = document.createElement('div'); scrim.className = 'scrim'; scrim.hidden = true; document.body.appendChild(scrim);
+  function syncMenu() {
+    var open = sidebar.classList.contains('open');
+    scrim.hidden = !open; document.body.classList.toggle('menu-open', open);
+    menuBtn.setAttribute('aria-label', open ? 'Close the menu' : 'Open the menu');
+    var path = menuBtn.querySelector('path'); if (path) path.setAttribute('d', open ? 'M6 6l12 12M18 6L6 18' : 'M4 7h16M4 12h16M4 17h16');
+  }
+  new MutationObserver(syncMenu).observe(sidebar, { attributes: true, attributeFilter: ['class'] });
+  scrim.addEventListener('click', function () { sidebar.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sidebar.classList.contains('open')) { sidebar.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); } });
+
+  // a lateral mostra o item ativo
+  function showActive() { var a = sidebar.querySelector('a.active'); if (!a) return; var top = a.getBoundingClientRect().top - sidebar.getBoundingClientRect().top + sidebar.scrollTop; sidebar.scrollTop = top - sidebar.clientHeight / 2; }
+  window.addEventListener('hashchange', function () { setTimeout(showActive, 0); });
+  setTimeout(showActive, 0);
+
+  // tabela em cartões no celular: cada célula leva o nome da coluna
+  document.querySelectorAll('.table-wrap.stack table').forEach(function (t) {
+    var head = t.rows[0] ? [].map.call(t.rows[0].cells, function (c) { return c.textContent.trim(); }) : [];
+    if (head.length < 3) return;
+    [].slice.call(t.rows, 1).forEach(function (r) { [].forEach.call(r.cells, function (c, i) { if (i && head[i]) c.dataset.label = head[i]; }); });
+  });
+  route();
+})();
+</script>
+
+<script>
+(function () {
+  // the language switch keeps the page you are on
+  document.querySelectorAll('[data-lang-link]').forEach(function (a) {
+    a.addEventListener('click', function () { if (location.hash) a.href = a.getAttribute('href') + location.hash; });
+  });
+  // copy a request that points the reader's agent at the Markdown of this page
+  document.querySelectorAll('[data-agent]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var text = 'Read {url} with curl and help me with this part of Cockpit, the mods for Claude Code. The index of every page is at {idx}.'.replace('{url}', 'https://joaosavi.github.io/cockpit/md/' + b.dataset.agent + '.md').replace('{idx}', 'https://joaosavi.github.io/cockpit/llms.txt');
+      var old = b.textContent;
+      var ok = function () { b.textContent = 'Copied'; setTimeout(function () { b.textContent = old; }, 1600); };
+      try { navigator.clipboard.writeText(text).then(ok, function () { location.href = 'md/' + b.dataset.agent + '.md'; }); } catch (e) { location.href = 'md/' + b.dataset.agent + '.md'; }
+    });
+  });
+})();
+</script>
+
+</body></html>
