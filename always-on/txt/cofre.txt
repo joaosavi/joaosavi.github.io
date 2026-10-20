@@ -21,10 +21,11 @@ O valor fica só no ambiente do comando. O Cockpit (txt/mods.txt) é um pacote d
 O Vaultwarden é um servidor compatível com o Bitwarden: os mesmos apps, a mesma extensão e o mesmo comando `bw` funcionam com ele. Para quem começa, o Bitwarden na nuvem dá menos trabalho. 
 
 ## Como subir o Vaultwarden na VPS 
-O Vaultwarden e a extensão do Bitwarden só aceitam endereço com HTTPS, até em `localhost`. Testamos o Vaultwarden 1.37.4 e a extensão 2026.10.0: por `http`, o cofre web recusa o login e a extensão recusa o endereço. O caminho mais simples é o Tailscale, uma rede privada entre os seus aparelhos. Ele dá ao cofre um endereço HTTPS válido que só os aparelhos da sua rede abrem. 
+O Vaultwarden e a extensão do Bitwarden só aceitam endereço com HTTPS, até em `localhost`. Testamos o Vaultwarden 1.37.4 e a extensão 2026.10.0: por `http`, o cofre web recusa o login e a extensão recusa o endereço. O HTTPS precisa de um domínio, e o DuckDNS dá um de graça, no formato `<nome>.duckdns.org`. O Caddy, um servidor web, fica na frente do cofre e tira o certificado sozinho. 
 
-- Ligue o Tailscale. Instale o Tailscale na VPS, no seu computador e no celular, com a mesma conta. O passo da VPS está em Como acessar a VPS por SSH e VS Code (txt/acesso.txt). O endereço da VPS na rede fica no formato `<maquina>.<rede>.ts.net`, e o `tailscale status` mostra o seu. 
-- Suba o Vaultwarden. Troque o endereço do `DOMAIN` pelo da sua VPS: 
+- Pegue o domínio. Entre em duckdns.org (https://www.duckdns.org) com a conta do GitHub ou do Google, escolha o nome e ponha no campo current ip o IP público da VPS. Guarde o token da página no cofre. 
+- Abra as portas 80 e 443. O Let's Encrypt, que emite o certificado, confere o domínio pela porta 80, e o cofre responde na 443. Na Oracle, abra as duas na security list e no `iptables`, como a porta 22 em Como conseguir a VPS grátis na Oracle (txt/oracle.txt). 
+- Suba o Vaultwarden. Ele escuta só no `127.0.0.1`, e quem fala com a internet é o Caddy: 
 
 bash, na máquina
 ```
@@ -32,19 +33,28 @@ sudo mkdir -p /srv/vaultwarden
 docker run -d --name vaultwarden \
   --restart unless-stopped \
   -e SIGNUPS_ALLOWED=true \
-  -e DOMAIN=https://<maquina>.<rede>.ts.net \
+  -e DOMAIN=https://<nome>.duckdns.org \
   -v /srv/vaultwarden:/data \
   -p 127.0.0.1:8222:80 \
   vaultwarden/server:1.37.4
 ```
 
-- Publique com HTTPS na sua rede. O Tailscale tira o certificado e passa o tráfego para a porta 8222: 
+- Ponha o Caddy na frente.  
 
 bash, na máquina
 ```
-sudo tailscale serve --bg 8222
+sudo apt-get install -y caddy
+sudo tee /etc/caddy/Caddyfile > /dev/null <<'EOF'
+<nome>.duckdns.org {
+	reverse_proxy 127.0.0.1:8222
+}
+EOF
+sudo systemctl reload caddy
 ```
-Na primeira vez, o comando mostra um link para ligar o HTTPS na sua rede. Abra o link e aceite. O cofre abre em `https://<maquina>.<rede>.ts.net`, no navegador, na extensão e no app do celular.  
+Em menos de um minuto, o cofre abre em `https://<nome>.duckdns.org`, no navegador, na extensão e no app do celular. O Caddy renova o certificado sozinho.  
+
+O cofre fica na internet
+Qualquer pessoa alcança a tela de login, e o que protege as senhas é a senha mestra. Feche o cadastro depois de criar as contas, que o passo 10 abaixo mostra. Ligue o login em duas etapas na sua conta, em Settings, Security, Two-step login. Não defina o `ADMIN_TOKEN`: sem ele, o painel de administração do Vaultwarden fica desligado. 
 
 ## Como pôr uma senha no cofre e entregar ao agente 
 A interface do Vaultwarden é em inglês, e os nomes abaixo são os da tela. Ele funciona sem servidor de e-mail: o convite não manda mensagem, e a conta do agente aceita o convite ao se cadastrar. 
@@ -59,8 +69,9 @@ A interface do Vaultwarden é em inglês, e os nomes abaixo são os da tela. Ele
 - Salve a senha. Pela extensão, com New, ou pelo cofre web, com New e depois Login. A senha nasce no seu cofre pessoal. 
 - Passe a senha para a organização. No cofre web, abra o Options da senha e clique em Assign to collections. Em Move to organization, escolha a organização. Em Select collections to assign, escolha Default collection e clique em Assign. A senha passa a ser da organização, e o agente já enxerga. 
 - Feche o cadastro. Recrie o container com `SIGNUPS_ALLOWED=false`. A pasta `/srv/vaultwarden` guarda tudo: testamos, e as contas e as senhas continuam, e um cadastro novo é recusado. 
-- Aponte o comando do agente. A VPS está na sua rede do Tailscale, então o `bw` fala com o cofre pelo mesmo endereço: `bw config server https://<maquina>.<rede>.ts.net`.  
+- Aponte o comando do agente. Na VPS, o `bw` fala com o cofre pelo mesmo endereço: `bw config server https://<nome>.duckdns.org`.  
 O cofre inteiro mora em `/srv/vaultwarden`. Copie essa pasta para fora da VPS de vez em quando, porque sem ela as senhas se perdem. 
 
-## Sem Tailscale 
-Aponte um subdomínio seu para a VPS e ponha o Caddy ou o proxy do Coolify (txt/servicos.txt) na frente do cofre, que tira o certificado sozinho. O cofre fica aberto na internet, protegido só pela senha mestra, e um `.com.br` sai a R$ 40 por ano. O endereço do GitHub Pages não serve, porque ele só entrega arquivos estáticos e não repassa tráfego para a VPS.
+## Com o Coolify na máquina 
+O proxy do Coolify (txt/servicos.txt) já ocupa as portas 80 e 443, então o Caddy não sobe. Crie o Vaultwarden como serviço do Coolify, em + New e depois Services, e ponha o domínio do DuckDNS nele. O proxy do Coolify tira o certificado do mesmo jeito. 
+O endereço do GitHub Pages, como `voce.github.io`, não serve: ele é do GitHub, não aponta para a sua VPS e só entrega arquivos estáticos.
