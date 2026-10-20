@@ -54,21 +54,21 @@ sudo systemctl reload caddy
 Em menos de um minuto, o cofre abre em `https://<nome>.duckdns.org`, no navegador, na extensão e no app do celular. O Caddy renova o certificado sozinho. Testamos com um domínio do DuckDNS: o Let's Encrypt emitiu o certificado em segundos, e a extensão logou sem nenhum aviso.  
 
 O cofre fica na internet
-Qualquer pessoa alcança a tela de login, e o que protege as senhas é a senha mestra. Feche o cadastro depois de criar as contas, que o passo 10 abaixo mostra. Ligue o login em duas etapas na sua conta, em Settings, Security, Two-step login. Não defina o `ADMIN_TOKEN`: sem ele, o painel de administração do Vaultwarden fica desligado. 
+Qualquer pessoa alcança a tela de login, e o que protege as senhas é a senha mestra. Feche o cadastro logo depois de criar a sua conta, no passo 2 abaixo. Ligue o login em duas etapas na sua conta, em Settings, Security, Two-step login. Não defina o `ADMIN_TOKEN`: sem ele, o painel de administração do Vaultwarden fica desligado. 
 
 ## Como pôr uma senha no cofre e entregar ao agente 
 A interface do Vaultwarden é em inglês, e os nomes abaixo são os da tela. Ele funciona sem servidor de e-mail: o convite não manda mensagem, e a conta do agente aceita o convite ao se cadastrar. 
 
 - Crie a sua conta. Abra o endereço do cofre, clique em Create account e escolha a senha mestra. 
+- Feche o cadastro. Recrie o container com `SIGNUPS_ALLOWED=false`. A pasta `/srv/vaultwarden` guarda tudo. Com o cadastro fechado, só quem você convidar consegue criar conta: testamos, e um cadastro sem convite é recusado, e a conta do agente convidado entra. 
 - Crie a organização. No cofre, clique em New organization, dê um nome e clique em Submit. Ela já nasce com a Default collection, a pasta que você divide com o agente. 
 - Convide o agente. Em Admin Console, abra Members, clique em Invite member, ponha o e-mail da conta do agente, deixe o papel User e clique em Save. 
 - Crie a conta do agente. Numa janela anônima, crie a conta com o e-mail do convite. Na lista de membros, ela passa para Needs confirmation. 
 - Confirme o agente. Na linha dele, abra Options, clique em Confirm e confirme de novo no diálogo. 
-- Dê a coleção ao agente. Na mesma linha, abra Options e depois Collections. Em Select collections, escolha Default collection e clique fora da lista, porque o Esc descarta a escolha. A permissão View items deixa o agente ler sem editar. Clique em Save. 
+- Dê a coleção ao agente. Na mesma linha, abra Options e depois Collections. Em Select collections, escolha Default collection e clique fora da lista, porque o Esc descarta a escolha. Clique em Save. A permissão View items deixa o agente ler sem alterar: testamos, e o servidor recusa a edição dele com "Cipher is not write accessible". 
 - Ligue a extensão ao seu cofre. Na tela de login da extensão do Bitwarden, clique em bitwarden.com, ao lado de Accessing, e escolha self-hosted. Em Server URL, ponha o endereço `https` do cofre, clique em Save e faça o login. 
-- Salve a senha. Pela extensão, com New, ou pelo cofre web, com New e depois Login. A senha nasce no seu cofre pessoal. 
+- Salve a senha. Na extensão, clique em New, depois em Login, preencha e clique em Save. No cofre web, o caminho é o mesmo. A senha nasce no seu cofre pessoal. 
 - Passe a senha para a organização. No cofre web, abra o Options da senha e clique em Assign to collections. Em Move to organization, escolha a organização. Em Select collections to assign, escolha Default collection e clique em Assign. A senha passa a ser da organização, e o agente já enxerga. 
-- Feche o cadastro. Recrie o container com `SIGNUPS_ALLOWED=false`. A pasta `/srv/vaultwarden` guarda tudo: testamos, e as contas e as senhas continuam, e um cadastro novo é recusado. 
 - Aponte o comando do agente. Na VPS, o `bw` fala com o cofre pelo mesmo endereço: `bw config server https://<nome>.duckdns.org`.  
 O cofre inteiro mora em `/srv/vaultwarden`. Copie essa pasta para fora da VPS de vez em quando, porque sem ela as senhas se perdem. 
 
