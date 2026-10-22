@@ -680,7 +680,7 @@ td code.cp.ok { background: var(--ok-soft); }
     <tr><td>Você pede e acompanha pelo celular</td><td class="ic"><span class="y" aria-label="sim"></span></td><td class="ic"><span class="p" aria-label="só com o PC ligado"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
     <tr><td>Várias tarefas ao mesmo tempo, cada uma com teto de memória</td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="p" aria-label="em parte"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
     <tr><td>Trabalha sem pedir permissão a cada passo</td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="p" aria-label="enquanto você olha"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
-    <tr><td>Avisa e manda arquivo pelo <a href="https://telegram.org/" target="_blank" rel="noopener">Telegram</a></td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
+    <tr><td>Avisa e manda arquivo pelo <a href="https://www.whatsapp.com/" target="_blank" rel="noopener">WhatsApp</a> ou pelo <a href="https://telegram.org/" target="_blank" rel="noopener">Telegram</a></td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
     <tr><td>Usa senha sem o valor passar pela conversa</td><td class="ic"><span class="n" aria-label="não"></span></td><td class="ic"><span class="p" aria-label="se você montar"></span></td><td class="ic"><span class="y" aria-label="sim"></span></td></tr>
   </table></div>
   <p class="figcap"><span class="p" aria-hidden="true"></span> em parte: o PC precisa estar ligado e você por perto.</p>
@@ -767,7 +767,7 @@ ETAPA 1 DE 6: APRESENTAR
    4. Cockpit: um pacote de travas que esconde senha que aparece na tela, segura comando que vai estourar a memória e pausa antes do limite de uso do plano.
    5. Manutenção automática: a máquina volta sozinha depois de atualizar o sistema e encerra agente esquecido.
    6. Telegram: o orquestrador me avisa e me manda arquivo. Não é chat.
-   7. WhatsApp: eu encaminho PDF e áudio para um número do agente, e eles chegam na máquina. Não é chat.
+   7. WhatsApp: eu encaminho PDF e áudio para um número do agente, e eles chegam na máquina. Pelo mesmo número, o agente me manda arquivo e aviso. Não é chat.
    8. Cofre de senhas: o agente usa as minhas senhas pelo nome, sem o valor aparecer na conversa.
    9. Navegador: o agente usa o meu Chrome, ou um navegador sem tela na própria VPS.
    10. Sessões em bypass: os agentes trabalham sem pedir permissão a cada passo. É o que deixa eles trabalharem comigo longe.
@@ -805,10 +805,10 @@ Tudo aqui é instalado. O que precisa de uma conta minha fica instalado e espera
    D. Quais números de WhatsApp mandam arquivo para a máquina: o meu (recomendado), o meu e outros, ou não sei.
    E. O cofre de senhas: Bitwarden na nuvem, de graça (recomendado), ou um Vaultwarden na própria VPS, com HTTPS por um domínio grátis do DuckDNS e o Caddy (txt/cofre.txt mostra como), ou não sei. Explique que o Vaultwarden atual não abre sem HTTPS e que, nesse caminho, a tela de login do cofre fica na internet.
    F. O navegador: o meu Chrome pela extensão Claude in Chrome e também o navegador sem tela da VPS (recomendado), só um deles, ou não sei.
-3. Monte na ordem: Telegram, WhatsApp, cofre, navegador, conectores do claude.ai. Para cada um, prove que funciona: o bot me manda uma mensagem e só a minha conta passa; um arquivo que eu encaminho aparece na pasta; o agente usa um segredo do cofre sem mostrar o valor; o agente abre uma página e me diz o título.
+3. Monte na ordem: Telegram, WhatsApp, cofre, navegador, conectores do claude.ai. Para cada um, prove que funciona: o bot me manda uma mensagem e só a minha conta passa; um arquivo que eu encaminho aparece na pasta e o agente me devolve um arquivo pelo WhatsApp; o agente usa um segredo do cofre sem mostrar o valor; o agente abre uma página e me diz o título.
 
 ETAPA 6 DE 6: ENTREGAR
-1. Peça que eu abra o app do Claude, escolha o orquestrador e mande uma tarefa de teste num repo meu. Acompanhe até ele abrir o agente, o agente responder, o aviso chegar no Telegram e o agente ser encerrado.
+1. Peça que eu abra o app do Claude, escolha o orquestrador e mande uma tarefa de teste num repo meu. Acompanhe até ele abrir o agente, o agente responder, o aviso chegar no Telegram ou no WhatsApp e o agente ser encerrado.
 2. Feche com um resumo curto: como pedir uma tarefa, como ver os agentes (agent list), como abrir o recover quando a máquina travar, como abrir um orquestrador novo pela entrada de reserva quando a sessão dele cair, como baixar um arquivo da VPS, como renovar o login quando ele vencer, e o que ficou pendente, como uma conta que eu disse que entrego depois.
 
 Comece pela etapa 1.</pre><button type="button" class="unfold" id="unfold">Ver o pedido inteiro</button></div>
@@ -894,10 +894,15 @@ sed -i 's/^ORCHESTRATOR=.*/ORCHESTRATOR=&lt;orquestrador&gt;/' ~/always-on/confi
   <div class="crumb">Canais e ferramentas</div>
   <h1>Como ligar o Telegram e o WhatsApp à máquina</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="canais-ligar">Copiar para o agente</button><a href="txt/canais-ligar.txt">Ver em texto</a><button type="button" class="pa-vals">Meus valores</button></div>
-  <p class="lead">O <a href="https://www.whatsapp.com/" target="_blank" rel="noopener">WhatsApp</a> vira uma caixa de entrada de arquivos e mensagens na máquina, a VPS onde o <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> roda. O <a href="https://telegram.org/" target="_blank" rel="noopener">Telegram</a> vira o canal em que o orquestrador avisa você e manda arquivos. O orquestrador é a sessão do Claude Code que recebe os pedidos e distribui as tarefas.</p>
+  <p class="lead">O <a href="https://www.whatsapp.com/" target="_blank" rel="noopener">WhatsApp</a> vira uma caixa de entrada de arquivos e mensagens na máquina, a VPS onde o <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a> roda. Na volta, o agente manda arquivo e aviso para o seu número pelo mesmo WhatsApp. O <a href="https://telegram.org/" target="_blank" rel="noopener">Telegram</a> é outro canal em que o orquestrador avisa você e manda arquivos. O orquestrador é a sessão do Claude Code que recebe os pedidos e distribui as tarefas.</p>
 
   <h2>WhatsApp</h2>
-  <p>O <a href="https://github.com/openclaw/wacli" target="_blank" rel="noopener">wacli</a> liga um número descartável à máquina como aparelho vinculado do WhatsApp. Você encaminha mensagem, áudio e arquivo para esse número, e um serviço grava cada mensagem num <code>.md</code> numa pasta da máquina, com a mídia ao lado. O serviço só grava as mensagens dos números da lista e ignora o resto. O agente, a sessão do Claude Code que faz o trabalho, lê dessa pasta quando você pedir. Uma API de <a href="https://github.com/openai/whisper" target="_blank" rel="noopener">Whisper</a> pode transcrever os áudios. O serviço só recebe e não responde, então ninguém conversa com o Claude pelo WhatsApp.</p>
+  <p>O <a href="https://github.com/openclaw/wacli" target="_blank" rel="noopener">wacli</a> liga um número descartável à máquina como aparelho vinculado do WhatsApp. Você encaminha mensagem, áudio e arquivo para esse número, e um serviço grava cada mensagem num <code>.md</code> numa pasta da máquina, com a mídia ao lado. O serviço só grava as mensagens dos números da lista e ignora o resto. O agente, a sessão do Claude Code que faz o trabalho, lê dessa pasta quando você pedir. Uma API de <a href="https://github.com/openai/whisper" target="_blank" rel="noopener">Whisper</a> pode transcrever os áudios.</p>
+  <p>Para mandar de volta, um comando pequeno chama o <code>wacli send</code> sempre para o seu número pessoal, e não aceita outro destinatário. Com o <code>wacli sync --follow</code> do serviço de pé, o <code>wacli send</code> entrega pela conexão dele, sem abrir uma segunda sessão. Com arquivo, o texto vira legenda, e áudio leva o texto numa segunda mensagem, porque o WhatsApp não põe legenda em áudio. O serviço nunca responde sozinho ao que chega, então ninguém conversa com o Claude pelo WhatsApp.</p>
+  <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre># o mesmo --store do serviço, quando ele usa um
+wacli send text --to &lt;seu-numero&gt; --message "relatório pronto"
+wacli send file --to &lt;seu-numero&gt; --file relatorio.pdf --caption "relatório"</pre></div>
+  <p>Escolha um canal de entrega e escreva no <code>CLAUDE.md</code> global, o arquivo de instruções que toda sessão lê ao começar: arquivo, print e aviso para você saem pelo WhatsApp, e pelo Telegram só quando você pedir. Com os dois valendo, o mesmo aviso chega duas vezes.</p>
 
 
   <h2>Telegram</h2>
@@ -913,7 +918,7 @@ sed -i 's/^ORCHESTRATOR=.*/ORCHESTRATOR=&lt;orquestrador&gt;/' ~/always-on/confi
     <li><b>Subir com o canal</b>No <code>orchestrator-rc</code>, o serviço que mantém o orquestrador rodando, ponha <code>$HOME/.bun/bin</code> no <code>PATH</code> e acrescente <code>--settings '{"enabledPlugins":{"telegram@claude-plugins-official":true}}' --channels plugin:telegram@claude-plugins-official</code> às flags. Reinicie o serviço.</li>
     <li><b>Parear</b>Mande qualquer mensagem ao bot. Ele responde com um código. Peça ao orquestrador para rodar <code>/telegram:access pair &lt;código&gt;</code>, uma vez para cada conta da lista.</li>
     <li><b>Fechar o bot</b>Rode <code>/telegram:access policy allowlist</code>. A partir daí, o bot ignora sem responder quem não está na lista. No modo padrão, <code>pairing</code>, ele responde com um código a qualquer desconhecido.</li>
-    <li><b>Dizer ao orquestrador para que serve</b>Escreva no <code>CLAUDE.md</code> dele, o arquivo de instruções que a sessão lê ao começar, que o Telegram leva aviso e arquivo, que um pedido de ação vindo por ali se confirma pelo app, e que conta nova só entra na lista quando você pedir pelo app.</li>
+    <li><b>Dizer ao orquestrador para que serve</b>Escreva no <code>CLAUDE.md</code> dele, o arquivo de instruções que a sessão lê ao começar, que o Telegram leva aviso e arquivo só quando você pedir, que um pedido de ação vindo por ali se confirma pelo app, e que conta nova só entra na lista quando você pedir pelo app.</li>
   </ol>
   <div class="callout note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><strong class="label">Conta Team ou Enterprise</strong><p>Os canais estão em research preview, a fase de teste da Anthropic, e um Owner precisa ligá-los nas configurações da organização. Quando estão liberados, a sessão que sobe com <code>--channels</code> mostra a faixa Channels (experimental).</p></div></div>
   <button type="button" class="done-btn" data-done="canais-ligar">Marquei como feito</button>
@@ -1825,7 +1830,7 @@ EOF</pre></div>
     <li><span>Orquestrador confere<small>agentes vivos e o repo</small></span></li>
     <li><span>Abre o agente<small>na pasta, com teto</small></span></li>
     <li><span>Agente trabalha<small>testa e commita</small></span></li>
-    <li><span>Avisa que acabou<small>no app ou no Telegram</small></span></li>
+    <li><span>Avisa que acabou<small>no app, no WhatsApp ou no Telegram</small></span></li>
     <li><span>Encerra o agente<small>a memória volta</small></span></li>
   </ol>
 
@@ -1881,8 +1886,10 @@ Arquivar a sessão no app não encerra o processo. Todo agente termina com `agen
 
 Os pedidos em aberto moram na lista nativa de tarefas do Claude Code, a lista `&lt;orquestrador&gt;`, em `~/.claude/tasks/&lt;orquestrador&gt;/`. Ela fica no disco e volta depois de cada compactação.
 
-- Pedido novo meu vira `TaskCreate` antes de qualquer outra ação, uma tarefa por pedido. O assunto começa com o dono entre colchetes: o nome do agente, ou `eu` quando o item espera uma decisão minha. Exemplo: `[site] trocar o rodapé`.
-- Ao disparar o agente, marque `in_progress`.
+- Pedido novo meu vira `TaskCreate` antes de qualquer outra ação, uma tarefa por pedido. O assunto segue `[dono] P0|P1|P2 estado: pedido`. O dono é o nome do agente, ou `eu` quando o item espera uma decisão minha. Exemplo: `[site] P1 fila: trocar o rodapé`.
+- P0 é produção quebrada, segurança ou prazo em até 48 horas. P1 é o trabalho da semana. P2 é o resto.
+- O estado é `andamento`, `espera` (sempre com dono `[eu]`) ou `fila`. Grave também `metadata: {"priority": "P1", "state": "fila"}`, e mude os dois quando o pedido mudar.
+- Ao disparar o agente, marque `in_progress` e o estado `andamento`.
 - Conclua só depois de me relatar o resultado. O `agent stop &lt;nome&gt;` conclui as tarefas `[&lt;nome&gt;]`, então pare o agente depois do relato.
 
 ## Antes de disparar
@@ -2719,10 +2726,11 @@ sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now &lt;orquestr
   <h2>A lista de pedidos</h2>
   <p>O orquestrador recebe muitos pedidos, e o resumo da compactação, quando a conversa enche, pode perder um. A <a href="https://code.claude.com/docs/en/interactive-mode#task-list" target="_blank" rel="noopener">lista de tarefas nativa</a> do Claude Code guarda cada pedido num arquivo, em <code>~/.claude/tasks/&lt;orquestrador&gt;/</code>, fora da conversa. Nos modelos novos ela vem desligada, e as duas variáveis dos serviços acima a ligam: a primeira traz as ferramentas <code>TaskCreate</code>, <code>TaskList</code> e <code>TaskUpdate</code>, e a segunda dá à lista o nome do orquestrador, a mesma no serviço principal e na entrada de reserva.</p>
   <ul>
-    <li>Pedido novo vira <code>TaskCreate</code> antes de qualquer ação, com o dono entre colchetes no assunto, como <code>[site] trocar o rodapé</code>. A regra está no <code>CLAUDE.md</code> do orquestrador.</li>
+    <li>Pedido novo vira <code>TaskCreate</code> antes de qualquer ação. O assunto leva o dono entre colchetes, a prioridade e o estado, como <code>[site] P1 fila: trocar o rodapé</code>. P0 é produção quebrada, segurança ou prazo em até 48 horas, P1 é o trabalho da semana e P2 é o resto. O estado é <code>andamento</code>, <code>espera</code> (o item espera você, com dono <code>[eu]</code>) ou <code>fila</code>. A regra está no <code>CLAUDE.md</code> do orquestrador.</li>
     <li>O <code>agent start</code> liga as ferramentas no agente, que usa a lista da própria sessão. As subtarefas dele não enchem a sua.</li>
     <li>O <code>agent stop &lt;nome&gt;</code> conclui as tarefas com <code>[&lt;nome&gt;]</code> no assunto. Para pausar um agente sem concluir, use <code>agent stop --keep-tasks &lt;nome&gt;</code>.</li>
-    <li>O mod <code>todo</code> do <a href="#mods">Cockpit</a> põe a lista em cada prompt seu e arquiva a tarefa concluída.</li>
+    <li>O mod <code>todo</code> do <a href="#mods">Cockpit</a> põe a lista em cada prompt seu, um grupo por estado, cada um de P0 para P2, e arquiva a tarefa concluída. O grupo da tarefa mais urgente vem primeiro.</li>
+    <li>No navegador, a aba Tasks do <a href="#mods">painel do Cockpit</a> mostra a mesma lista, com filtro por prioridade. O app não desenha mod nas sessões do Remote Control, e o painel cobre essa falta.</li>
   </ul>
   <p>Logo depois da compactação, um hook da pasta põe na conversa as tarefas abertas e os agentes vivos:</p>
   <details class="long-code"><summary>Ver o hook orchestrator-context</summary>
@@ -2750,17 +2758,46 @@ except (OSError, subprocess.SubprocessError) as e:
 parts.append("## Agentes vivos\n" + (out or "nenhum"))
 
 if LIST:
-    rows = []
+    tasks = []
     for f in (HOME / ".claude" / "tasks" / re.sub(r"[^a-zA-Z0-9_-]", "-", LIST)).glob("*.json"):
         try:
             t = json.loads(f.read_text())
         except (OSError, ValueError):
             continue
         if t.get("status") in ("pending", "in_progress"):
-            n = int(t["id"]) if str(t.get("id", "")).isdigit() else 0
-            rows.append((n, f"- #{t.get('id')} [{t.get('status')}] {t.get('subject')}"))
+            tasks.append(t)
+    # A mesma ordem do mod todo: um grupo por estado, cada um de P0 para P2, sem tag no fim, e depois
+    # pelo id. O grupo da tarefa mais urgente vem primeiro e, no empate, o que tem tarefa em andamento.
+    # Prioridade e estado vêm do metadata e, sem ele, do assunto: `[dono] P1 espera: o pedido`.
+    tag = re.compile(r"^\s*(?:\[[^\]]*\]\s*)?(P\d+)\b(?:\s+([^\s:]+):)?", re.I)
+
+    def meta(t):
+        return t.get("metadata") if isinstance(t.get("metadata"), dict) else {}
+
+    def rank(t):
+        m = tag.match(str(t.get("subject", "")))
+        p = str(meta(t).get("priority") or (m and m.group(1)) or "")
+        return int(p[1:]) if re.fullmatch(r"[Pp]\d+", p) else float("inf")
+
+    def state(t):
+        m = tag.match(str(t.get("subject", "")))
+        return str(meta(t).get("state") or (m and m.group(2)) or t.get("status")).lower()
+
+    def key(t):
+        i = str(t.get("id", ""))
+        return (rank(t), int(i) if i.isdigit() else 0, i)
+
+    groups = {}
+    for t in sorted(tasks, key=key):
+        groups.setdefault(state(t), []).append(t)
+    rows = []
+    for name, ts in sorted(groups.items(), key=lambda g: (rank(g[1][0]),
+                                                          0 if any(t.get("status") == "in_progress" for t in g[1]) else 1,
+                                                          key(g[1][0]))):
+        rows.append(f"{name} ({len(ts)}):")
+        rows += [f"- #{t.get('id')} [{t.get('status')}] {t.get('subject')}" for t in ts]
     parts.append(f"## Tarefas abertas da lista {LIST} (TaskGet mostra cada uma inteira)\n"
-                 + ("\n".join(r for _, r in sorted(rows)) or "nenhuma"))
+                 + ("\n".join(rows) or "nenhuma"))
 
 print(json.dumps({"hookSpecificOutput": {"hookEventName": "SessionStart",
                                           "additionalContext": "\n\n".join(parts)}}))
@@ -2836,14 +2873,14 @@ claude plugin install cockpit@cockpit</pre></div>
     <div class="mods">
       <div class="mod"><div class="mod-h"><code>hud</code> <span class="mod-cmd">/hud</span></div><p>Uma linha embaixo do prompt com modelo, branch, contexto usado, limite do plano e folga de memória.</p></div>
       <div class="mod"><div class="mod-h"><code>spinner-status</code></div><p>Troca a dica embaixo do spinner por uma linha curta, escrita pelo Haiku, com o ponto em que a sessão está.</p></div>
-      <div class="mod"><div class="mod-h"><code>panel</code> <span class="mod-cmd">/panel</span></div><p>Uma página local com um cartão por sessão da máquina: se ela espera você, o que precisa e o que está fazendo, com resumo a cada poucos minutos.</p></div>
+      <div class="mod"><div class="mod-h"><code>panel</code> <span class="mod-cmd">/panel</span></div><p>Uma página local com um cartão por sessão da máquina: se ela espera você, o que precisa e o que está fazendo, com resumo a cada poucos minutos. A aba Tasks mostra a lista de pedidos do orquestrador por estado, com filtro por prioridade.</p></div>
       <div class="mod"><div class="mod-h"><code>skill-loader</code></div><p>Carrega a skill certa na hora certa, como a de escrita técnica num commit ou a de diagnóstico quando você cola um erro, sem regra no <code>CLAUDE.md</code>.</p></div>
     </div>
 
   <h2>Memória</h2>
     <div class="mods">
       <div class="mod"><div class="mod-h"><code>global-memory</code></div><p>Cria uma pasta de memória da máquina, ao lado da memória de cada projeto. O que o agente aprende sobre a VPS chega a toda sessão, de qualquer pasta.</p></div>
-      <div class="mod"><div class="mod-h"><code>todo</code></div><p>Mostra as tarefas abertas da lista nativa do Claude Code no início da sessão e em cada prompt seu, lembra que pedido novo vira tarefa antes de qualquer ação e arquiva a tarefa concluída. Nos modelos novos, precisa de <code>CLAUDE_CODE_ENABLE_TODO_TOOLS=1</code>, que o serviço do orquestrador já liga.</p></div>
+      <div class="mod"><div class="mod-h"><code>todo</code></div><p>Mostra as tarefas abertas da lista nativa do Claude Code no início da sessão e em cada prompt seu, lembra que pedido novo vira tarefa antes de qualquer ação e arquiva a tarefa concluída. Agrupa as tarefas por estado e ordena cada grupo por prioridade, do P0 ao P2. Nos modelos novos, precisa de <code>CLAUDE_CODE_ENABLE_TODO_TOOLS=1</code>, que o serviço do orquestrador já liga.</p></div>
     </div>
 
   <p>Todo comando do Cockpit também responde em texto, então funciona pelo <a href="https://code.claude.com/docs/en/remote-control" target="_blank" rel="noopener">Remote Control</a>, no app do celular.</p>
@@ -3387,12 +3424,14 @@ done</pre></div>
     document.querySelectorAll('.topnav a').forEach(function (a) { a.classList.toggle('on', a.dataset.group === group); });
     buildToc(page);
     buildPager(pages.indexOf(page));
-    if (current !== page) window.scrollTo(0, 0);
+    // O navegador rola até o article com o id do hash depois deste route, então o topo volta no quadro seguinte.
+    if (current !== page) { window.scrollTo(0, 0); requestAnimationFrame(function () { window.scrollTo(0, 0); }); }
     current = page;
     sidebar.classList.remove('open');
     menuBtn.setAttribute('aria-expanded', 'false');
   }
   window.addEventListener('hashchange', route);
+  window.addEventListener('load', function () { if (pageById((location.hash || '').slice(1))) window.scrollTo(0, 0); });
 
   // sumário acompanha a rolagem
   window.addEventListener('scroll', function () {

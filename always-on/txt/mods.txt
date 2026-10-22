@@ -42,7 +42,7 @@ Uma linha embaixo do prompt com modelo, branch, contexto usado, limite do plano 
 Troca a dica embaixo do spinner por uma linha curta, escrita pelo Haiku, com o ponto em que a sessão está. 
 
 `panel` /panel
-Uma página local com um cartão por sessão da máquina: se ela espera você, o que precisa e o que está fazendo, com resumo a cada poucos minutos. 
+Uma página local com um cartão por sessão da máquina: se ela espera você, o que precisa e o que está fazendo, com resumo a cada poucos minutos. A aba Tasks mostra a lista de pedidos do orquestrador por estado, com filtro por prioridade. 
 
 `skill-loader`
 Carrega a skill certa na hora certa, como a de escrita técnica num commit ou a de diagnóstico quando você cola um erro, sem regra no `CLAUDE.md`.  
@@ -53,7 +53,7 @@ Carrega a skill certa na hora certa, como a de escrita técnica num commit ou a 
 Cria uma pasta de memória da máquina, ao lado da memória de cada projeto. O que o agente aprende sobre a VPS chega a toda sessão, de qualquer pasta. 
 
 `todo`
-Mostra as tarefas abertas da lista nativa do Claude Code no início da sessão e em cada prompt seu, lembra que pedido novo vira tarefa antes de qualquer ação e arquiva a tarefa concluída. Nos modelos novos, precisa de `CLAUDE_CODE_ENABLE_TODO_TOOLS=1`, que o serviço do orquestrador já liga.  
+Mostra as tarefas abertas da lista nativa do Claude Code no início da sessão e em cada prompt seu, lembra que pedido novo vira tarefa antes de qualquer ação e arquiva a tarefa concluída. Agrupa as tarefas por estado e ordena cada grupo por prioridade, do P0 ao P2. Nos modelos novos, precisa de `CLAUDE_CODE_ENABLE_TODO_TOOLS=1`, que o serviço do orquestrador já liga.  
 Todo comando do Cockpit também responde em texto, então funciona pelo Remote Control (https://code.claude.com/docs/en/remote-control), no app do celular. 
 
 ## Abrir o painel no seu computador 

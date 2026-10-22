@@ -34,7 +34,7 @@ Recover, sessão que responde se a máquina travar (txt/memoria.txt) Travas de s
 | Você pede e acompanha pelo celular |  |  |  | 
 | Várias tarefas ao mesmo tempo, cada uma com teto de memória |  |  |  | 
 | Trabalha sem pedir permissão a cada passo |  |  |  | 
-| Avisa e manda arquivo pelo Telegram (https://telegram.org/) |  |  |  | 
+| Avisa e manda arquivo pelo WhatsApp (https://www.whatsapp.com/) ou pelo Telegram (https://telegram.org/) |  |  |  | 
 | Usa senha sem o valor passar pela conversa |  |  |  |  
 em parte: o PC precisa estar ligado e você por perto. 
 A montagem leva de 1 a 2 horas e é feita uma vez. Depois, cuidar da máquina fica com você, e a manutenção automática faz quase tudo. 

@@ -21,17 +21,46 @@ except (OSError, subprocess.SubprocessError) as e:
 parts.append("## Agentes vivos\n" + (out or "nenhum"))
 
 if LIST:
-    rows = []
+    tasks = []
     for f in (HOME / ".claude" / "tasks" / re.sub(r"[^a-zA-Z0-9_-]", "-", LIST)).glob("*.json"):
         try:
             t = json.loads(f.read_text())
         except (OSError, ValueError):
             continue
         if t.get("status") in ("pending", "in_progress"):
-            n = int(t["id"]) if str(t.get("id", "")).isdigit() else 0
-            rows.append((n, f"- #{t.get('id')} [{t.get('status')}] {t.get('subject')}"))
+            tasks.append(t)
+    # A mesma ordem do mod todo: um grupo por estado, cada um de P0 para P2, sem tag no fim, e depois
+    # pelo id. O grupo da tarefa mais urgente vem primeiro e, no empate, o que tem tarefa em andamento.
+    # Prioridade e estado vêm do metadata e, sem ele, do assunto: `[dono] P1 espera: o pedido`.
+    tag = re.compile(r"^\s*(?:\[[^\]]*\]\s*)?(P\d+)\b(?:\s+([^\s:]+):)?", re.I)
+
+    def meta(t):
+        return t.get("metadata") if isinstance(t.get("metadata"), dict) else {}
+
+    def rank(t):
+        m = tag.match(str(t.get("subject", "")))
+        p = str(meta(t).get("priority") or (m and m.group(1)) or "")
+        return int(p[1:]) if re.fullmatch(r"[Pp]\d+", p) else float("inf")
+
+    def state(t):
+        m = tag.match(str(t.get("subject", "")))
+        return str(meta(t).get("state") or (m and m.group(2)) or t.get("status")).lower()
+
+    def key(t):
+        i = str(t.get("id", ""))
+        return (rank(t), int(i) if i.isdigit() else 0, i)
+
+    groups = {}
+    for t in sorted(tasks, key=key):
+        groups.setdefault(state(t), []).append(t)
+    rows = []
+    for name, ts in sorted(groups.items(), key=lambda g: (rank(g[1][0]),
+                                                          0 if any(t.get("status") == "in_progress" for t in g[1]) else 1,
+                                                          key(g[1][0]))):
+        rows.append(f"{name} ({len(ts)}):")
+        rows += [f"- #{t.get('id')} [{t.get('status')}] {t.get('subject')}" for t in ts]
     parts.append(f"## Tarefas abertas da lista {LIST} (TaskGet mostra cada uma inteira)\n"
-                 + ("\n".join(r for _, r in sorted(rows)) or "nenhuma"))
+                 + ("\n".join(rows) or "nenhuma"))
 
 print(json.dumps({"hookSpecificOutput": {"hookEventName": "SessionStart",
                                           "additionalContext": "\n\n".join(parts)}}))

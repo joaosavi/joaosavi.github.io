@@ -56,7 +56,7 @@ ETAPA 1 DE 6: APRESENTAR
    4. Cockpit: um pacote de travas que esconde senha que aparece na tela, segura comando que vai estourar a memória e pausa antes do limite de uso do plano.
    5. Manutenção automática: a máquina volta sozinha depois de atualizar o sistema e encerra agente esquecido.
    6. Telegram: o orquestrador me avisa e me manda arquivo. Não é chat.
-   7. WhatsApp: eu encaminho PDF e áudio para um número do agente, e eles chegam na máquina. Não é chat.
+   7. WhatsApp: eu encaminho PDF e áudio para um número do agente, e eles chegam na máquina. Pelo mesmo número, o agente me manda arquivo e aviso. Não é chat.
    8. Cofre de senhas: o agente usa as minhas senhas pelo nome, sem o valor aparecer na conversa.
    9. Navegador: o agente usa o meu Chrome, ou um navegador sem tela na própria VPS.
    10. Sessões em bypass: os agentes trabalham sem pedir permissão a cada passo. É o que deixa eles trabalharem comigo longe.
@@ -94,10 +94,10 @@ Tudo aqui é instalado. O que precisa de uma conta minha fica instalado e espera
    D. Quais números de WhatsApp mandam arquivo para a máquina: o meu (recomendado), o meu e outros, ou não sei.
    E. O cofre de senhas: Bitwarden na nuvem, de graça (recomendado), ou um Vaultwarden na própria VPS, com HTTPS por um domínio grátis do DuckDNS e o Caddy (txt/cofre.txt mostra como), ou não sei. Explique que o Vaultwarden atual não abre sem HTTPS e que, nesse caminho, a tela de login do cofre fica na internet.
    F. O navegador: o meu Chrome pela extensão Claude in Chrome e também o navegador sem tela da VPS (recomendado), só um deles, ou não sei.
-3. Monte na ordem: Telegram, WhatsApp, cofre, navegador, conectores do claude.ai. Para cada um, prove que funciona: o bot me manda uma mensagem e só a minha conta passa; um arquivo que eu encaminho aparece na pasta; o agente usa um segredo do cofre sem mostrar o valor; o agente abre uma página e me diz o título.
+3. Monte na ordem: Telegram, WhatsApp, cofre, navegador, conectores do claude.ai. Para cada um, prove que funciona: o bot me manda uma mensagem e só a minha conta passa; um arquivo que eu encaminho aparece na pasta e o agente me devolve um arquivo pelo WhatsApp; o agente usa um segredo do cofre sem mostrar o valor; o agente abre uma página e me diz o título.
 
 ETAPA 6 DE 6: ENTREGAR
-1. Peça que eu abra o app do Claude, escolha o orquestrador e mande uma tarefa de teste num repo meu. Acompanhe até ele abrir o agente, o agente responder, o aviso chegar no Telegram e o agente ser encerrado.
+1. Peça que eu abra o app do Claude, escolha o orquestrador e mande uma tarefa de teste num repo meu. Acompanhe até ele abrir o agente, o agente responder, o aviso chegar no Telegram ou no WhatsApp e o agente ser encerrado.
 2. Feche com um resumo curto: como pedir uma tarefa, como ver os agentes (agent list), como abrir o recover quando a máquina travar, como abrir um orquestrador novo pela entrada de reserva quando a sessão dele cair, como baixar um arquivo da VPS, como renovar o login quando ele vencer, e o que ficou pendente, como uma conta que eu disse que entrego depois.
 
 Comece pela etapa 1.

@@ -6,7 +6,7 @@ O instalador (txt/instalador.txt) faz esta página com um comando. Ela fica para
 - Orquestrador confere, agentes vivos e o repo 
 - Abre o agente, na pasta, com teto 
 - Agente trabalha, testa e commita 
-- Avisa que acabou, no app ou no Telegram 
+- Avisa que acabou, no app, no WhatsApp ou no Telegram 
 - Encerra o agente, a memória volta  
 
 ## Por que um orquestrador 
@@ -73,8 +73,10 @@ Arquivar a sessão no app não encerra o processo. Todo agente termina com `agen
 
 Os pedidos em aberto moram na lista nativa de tarefas do Claude Code, a lista `<orquestrador>`, em `~/.claude/tasks/<orquestrador>/`. Ela fica no disco e volta depois de cada compactação.
 
-- Pedido novo meu vira `TaskCreate` antes de qualquer outra ação, uma tarefa por pedido. O assunto começa com o dono entre colchetes: o nome do agente, ou `eu` quando o item espera uma decisão minha. Exemplo: `[site] trocar o rodapé`.
-- Ao disparar o agente, marque `in_progress`.
+- Pedido novo meu vira `TaskCreate` antes de qualquer outra ação, uma tarefa por pedido. O assunto segue `[dono] P0|P1|P2 estado: pedido`. O dono é o nome do agente, ou `eu` quando o item espera uma decisão minha. Exemplo: `[site] P1 fila: trocar o rodapé`.
+- P0 é produção quebrada, segurança ou prazo em até 48 horas. P1 é o trabalho da semana. P2 é o resto.
+- O estado é `andamento`, `espera` (sempre com dono `[eu]`) ou `fila`. Grave também `metadata: {"priority": "P1", "state": "fila"}`, e mude os dois quando o pedido mudar.
+- Ao disparar o agente, marque `in_progress` e o estado `andamento`.
 - Conclua só depois de me relatar o resultado. O `agent stop <nome>` conclui as tarefas `[<nome>]`, então pare o agente depois do relato.
 
 ## Antes de disparar
@@ -894,10 +896,11 @@ Confira com `tmux -L <orquestrador>-spawn capture-pane -p | tail -8`: a tela mos
 ## A lista de pedidos 
 O orquestrador recebe muitos pedidos, e o resumo da compactação, quando a conversa enche, pode perder um. A lista de tarefas nativa (https://code.claude.com/docs/en/interactive-mode#task-list) do Claude Code guarda cada pedido num arquivo, em `~/.claude/tasks/<orquestrador>/`, fora da conversa. Nos modelos novos ela vem desligada, e as duas variáveis dos serviços acima a ligam: a primeira traz as ferramentas `TaskCreate`, `TaskList` e `TaskUpdate`, e a segunda dá à lista o nome do orquestrador, a mesma no serviço principal e na entrada de reserva. 
 
-- Pedido novo vira `TaskCreate` antes de qualquer ação, com o dono entre colchetes no assunto, como `[site] trocar o rodapé`. A regra está no `CLAUDE.md` do orquestrador. 
+- Pedido novo vira `TaskCreate` antes de qualquer ação. O assunto leva o dono entre colchetes, a prioridade e o estado, como `[site] P1 fila: trocar o rodapé`. P0 é produção quebrada, segurança ou prazo em até 48 horas, P1 é o trabalho da semana e P2 é o resto. O estado é `andamento`, `espera` (o item espera você, com dono `[eu]`) ou `fila`. A regra está no `CLAUDE.md` do orquestrador. 
 - O `agent start` liga as ferramentas no agente, que usa a lista da própria sessão. As subtarefas dele não enchem a sua. 
 - O `agent stop <nome>` conclui as tarefas com `[<nome>]` no assunto. Para pausar um agente sem concluir, use `agent stop --keep-tasks <nome>`. 
-- O mod `todo` do Cockpit (txt/mods.txt) põe a lista em cada prompt seu e arquiva a tarefa concluída.  
+- O mod `todo` do Cockpit (txt/mods.txt) põe a lista em cada prompt seu, um grupo por estado, cada um de P0 para P2, e arquiva a tarefa concluída. O grupo da tarefa mais urgente vem primeiro. 
+- No navegador, a aba Tasks do painel do Cockpit (txt/mods.txt) mostra a mesma lista, com filtro por prioridade. O app não desenha mod nas sessões do Remote Control, e o painel cobre essa falta.  
 Logo depois da compactação, um hook da pasta põe na conversa as tarefas abertas e os agentes vivos: Ver o hook orchestrator-context 
 
 bash, na máquina
@@ -926,17 +929,46 @@ except (OSError, subprocess.SubprocessError) as e:
 parts.append("## Agentes vivos\n" + (out or "nenhum"))
 
 if LIST:
-    rows = []
+    tasks = []
     for f in (HOME / ".claude" / "tasks" / re.sub(r"[^a-zA-Z0-9_-]", "-", LIST)).glob("*.json"):
         try:
             t = json.loads(f.read_text())
         except (OSError, ValueError):
             continue
         if t.get("status") in ("pending", "in_progress"):
-            n = int(t["id"]) if str(t.get("id", "")).isdigit() else 0
-            rows.append((n, f"- #{t.get('id')} [{t.get('status')}] {t.get('subject')}"))
+            tasks.append(t)
+    # A mesma ordem do mod todo: um grupo por estado, cada um de P0 para P2, sem tag no fim, e depois
+    # pelo id. O grupo da tarefa mais urgente vem primeiro e, no empate, o que tem tarefa em andamento.
+    # Prioridade e estado vêm do metadata e, sem ele, do assunto: `[dono] P1 espera: o pedido`.
+    tag = re.compile(r"^\s*(?:\[[^\]]*\]\s*)?(P\d+)\b(?:\s+([^\s:]+):)?", re.I)
+
+    def meta(t):
+        return t.get("metadata") if isinstance(t.get("metadata"), dict) else {}
+
+    def rank(t):
+        m = tag.match(str(t.get("subject", "")))
+        p = str(meta(t).get("priority") or (m and m.group(1)) or "")
+        return int(p[1:]) if re.fullmatch(r"[Pp]\d+", p) else float("inf")
+
+    def state(t):
+        m = tag.match(str(t.get("subject", "")))
+        return str(meta(t).get("state") or (m and m.group(2)) or t.get("status")).lower()
+
+    def key(t):
+        i = str(t.get("id", ""))
+        return (rank(t), int(i) if i.isdigit() else 0, i)
+
+    groups = {}
+    for t in sorted(tasks, key=key):
+        groups.setdefault(state(t), []).append(t)
+    rows = []
+    for name, ts in sorted(groups.items(), key=lambda g: (rank(g[1][0]),
+                                                          0 if any(t.get("status") == "in_progress" for t in g[1]) else 1,
+                                                          key(g[1][0]))):
+        rows.append(f"{name} ({len(ts)}):")
+        rows += [f"- #{t.get('id')} [{t.get('status')}] {t.get('subject')}" for t in ts]
     parts.append(f"## Tarefas abertas da lista {LIST} (TaskGet mostra cada uma inteira)\n"
-                 + ("\n".join(r for _, r in sorted(rows)) or "nenhuma"))
+                 + ("\n".join(rows) or "nenhuma"))
 
 print(json.dumps({"hookSpecificOutput": {"hookEventName": "SessionStart",
                                           "additionalContext": "\n\n".join(parts)}}))

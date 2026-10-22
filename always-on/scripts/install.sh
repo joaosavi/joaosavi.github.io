@@ -434,6 +434,7 @@ EOF
             *) done_ "painel sem subida automática pela sessão" ;;
         esac
     fi
+    before=$(cat "$UNITS/cockpit-panel.service" 2>/dev/null || true)
     put "$UNITS/cockpit-panel.service" root 644 <<EOF
 [Unit]
 Description=Painel do Cockpit, um cartão por sessão do Claude Code, em 127.0.0.1:7777
@@ -448,6 +449,9 @@ MemoryHigh=1G
 MemoryMax=1536M
 Environment=PANEL_PORT=7777
 Environment=PANEL_GROUPS=$SLICE.slice,recover.slice
+# A aba Tasks abre na lista de pedidos do orquestrador, e a tarefa [eu] vai para Waiting.
+Environment=PANEL_TASK_LIST=$ORCHESTRATOR
+Environment=PANEL_TASK_OWNER=eu
 Environment=PANEL_CLAUDE=$BIN/claude
 Environment=PATH=$BIN:/usr/local/bin:/usr/bin:/bin
 ExecStart=$BIN/cockpit-panel
@@ -458,7 +462,11 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
     [ "$CHECK" = 0 ] && sudo systemctl daemon-reload
-    if systemctl is-active -q cockpit-panel; then ok "cockpit-panel rodando"
+    # O painel não guarda conversa, então reinicia na hora para pegar a unit nova.
+    if [ "$CHECK" = 0 ] && systemctl is-active -q cockpit-panel &&
+        [ "$before" != "$(cat "$UNITS/cockpit-panel.service")" ]; then
+        sudo systemctl restart cockpit-panel && done_ "cockpit-panel reiniciado com a unit nova"
+    elif systemctl is-active -q cockpit-panel; then ok "cockpit-panel rodando"
     elif [ "$CHECK" = 1 ]; then missing "cockpit-panel parado"
     elif [ -f "$HOME/.claude/plugins/installed_plugins.json" ]; then
         sudo systemctl enable -q --now cockpit-panel && done_ "cockpit-panel rodando"

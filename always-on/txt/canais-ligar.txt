@@ -1,8 +1,18 @@
 # Como ligar o Telegram e o WhatsApp à máquina  
-O WhatsApp (https://www.whatsapp.com/) vira uma caixa de entrada de arquivos e mensagens na máquina, a VPS onde o Claude Code (https://claude.com/product/claude-code) roda. O Telegram (https://telegram.org/) vira o canal em que o orquestrador avisa você e manda arquivos. O orquestrador é a sessão do Claude Code que recebe os pedidos e distribui as tarefas. 
+O WhatsApp (https://www.whatsapp.com/) vira uma caixa de entrada de arquivos e mensagens na máquina, a VPS onde o Claude Code (https://claude.com/product/claude-code) roda. Na volta, o agente manda arquivo e aviso para o seu número pelo mesmo WhatsApp. O Telegram (https://telegram.org/) é outro canal em que o orquestrador avisa você e manda arquivos. O orquestrador é a sessão do Claude Code que recebe os pedidos e distribui as tarefas. 
 
 ## WhatsApp 
-O wacli (https://github.com/openclaw/wacli) liga um número descartável à máquina como aparelho vinculado do WhatsApp. Você encaminha mensagem, áudio e arquivo para esse número, e um serviço grava cada mensagem num `.md` numa pasta da máquina, com a mídia ao lado. O serviço só grava as mensagens dos números da lista e ignora o resto. O agente, a sessão do Claude Code que faz o trabalho, lê dessa pasta quando você pedir. Uma API de Whisper (https://github.com/openai/whisper) pode transcrever os áudios. O serviço só recebe e não responde, então ninguém conversa com o Claude pelo WhatsApp. 
+O wacli (https://github.com/openclaw/wacli) liga um número descartável à máquina como aparelho vinculado do WhatsApp. Você encaminha mensagem, áudio e arquivo para esse número, e um serviço grava cada mensagem num `.md` numa pasta da máquina, com a mídia ao lado. O serviço só grava as mensagens dos números da lista e ignora o resto. O agente, a sessão do Claude Code que faz o trabalho, lê dessa pasta quando você pedir. Uma API de Whisper (https://github.com/openai/whisper) pode transcrever os áudios. 
+Para mandar de volta, um comando pequeno chama o `wacli send` sempre para o seu número pessoal, e não aceita outro destinatário. Com o `wacli sync --follow` do serviço de pé, o `wacli send` entrega pela conexão dele, sem abrir uma segunda sessão. Com arquivo, o texto vira legenda, e áudio leva o texto numa segunda mensagem, porque o WhatsApp não põe legenda em áudio. O serviço nunca responde sozinho ao que chega, então ninguém conversa com o Claude pelo WhatsApp. 
+
+bash, na máquina
+```
+# o mesmo --store do serviço, quando ele usa um
+wacli send text --to <seu-numero> --message "relatório pronto"
+wacli send file --to <seu-numero> --file relatorio.pdf --caption "relatório"
+```
+
+Escolha um canal de entrega e escreva no `CLAUDE.md` global, o arquivo de instruções que toda sessão lê ao começar: arquivo, print e aviso para você saem pelo WhatsApp, e pelo Telegram só quando você pedir. Com os dois valendo, o mesmo aviso chega duas vezes. 
 
 ## Telegram 
 O plugin oficial de canal do Telegram entrega ao orquestrador o que você manda ao bot, e o orquestrador usa o mesmo bot para avisar você e mandar arquivos. O bot só aceita as contas da lista. 
@@ -26,7 +36,7 @@ Claude Code, na máquina
 - Subir com o canal. No `orchestrator-rc`, o serviço que mantém o orquestrador rodando, ponha `$HOME/.bun/bin` no `PATH` e acrescente `--settings '{"enabledPlugins":{"telegram@claude-plugins-official":true}}' --channels plugin:telegram@claude-plugins-official` às flags. Reinicie o serviço. 
 - Parear. Mande qualquer mensagem ao bot. Ele responde com um código. Peça ao orquestrador para rodar `/telegram:access pair <código>`, uma vez para cada conta da lista. 
 - Fechar o bot. Rode `/telegram:access policy allowlist`. A partir daí, o bot ignora sem responder quem não está na lista. No modo padrão, `pairing`, ele responde com um código a qualquer desconhecido. 
-- Dizer ao orquestrador para que serve. Escreva no `CLAUDE.md` dele, o arquivo de instruções que a sessão lê ao começar, que o Telegram leva aviso e arquivo, que um pedido de ação vindo por ali se confirma pelo app, e que conta nova só entra na lista quando você pedir pelo app.  
+- Dizer ao orquestrador para que serve. Escreva no `CLAUDE.md` dele, o arquivo de instruções que a sessão lê ao começar, que o Telegram leva aviso e arquivo só quando você pedir, que um pedido de ação vindo por ali se confirma pelo app, e que conta nova só entra na lista quando você pedir pelo app.  
 
 Conta Team ou Enterprise
 Os canais estão em research preview, a fase de teste da Anthropic, e um Owner precisa ligá-los nas configurações da organização. Quando estão liberados, a sessão que sobe com `--channels` mostra a faixa Channels (experimental).
