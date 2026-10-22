@@ -2851,6 +2851,9 @@ claude plugin install cockpit@cockpit</pre></div>
   <h2>Abrir o painel no seu computador</h2>
   <p>O <code>panel</code> escuta só no <code>127.0.0.1</code> da VPS. Para abrir no navegador do seu computador, ligue um túnel SSH e acesse <code>http://localhost:7777</code>:</p>
   <div class="code"><div class="code-head"><span>bash, no seu computador</span><button class="copy">Copiar</button></div><pre>ssh -N -L 7777:127.0.0.1:7777 &lt;usuario&gt;@&lt;ip&gt;</pre></div>
+  <p>Se a chave do computador está presa ao túnel dos agentes, como em <a href="#pc">Abra agentes no seu computador quando a VPS lota</a>, a linha dela no <code>~/.ssh/authorized_keys</code> da VPS precisa de <code>permitopen="127.0.0.1:7777"</code>, ou o SSH recusa o <code>-L</code>. Um comando só abre os dois túneis:</p>
+  <div class="code"><div class="code-head"><span>bash, no seu computador</span><button class="copy">Copiar</button></div><pre>ssh -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -R 2222:localhost:22 -L 7777:127.0.0.1:7777 &lt;usuario&gt;@&lt;ip&gt;</pre></div>
+  <p>Com o <code>ExitOnForwardFailure</code>, o comando sai se a porta 7777 já está em uso no computador, por exemplo pelo painel do Cockpit local. Nesse caso, troque o primeiro 7777 por outra porta, como <code>-L 7778:127.0.0.1:7777</code>, e acesse <code>http://localhost:7778</code>.</p>
   <p>As opções e os limites de cada mod estão no <a href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">repositório do Cockpit</a>. Com os mods instalados, siga para <a href="#provar">Como provar que tudo funciona</a>.</p>
   <button type="button" class="done-btn" data-done="mods">Marquei como feito</button>
 </article>
@@ -3004,21 +3007,22 @@ claude plugin install cockpit@cockpit</pre></div>
 cat ~/.ssh/id_ed25519.pub</pre></div></li>
     <li>No computador, autorize essa chave só para quem chega pelo túnel. Troque <code>CHAVE_DA_VPS</code> pela linha que o <code>cat</code> mostrou:
       <div class="code"><div class="code-head"><span>bash, no seu computador</span><button class="copy">Copiar</button></div><pre>echo 'from="127.0.0.1,::1" CHAVE_DA_VPS' &gt;&gt; ~/.ssh/authorized_keys</pre></div></li>
-    <li>Na VPS, prenda a chave do seu computador ao túnel. No <code>~/.ssh/authorized_keys</code>, ponha na frente da linha dela: <code>restrict,port-forwarding,permitlisten="localhost:2222"</code>.</li>
+    <li>Na VPS, prenda a chave do seu computador ao túnel. No <code>~/.ssh/authorized_keys</code>, ponha na frente da linha dela: <code>restrict,port-forwarding,permitlisten="localhost:2222",permitopen="127.0.0.1:7777"</code>. O <code>permitlisten</code> deixa o computador abrir a porta 2222 na VPS, e o <code>permitopen</code> deixa a mesma chave abrir o <a href="#mods">painel do Cockpit</a>. Nenhum outro uso da chave passa.</li>
     <li>No computador, abra o túnel:
       <div class="code"><div class="code-head"><span>bash, no seu computador</span><button class="copy">Copiar</button></div><pre>ssh -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -R 2222:localhost:22 &lt;usuario&gt;@&lt;ip&gt;</pre></div></li>
   </ol>
   <p>Na VPS, <code>ssh -p 2222 &lt;usuario-pc&gt;@localhost true</code> sai com 0 quando o túnel está de pé.</p>
 
   <h2>Cadastrar o computador</h2>
-  <p>O orquestrador lê os computadores de <code>~/&lt;orquestrador&gt;/hosts.json</code>, ao lado do <code>projects.json</code>. O campo <code>tunnel</code> é o comando que o <code>agent</code> mostra quando o túnel está fechado.</p>
+  <p>O orquestrador lê os computadores de <code>~/&lt;orquestrador&gt;/hosts.json</code>, ao lado do <code>projects.json</code>. O campo <code>tunnel</code> é o comando que o <code>agent</code> mostra quando o túnel está fechado. O campo <code>panel</code> guarda o comando que abre o painel no navegador do computador, só para consulta.</p>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>cat &gt; ~/&lt;orquestrador&gt;/hosts.json &lt;&lt;'EOF'
 {
   "mac": {
     "ssh": "&lt;usuario-pc&gt;@localhost",
     "port": 2222,
     "max_agents": 1,
-    "tunnel": "ssh -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -R 2222:localhost:22 &lt;usuario&gt;@&lt;ip&gt;"
+    "tunnel": "ssh -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -R 2222:localhost:22 &lt;usuario&gt;@&lt;ip&gt;",
+    "panel": "ssh -N -L 7777:127.0.0.1:7777 &lt;usuario&gt;@&lt;ip&gt;"
   }
 }
 EOF</pre></div>

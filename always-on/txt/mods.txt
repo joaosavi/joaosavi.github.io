@@ -64,4 +64,12 @@ bash, no seu computador
 ssh -N -L 7777:127.0.0.1:7777 <usuario>@<ip>
 ```
 
+Se a chave do computador está presa ao túnel dos agentes, como em Abra agentes no seu computador quando a VPS lota (txt/pc.txt), a linha dela no `~/.ssh/authorized_keys` da VPS precisa de `permitopen="127.0.0.1:7777"`, ou o SSH recusa o `-L`. Um comando só abre os dois túneis: 
+
+bash, no seu computador
+```
+ssh -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -R 2222:localhost:22 -L 7777:127.0.0.1:7777 <usuario>@<ip>
+```
+
+Com o `ExitOnForwardFailure`, o comando sai se a porta 7777 já está em uso no computador, por exemplo pelo painel do Cockpit local. Nesse caso, troque o primeiro 7777 por outra porta, como `-L 7778:127.0.0.1:7777`, e acesse `http://localhost:7778`. 
 As opções e os limites de cada mod estão no repositório do Cockpit (https://github.com/joaosavi/cockpit). Com os mods instalados, siga para Como provar que tudo funciona (txt/provar.txt).

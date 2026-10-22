@@ -34,7 +34,7 @@ bash, no seu computador
 echo 'from="127.0.0.1,::1" CHAVE_DA_VPS' >> ~/.ssh/authorized_keys
 ```
 
-- Na VPS, prenda a chave do seu computador ao túnel. No `~/.ssh/authorized_keys`, ponha na frente da linha dela: `restrict,port-forwarding,permitlisten="localhost:2222"`. 
+- Na VPS, prenda a chave do seu computador ao túnel. No `~/.ssh/authorized_keys`, ponha na frente da linha dela: `restrict,port-forwarding,permitlisten="localhost:2222",permitopen="127.0.0.1:7777"`. O `permitlisten` deixa o computador abrir a porta 2222 na VPS, e o `permitopen` deixa a mesma chave abrir o painel do Cockpit (txt/mods.txt). Nenhum outro uso da chave passa. 
 - No computador, abra o túnel: 
 
 bash, no seu computador
@@ -45,7 +45,7 @@ ssh -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -R 2222:localhost:2
 Na VPS, `ssh -p 2222 <usuario-pc>@localhost true` sai com 0 quando o túnel está de pé. 
 
 ## Cadastrar o computador 
-O orquestrador lê os computadores de `~/<orquestrador>/hosts.json`, ao lado do `projects.json`. O campo `tunnel` é o comando que o `agent` mostra quando o túnel está fechado. 
+O orquestrador lê os computadores de `~/<orquestrador>/hosts.json`, ao lado do `projects.json`. O campo `tunnel` é o comando que o `agent` mostra quando o túnel está fechado. O campo `panel` guarda o comando que abre o painel no navegador do computador, só para consulta. 
 
 bash, na máquina
 ```
@@ -55,7 +55,8 @@ cat > ~/<orquestrador>/hosts.json <<'EOF'
     "ssh": "<usuario-pc>@localhost",
     "port": 2222,
     "max_agents": 1,
-    "tunnel": "ssh -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -R 2222:localhost:22 <usuario>@<ip>"
+    "tunnel": "ssh -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -R 2222:localhost:22 <usuario>@<ip>",
+    "panel": "ssh -N -L 7777:127.0.0.1:7777 <usuario>@<ip>"
   }
 }
 EOF
