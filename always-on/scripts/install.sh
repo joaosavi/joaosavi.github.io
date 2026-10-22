@@ -391,6 +391,17 @@ if [ "$COCKPIT" = 1 ]; then
     else
         missing "o Cockpit não instalou: rode claude plugin install cockpit@cockpit depois do login"
     fi
+    # Mod novo numa versão do Cockpit não chega com a atualização do pacote.
+    if claude plugin list 2>/dev/null | grep -q 'cockpit@cockpit'; then
+        if claude plugin list 2>/dev/null | grep -q 'todo@cockpit'; then
+            ok "mod todo instalado"
+        elif [ "$CHECK" = 1 ]; then
+            missing "o mod todo não está instalado"
+        else
+            claude plugin marketplace update cockpit >/dev/null 2>&1
+            claude plugin install todo@cockpit >/dev/null 2>&1 && done_ "mod todo instalado"
+        fi
+    fi
     # O painel roda como serviço. Aberto por uma sessão, ele ficaria preso no grupo de memória dela.
     if python3 - "$CHECK" <<'EOF'
 import json, os, sys
