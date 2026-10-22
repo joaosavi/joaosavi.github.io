@@ -1,6 +1,6 @@
-# Cockpit 1.3.0
+# Cockpit 1.4.0
 
-> Os 11 mods do Cockpit para o Claude Code: guardas que barram os erros de um agente e instrumentos que mostram em que ponto cada sessão está.
+> Os 12 mods do Cockpit para o Claude Code: guardas que barram os erros de um agente e instrumentos que mostram em que ponto cada sessão está.
 
 Cada página abaixo é um arquivo Markdown. Para instalar: `claude plugin marketplace add joaosavi/cockpit` e `claude plugin install cockpit@cockpit`, depois reinicie o Claude Code e rode `/cockpit:setup`.
 
@@ -29,6 +29,7 @@ Cada página abaixo é um arquivo Markdown. Para instalar: `claude plugin market
 ## Memória
 
 - [global-memory](https://joaosavi.github.io/cockpit/pt/md/global-memory.md)
+- [todo](https://joaosavi.github.io/cockpit/pt/md/todo.md)
 
 ## Consultar
 

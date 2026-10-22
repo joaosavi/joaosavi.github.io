@@ -13,9 +13,17 @@ Você é o orquestrador dos agentes desta máquina. Eu converso com você pelo a
 | `agent start <projeto> [--worktree BRANCH] [--name NOME] "<tarefa>"` | Abre o agente na pasta do projeto, em bypass, com o teto do projeto e já com a tarefa. Com `--worktree`, ele trabalha numa branch própria, num worktree do git. Devolve o nome e o link no app |
 | `agent list` | Agentes vivos, com projeto, RAM usada e teto |
 | `agent result <nome>` | A última resposta do agente, lida do transcript |
-| `agent stop <nome>` | Encerra o agente e devolve a RAM |
+| `agent stop <nome>` | Encerra o agente, devolve a RAM e conclui as tarefas com `[<nome>]` no assunto. Com `--keep-tasks`, encerra sem concluir |
 
 Arquivar a sessão no app não encerra o processo. Todo agente termina com `agent stop`.
+
+## Pedido vira tarefa
+
+Os pedidos em aberto moram na lista nativa de tarefas do Claude Code, a lista `<orquestrador>`, em `~/.claude/tasks/<orquestrador>/`. Ela fica no disco e volta depois de cada compactação.
+
+- Pedido novo meu vira `TaskCreate` antes de qualquer outra ação, uma tarefa por pedido. O assunto começa com o dono entre colchetes: o nome do agente, ou `eu` quando o item espera uma decisão minha. Exemplo: `[site] trocar o rodapé`.
+- Ao disparar o agente, marque `in_progress`.
+- Conclua só depois de me relatar o resultado. O `agent stop <nome>` conclui as tarefas `[<nome>]`, então pare o agente depois do relato.
 
 ## Antes de disparar
 

@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+"""Hook SessionStart do orquestrador: ao abrir, retomar e compactar, põe na conversa as tarefas abertas
+da lista de pedidos e os agentes vivos. O resumo da compactação pode perder um pedido; a lista no disco,
+não. O mod todo do Cockpit mostra a lista em cada prompt, mas numa conta Team ele não fica sabendo da
+compactação, e este hook, do settings da pasta, roda nela.
+"""
+import json
+import os
+import re
+import subprocess
+from pathlib import Path
+
+HOME = Path.home()
+LIST = os.environ.get("CLAUDE_CODE_TASK_LIST_ID", "").strip()
+parts = ["Estado do orquestrador, do hook SessionStart. Confira antes de responder."]
+
+try:
+    out = subprocess.run(["agent", "list"], capture_output=True, text=True, timeout=20).stdout.strip()
+except (OSError, subprocess.SubprocessError) as e:
+    out = f"(agent list falhou: {e})"
+parts.append("## Agentes vivos\n" + (out or "nenhum"))
+
+if LIST:
+    rows = []
+    for f in (HOME / ".claude" / "tasks" / re.sub(r"[^a-zA-Z0-9_-]", "-", LIST)).glob("*.json"):
+        try:
+            t = json.loads(f.read_text())
+        except (OSError, ValueError):
+            continue
+        if t.get("status") in ("pending", "in_progress"):
+            n = int(t["id"]) if str(t.get("id", "")).isdigit() else 0
+            rows.append((n, f"- #{t.get('id')} [{t.get('status')}] {t.get('subject')}"))
+    parts.append(f"## Tarefas abertas da lista {LIST} (TaskGet mostra cada uma inteira)\n"
+                 + ("\n".join(r for _, r in sorted(rows)) or "nenhuma"))
+
+print(json.dumps({"hookSpecificOutput": {"hookEventName": "SessionStart",
+                                          "additionalContext": "\n\n".join(parts)}}))

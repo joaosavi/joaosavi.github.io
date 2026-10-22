@@ -1,0 +1,190 @@
+#!/usr/bin/env python3
+"""Instala o ai-memory e espelha nele a memória do Claude Code desta máquina.
+
+  ai-memory-sync install    baixa o ai-memory na versão fixa, confere o sha256 e roda o init
+  ai-memory-sync            grava no ai-memory cada memória nova ou mudada e apaga a que saiu
+  ai-memory-sync --all      grava todas de novo
+
+A fonte da verdade são os .md da memória nativa: ~/.claude/projects/<pasta>/memory/ de cada projeto
+e a pasta global do mod global-memory do Cockpit (AI_MEMORY_GLOBAL_DIR, padrão
+~/.claude/global-memory). O ai-memory (github.com/akitaonrails/ai-memory) é o índice buscável por
+MCP, para qualquer harness. O espelho vai num sentido só: uma página mudada no ai-memory com o mesmo
+caminho volta a ser o .md na próxima mudança dele.
+
+O frontmatter do Claude Code (name, description, metadata.type) vira o do Open Knowledge Format que o
+ai-memory escreve: título, kind e tags. A description entra como primeira linha do corpo.
+"""
+
+import hashlib
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tarfile
+import tempfile
+import urllib.request
+from pathlib import Path
+
+HOME = Path.home()
+GLOBAL = Path(os.path.expanduser(os.environ.get("AI_MEMORY_GLOBAL_DIR", "~/.claude/global-memory")))
+PROJECTS = HOME / ".claude" / "projects"
+STATE = HOME / ".local" / "state" / "ai-memory-sync" / "state.json"
+BIN = HOME / ".local" / "bin" / "ai-memory"
+OPT = HOME / ".local" / "opt" / "ai-memory"
+
+VERSION = "3.2.0"
+SHA256 = {
+    "aarch64": "7df8dc899829be221b70eb1bdfbec3ac09dd0ec8099fd6683dae00104cbdbddb",
+    "x86_64": "37e5acbb40f1b7d828a5279b4a2f0305adcb8b811b090b3a0fd5d7e77eef180a",
+}
+
+# Senha dita em frase ("a senha do wifi é X", "PIN: 1234"), que os padrões embutidos do ai-memory não
+# pegam: o servidor redige antes de gravar, venha a página do MCP ou da CLI. Só redige valor com dígito
+# ou com 20 caracteres ou mais, para não apagar frase como "a senha fica no cofre".
+PASSWORD_PATTERN = (r"""(?i)\b(?:senhas?|password|passwd|passphrase|pwd|pin|token|segredo|secret|chave de api|"""
+                    r"""api[ _-]?key|credenciais|credencial)\b[^\n]{0,40}?(?:\s(?:é|eh|era|será)\s+|\s*[=:]\s*)["'`]?"""
+                    r"""(?:[^\s"'`<]{2,}[0-9][^\s"'`<]*|[^\s"'`<]*[0-9][^\s"'`<]{2,}|[A-Za-z0-9_+/=.-]{20,})""")
+CONFIG = HOME / ".local" / "share" / "ai-memory" / "config.toml"
+
+# metadata.type do Claude Code para o kind do ai-memory (fact, rule, decision, gotcha).
+KIND = {"feedback": "rule", "project": "decision", "reference": "fact", "user": "fact"}
+
+
+def die(msg):
+    print(f"ai-memory-sync: {msg}", file=sys.stderr)
+    sys.exit(1)
+
+
+def install():
+    arch = os.uname().machine
+    if arch not in SHA256:
+        die(f"sem binário do ai-memory {VERSION} para {arch}")
+    target = OPT / VERSION
+    if not (target / "ai-memory").exists():
+        name = f"ai-memory-linux-{arch}.tar.gz"
+        url = f"https://github.com/akitaonrails/ai-memory/releases/download/v{VERSION}/{name}"
+        with tempfile.TemporaryDirectory() as tmp:
+            archive = Path(tmp) / name
+            urllib.request.urlretrieve(url, archive)
+            digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+            if digest != SHA256[arch]:
+                die(f"checksum do {name} não confere: {digest}")
+            out = Path(tmp) / "out"
+            with tarfile.open(archive) as tar:
+                tar.extractall(out, filter="data")
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(out, target)
+    BIN.parent.mkdir(parents=True, exist_ok=True)
+    tmp_link = BIN.with_name(".ai-memory.link")
+    tmp_link.unlink(missing_ok=True)
+    tmp_link.symlink_to(target / "ai-memory")
+    os.replace(tmp_link, BIN)
+    # O init cria a pasta de dados, o config.toml e o token; numa pasta que já existe, só confere.
+    subprocess.run([str(BIN), "init"], check=True, capture_output=True)
+    config = CONFIG.read_text()
+    if PASSWORD_PATTERN not in config:
+        if "[sanitize]\nextra_patterns = []\n" not in config:
+            die(f"{CONFIG}: [sanitize] mudou; ponha o padrão de senha à mão em extra_patterns")
+        CONFIG.write_text(config.replace("[sanitize]\nextra_patterns = []\n",
+                                         f"[sanitize]\nextra_patterns = [\n  '''{PASSWORD_PATTERN}''',\n]\n"))
+        print("padrão de senha gravado no config.toml; reinicie o ai-memory.service")
+    print(subprocess.run([str(BIN), "--version"], capture_output=True, text=True).stdout.strip())
+
+
+def parse(text):
+    """Separa o frontmatter do corpo. Devolve (campos, corpo); sem frontmatter, campos vazios."""
+    m = re.match(r"^---\n(.*?)\n---\n?(.*)$", text, re.S)
+    if not m:
+        return {}, text
+    fields = {}
+    section = None
+    for line in m.group(1).splitlines():
+        top = re.match(r"^([A-Za-z_]+):\s*(.*)$", line)
+        sub = re.match(r"^\s+([A-Za-z_]+):\s*(.*)$", line)
+        if top:
+            section = top.group(1)
+            if top.group(2):
+                fields[section] = top.group(2).strip().strip('"')
+        elif sub and section == "metadata":
+            fields[f"metadata.{sub.group(1)}"] = sub.group(2).strip().strip('"')
+    return fields, m.group(2).lstrip("\n")
+
+
+def memories():
+    """Cada memória: (projeto no ai-memory, caminho da página, arquivo). A pasta global vai para o
+    _global do ai-memory, que toda busca de projeto também lê, como o MEMORY.md global entra em toda
+    sessão. Cada projeto do Claude Code vira um projeto com o nome da pasta, sem o prefixo da home."""
+    home_prefix = re.sub(r"[^a-zA-Z0-9]", "-", str(HOME)) + "-"
+    folders = [("_global", GLOBAL)]
+    for d in sorted(PROJECTS.glob("*/memory")):
+        if d.resolve() == GLOBAL.resolve():
+            continue
+        name = d.parent.name
+        name = name[len(home_prefix):] if name.startswith(home_prefix) else name.lstrip("-")
+        folders.append((name or "home", d))
+    for project, folder in folders:
+        for f in sorted(folder.glob("*.md")):
+            if f.name != "MEMORY.md":
+                yield project, f"memory/{project}/{f.name}", f
+
+
+def run(args, body=None):
+    r = subprocess.run([str(BIN), *args], input=body, capture_output=True, text=True)
+    if r.returncode != 0:
+        die(f"{' '.join(args[:3])}: {(r.stderr or r.stdout).strip().splitlines()[-1:]}")
+
+
+def write(project, path, f):
+    fields, body = parse(f.read_text())
+    kind = KIND.get(fields.get("metadata.type", ""), "fact")
+    title = fields.get("name") or f.stem
+    description = fields.get("description", "")
+    text = (f"{description}\n\n{body}" if description else body).strip() + "\n"
+    args = ["write-page", "--project", project, "--path", path, "--title", title,
+            "--kind", kind, "--tag", project, "--body", "-"]
+    if fields.get("metadata.type"):
+        args += ["--tag", fields["metadata.type"]]
+    run(args, text)
+
+
+def sync(everything):
+    if not BIN.exists():
+        die(f"{BIN} não existe; rode ai-memory-sync install")
+    try:
+        state = json.loads(STATE.read_text())
+    except (FileNotFoundError, ValueError):
+        state = {}
+    seen = {}
+    written = 0
+    for project, path, f in memories():
+        digest = hashlib.sha256(f.read_bytes()).hexdigest()
+        seen[path] = {"sha": digest, "project": project}
+        if everything or state.get(path, {}).get("sha") != digest:
+            write(project, path, f)
+            written += 1
+    deleted = 0
+    for path, old in state.items():
+        if path not in seen:
+            run(["delete-page", "--project", old["project"], "--path", path])
+            deleted += 1
+    STATE.parent.mkdir(parents=True, exist_ok=True)
+    tmp = STATE.with_suffix(".tmp")
+    tmp.write_text(json.dumps(seen, indent=1))
+    os.replace(tmp, STATE)
+    print(f"{len(seen)} memórias, {written} gravadas, {deleted} apagadas")
+
+
+def main():
+    args = sys.argv[1:]
+    if args == ["install"]:
+        install()
+    elif args in ([], ["--all"]):
+        sync(args == ["--all"])
+    else:
+        die(__doc__.split("\n\n")[1])
+
+
+if __name__ == "__main__":
+    main()

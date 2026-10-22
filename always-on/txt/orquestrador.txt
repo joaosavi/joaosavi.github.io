@@ -64,9 +64,17 @@ Você é o orquestrador dos agentes desta máquina. Eu converso com você pelo a
 | `agent start <projeto> [--worktree BRANCH] [--name NOME] "<tarefa>"` | Abre o agente na pasta do projeto, em bypass, com o teto do projeto e já com a tarefa. Com `--worktree`, ele trabalha numa branch própria, num worktree do git. Devolve o nome e o link no app |
 | `agent list` | Agentes vivos, com projeto, RAM usada e teto |
 | `agent result <nome>` | A última resposta do agente, lida do transcript |
-| `agent stop <nome>` | Encerra o agente e devolve a RAM |
+| `agent stop <nome>` | Encerra o agente, devolve a RAM e conclui as tarefas com `[<nome>]` no assunto. Com `--keep-tasks`, encerra sem concluir |
 
 Arquivar a sessão no app não encerra o processo. Todo agente termina com `agent stop`.
+
+## Pedido vira tarefa
+
+Os pedidos em aberto moram na lista nativa de tarefas do Claude Code, a lista `<orquestrador>`, em `~/.claude/tasks/<orquestrador>/`. Ela fica no disco e volta depois de cada compactação.
+
+- Pedido novo meu vira `TaskCreate` antes de qualquer outra ação, uma tarefa por pedido. O assunto começa com o dono entre colchetes: o nome do agente, ou `eu` quando o item espera uma decisão minha. Exemplo: `[site] trocar o rodapé`.
+- Ao disparar o agente, marque `in_progress`.
+- Conclua só depois de me relatar o resultado. O `agent stop <nome>` conclui as tarefas `[<nome>]`, então pare o agente depois do relato.
 
 ## Antes de disparar
 
@@ -85,7 +93,7 @@ EOF
 ```
 
 ## O comando agent 
-Este comando abre, lista e encerra os agentes. Cada agente roda num tmux próprio, um terminal que segue rodando sem o SSH, dentro de um scope do systemd, um grupo de processos criado na hora, no slice dos agentes e com o teto do projeto. O comando usa `sudo -n systemd-run`, então o usuário precisa do sudo sem senha configurado em Como fazer a config inicial da VPS (txt/preparar.txt). Ver o script do comando agent (271 linhas) 
+Este comando abre, lista e encerra os agentes. Cada agente roda num tmux próprio, um terminal que segue rodando sem o SSH, dentro de um scope do systemd, um grupo de processos criado na hora, no slice dos agentes e com o teto do projeto. O comando usa `sudo -n systemd-run`, então o usuário precisa do sudo sem senha configurado em Como fazer a config inicial da VPS (txt/preparar.txt). Ver o script do comando agent (302 linhas) 
 
 bash, na máquina
 ```
@@ -96,7 +104,7 @@ cat > ~/.local/bin/agent <<'EOF'
   agent start <projeto> [--worktree BRANCH] [--role PAPEL] [--name NOME] [--resume SESSAO] [--chrome] "<tarefa>"
   agent list
   agent result <nome>
-  agent stop <nome>
+  agent stop [--keep-tasks] <nome>
 
 A pasta e o teto de cada projeto vêm do projects.json do orquestrador. AGENT_ORCHESTRATOR é o nome
 do orquestrador no app, e AGENT_SLICE o slice dos agentes. Os dois vêm do ambiente ou, fora dele,
@@ -106,6 +114,7 @@ de ~/.config/always-on/env, que vale também para o SSH.
 import json
 import os
 import pwd
+import re
 import subprocess
 import sys
 import time
@@ -132,6 +141,9 @@ PROJECTS = Path(os.environ.get("AGENT_PROJECTS", HOME / ORCHESTRATOR / "projects
 SLICE = setting("AGENT_SLICE", "agents.slice")
 STATE = HOME / ".local" / "state" / "agents"
 RUNTIME_DIR = f"/run/user/{os.getuid()}"
+# A lista de pedidos do orquestrador, o CLAUDE_CODE_TASK_LIST_ID do serviço dele. O agente usa a lista
+# da própria sessão, e o agent stop conclui aqui as tarefas com [<nome>] no assunto.
+TASKS = HOME / ".claude" / "tasks" / re.sub(r"[^a-zA-Z0-9_-]", "-", setting("CLAUDE_CODE_TASK_LIST_ID", ORCHESTRATOR))
 # O orquestrador encerra o agente quando recebe o aviso. Numa conversa direta com a pessoa, o aviso
 # antes da hora derrubaria a sessão no meio da conversa.
 DONE_PROMPT = ("Você é o agente {name}, aberto pelo {orch}. Quando concluir o trabalho e não houver mais "
@@ -270,6 +282,10 @@ def run(name):
     # O sudo limpa o ambiente, então o nome do orquestrador vem do spec gravado no start.
     # Sem XDG_RUNTIME_DIR, o socket de mensagens cai em /tmp e o orquestrador não enxerga o agente.
     os.environ["XDG_RUNTIME_DIR"] = RUNTIME_DIR
+    # As ferramentas de tarefa somem nos modelos novos sem a variável. A lista de pedidos é só do
+    # orquestrador: o agente fica com a da própria sessão.
+    os.environ["CLAUDE_CODE_ENABLE_TODO_TOOLS"] = "1"
+    os.environ.pop("CLAUDE_CODE_TASK_LIST_ID", None)
     os.execvp("claude", cmd)
 
 def list_():
@@ -309,8 +325,29 @@ def result(argv):
             last = text if text.strip() else last
     print(last or f"{argv[0]} ainda não respondeu")
 
+def complete_tasks(name):
+    """Conclui as tarefas abertas da lista do orquestrador com [<nome>] no assunto."""
+    tag, done = f"[{name.lower()}]", []
+    for f in sorted(TASKS.glob("*.json")):
+        try:
+            t = json.loads(f.read_text())
+        except (OSError, ValueError):
+            continue
+        if t.get("status") == "completed" or tag not in str(t.get("subject", "")).lower():
+            continue
+        t["status"] = "completed"
+        note = f"Concluída pelo agent stop {name} em {time.strftime('%Y-%m-%dT%H:%M:%S')}."
+        t["description"] = f"{t['description']}\n\n{note}" if t.get("description") else note
+        tmp = f.with_name(f".{f.name}.agent")
+        tmp.write_text(json.dumps(t, indent=2, ensure_ascii=False))
+        os.replace(tmp, f)
+        done.append(f"#{t.get('id')}")
+    return done
+
 def stop(argv):
-    name = argv[0] if len(argv) == 1 else die("uso: agent stop <nome>")
+    keep = "--keep-tasks" in argv
+    argv = [a for a in argv if a != "--keep-tasks"]
+    name = argv[0] if len(argv) == 1 else die("uso: agent stop [--keep-tasks] <nome>")
     pid = agent_pid(name)
     tmux(name, "kill-server")
     for _ in range(30):
@@ -326,7 +363,8 @@ def stop(argv):
             f.write(json.dumps({"name": name, "project": spec["project"], "session": spec["session"],
                                 "path": spec["path"], "stopped": time.strftime("%Y-%m-%dT%H:%M:%S")}) + "\n")
         spec_file.unlink()
-    print(f"{name} encerrado")
+    done = [] if keep else complete_tasks(name)
+    print(f"{name} encerrado" + (f"; tarefas concluídas: {' '.join(done)}" if done else ""))
 
 def main():
     if len(sys.argv) < 2:
@@ -402,6 +440,9 @@ After=network-online.target user-runtime-dir@<uid>.service
 Wants=network-online.target user-runtime-dir@<uid>.service
 
 [Service]
+# A lista de pedidos: sem a primeira variável, os modelos novos não têm as ferramentas de tarefa.
+Environment=CLAUDE_CODE_ENABLE_TODO_TOOLS=1
+Environment=CLAUDE_CODE_TASK_LIST_ID=<orquestrador>
 Type=forking
 User=voce
 Slice=<slice>.slice
@@ -462,6 +503,9 @@ After=network-online.target user-runtime-dir@<uid>.service
 Wants=network-online.target user-runtime-dir@<uid>.service
 
 [Service]
+# A lista de pedidos: sem a primeira variável, os modelos novos não têm as ferramentas de tarefa.
+Environment=CLAUDE_CODE_ENABLE_TODO_TOOLS=1
+Environment=CLAUDE_CODE_TASK_LIST_ID=<orquestrador>
 Type=forking
 User=voce
 Slice=<slice>.slice
@@ -482,6 +526,84 @@ sudo systemctl daemon-reload && sudo systemctl enable --now <orquestrador>-spawn
 Sessão da reserva em modo auto
 Hoje o app troca o bypass por auto nas sessões abertas pelo modo servidor (issue #87826 (https://github.com/anthropics/claude-code/issues/87826)). O classificador do modo auto pode barrar o `agent start`, e a sessão da reserva pede aprovação. Quando o issue fechar, ela passa a rodar em bypass sem mudança no serviço. O orquestrador principal e os agentes sobem pelo terminal e mantêm o bypass. 
 Confira com `tmux -L <orquestrador>-spawn capture-pane -p | tail -8`: a tela mostra `Ready` e `Capacity: 0/2`. No app, em sessão nova, o ambiente aparece como `<máquina>:<orquestrador>:<sufixo>`. O sufixo muda a cada reinício do serviço, e o ambiente antigo sai da lista. 
+
+## A lista de pedidos 
+O orquestrador recebe muitos pedidos, e o resumo da compactação, quando a conversa enche, pode perder um. A lista de tarefas nativa (https://code.claude.com/docs/en/interactive-mode#task-list) do Claude Code guarda cada pedido num arquivo, em `~/.claude/tasks/<orquestrador>/`, fora da conversa. Nos modelos novos ela vem desligada, e as duas variáveis dos serviços acima a ligam: a primeira traz as ferramentas `TaskCreate`, `TaskList` e `TaskUpdate`, e a segunda dá à lista o nome do orquestrador, a mesma no serviço principal e na entrada de reserva. 
+
+- Pedido novo vira `TaskCreate` antes de qualquer ação, com o dono entre colchetes no assunto, como `[site] trocar o rodapé`. A regra está no `CLAUDE.md` do orquestrador. 
+- O `agent start` liga as ferramentas no agente, que usa a lista da própria sessão. As subtarefas dele não enchem a sua. 
+- O `agent stop <nome>` conclui as tarefas com `[<nome>]` no assunto. Para pausar um agente sem concluir, use `agent stop --keep-tasks <nome>`. 
+- O mod `todo` do Cockpit (txt/mods.txt) põe a lista em cada prompt seu e arquiva a tarefa concluída.  
+Logo depois da compactação, um hook da pasta põe na conversa as tarefas abertas e os agentes vivos: Ver o hook orchestrator-context 
+
+bash, na máquina
+```
+cat > ~/.local/bin/orchestrator-context <<'EOF'
+#!/usr/bin/env python3
+"""Hook SessionStart do orquestrador: ao abrir, retomar e compactar, põe na conversa as tarefas abertas
+da lista de pedidos e os agentes vivos. O resumo da compactação pode perder um pedido; a lista no disco,
+não. O mod todo do Cockpit mostra a lista em cada prompt, mas numa conta Team ele não fica sabendo da
+compactação, e este hook, do settings da pasta, roda nela.
+"""
+import json
+import os
+import re
+import subprocess
+from pathlib import Path
+
+HOME = Path.home()
+LIST = os.environ.get("CLAUDE_CODE_TASK_LIST_ID", "").strip()
+parts = ["Estado do orquestrador, do hook SessionStart. Confira antes de responder."]
+
+try:
+    out = subprocess.run(["agent", "list"], capture_output=True, text=True, timeout=20).stdout.strip()
+except (OSError, subprocess.SubprocessError) as e:
+    out = f"(agent list falhou: {e})"
+parts.append("## Agentes vivos\n" + (out or "nenhum"))
+
+if LIST:
+    rows = []
+    for f in (HOME / ".claude" / "tasks" / re.sub(r"[^a-zA-Z0-9_-]", "-", LIST)).glob("*.json"):
+        try:
+            t = json.loads(f.read_text())
+        except (OSError, ValueError):
+            continue
+        if t.get("status") in ("pending", "in_progress"):
+            n = int(t["id"]) if str(t.get("id", "")).isdigit() else 0
+            rows.append((n, f"- #{t.get('id')} [{t.get('status')}] {t.get('subject')}"))
+    parts.append(f"## Tarefas abertas da lista {LIST} (TaskGet mostra cada uma inteira)\n"
+                 + ("\n".join(r for _, r in sorted(rows)) or "nenhuma"))
+
+print(json.dumps({"hookSpecificOutput": {"hookEventName": "SessionStart",
+                                          "additionalContext": "\n\n".join(parts)}}))
+EOF
+chmod 755 ~/.local/bin/orchestrator-context
+mkdir -p ~/<orquestrador>/.claude
+cat > ~/<orquestrador>/.claude/settings.json <<EOF
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|compact",
+        "hooks": [{ "type": "command", "command": "$HOME/.local/bin/orchestrator-context", "timeout": 30 }]
+      }
+    ]
+  }
+}
+EOF
+```
+
+Confira pelo app: peça ao orquestrador "me lembra amanhã de renovar o domínio". A tarefa aparece em `ls ~/.claude/tasks/<orquestrador>/`, e depois de `/compact` ele ainda a cita. 
+
+## Memória buscável (opcional) 
+O ai-memory (https://github.com/akitaonrails/ai-memory), do Fábio Akita, dá aos agentes uma memória que se busca em linguagem natural, por MCP (https://modelcontextprotocol.io/), de qualquer pasta e de qualquer harness. Ele guarda as páginas em markdown no formato Open Knowledge Format (https://github.com/GoogleCloudPlatform/knowledge-catalog), com um índice SQLite ao lado. Com `AI_MEMORY=1` no `config.env`, o instalador (txt/instalador.txt) monta assim: 
+
+- O serviço `ai-memory`, em `127.0.0.1:49374`, fora do slice dos agentes, com teto de 1 GiB. Ele ocupa uns 340 MB e fica sempre ligado. 
+- Um espelho, a cada 10 minutos, da memória nativa do Claude Code: a pasta `memory` de cada projeto e a pasta global do mod `global-memory`. Os `.md` continuam a fonte, e o `MEMORY.md` continua entrando no início de cada sessão. 
+- O MCP `ai-memory` em toda sessão. O agente busca com `memory_query`, e com `global=true` busca em todos os projetos.  
+
+Sem os hooks de captura
+O ai-memory também captura sozinho o que a sessão faz, por hooks. Num teste com senha falsa, a senha digitada num prompt foi gravada crua no banco, porque o filtro dele só reconhece formatos como `sk-` e `ghp_`. O instalador deixa esses hooks de fora e grava no servidor um padrão que apaga senha dita em frase, como "a senha do wifi é X". Senha vai para o cofre (txt/cofre.txt). 
 
 ## Falar com os agentes 
 

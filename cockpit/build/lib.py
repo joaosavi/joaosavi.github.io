@@ -174,7 +174,7 @@ UPDATE_ALL = 'claude plugin marketplace update cockpit\n' + "for m in $(claude p
 STATUS_JSON = '\n'.join(['{', '  "statusLine": { "type": "command", "command": "~/.claude/plugins/marketplaces/cockpit/hud/statusline/statusline.sh", "refreshInterval": 5 },',
                          '  "pluginConfigs": { "hud@cockpit": { "options": { "band": "off", "style": "refined", "icons": "nerd" } } }', '}'])
 MANAGED_JSON = '\n'.join(['{', '  "enabledPlugins": { "global-memory@cockpit": true },', '  "prependPlugins": ["global-memory@cockpit", "sec-default@builtin"]', '}'])
-ORDER = ['secret-guard', 'collision-guard', 'pipefail', 'memory-guard', 'loop-breaker', 'usage-limit', 'hud', 'spinner-status', 'panel', 'skill-loader', 'global-memory']
+ORDER = ['secret-guard', 'collision-guard', 'pipefail', 'memory-guard', 'loop-breaker', 'usage-limit', 'hud', 'spinner-status', 'panel', 'skill-loader', 'global-memory', 'todo']
 
 def install_one(name):
     return f'<h2>{t("only_h")}</h2><p>{t("only_p").format(n=name)}</p>' + code(f'claude plugin marketplace add joaosavi/cockpit\nclaude plugin install {name}@cockpit')

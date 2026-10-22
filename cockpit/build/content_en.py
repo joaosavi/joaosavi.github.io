@@ -3,7 +3,7 @@ import lib
 from lib import *
 
 TITLE = 'Cockpit for Claude Code'
-DESCRIPTION = 'The 11 Cockpit mods for Claude Code: guards that catch an agent\'s mistakes, and instruments that show where every session stands.'
+DESCRIPTION = 'The 12 Cockpit mods for Claude Code: guards that catch an agent\'s mistakes, and instruments that show where every session stands.'
 LLMS_INTRO = 'Each page below is a Markdown file. To install: `claude plugin marketplace add joaosavi/cockpit` and `claude plugin install cockpit@cockpit`, then restart Claude Code and run `/cockpit:setup`.'
 FULL_LABEL = 'Every page in one file'
 OTHER_LABEL = 'Versão em português'
@@ -32,6 +32,7 @@ MODS = [
     ]),
     ('Memory', [
         ('global-memory', 'globe', 'Adds a machine-wide memory folder beside the per-project memory, so facts about the machine reach every session.', None),
+        ('todo', 'tag', 'Shows the open tasks of the native task list at session start and on each prompt from you, and archives completed tasks.', None),
     ]),
 ]
 
@@ -39,10 +40,10 @@ def modgrid(group):
     return lib.modgrid(dict(MODS)[group])
 
 page('Get started', 'start', 'rocket', 'Quickstart', 'Quickstart', f'''
-<p class="lead">Cockpit is a bundle of 11 mods for <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a>. The guards stop an agent's mistake before it costs you: a secret in tool output, a pipe that hides a failed test, a build killed by the memory limit, a commit that sweeps in another session's edits. The instruments show where the session stands, under the prompt, under the spinner, and on a page with every session on the machine.</p>
+<p class="lead">Cockpit is a bundle of 12 mods for <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a>. The guards stop an agent's mistake before it costs you: a secret in tool output, a pipe that hides a failed test, a build killed by the memory limit, a commit that sweeps in another session's edits. The instruments show where the session stands, under the prompt, under the spinner, and on a page with every session on the machine.</p>
 <pre id="install-text" hidden>{INSTALL}</pre>
 <ol class="quick">
-  <li><span class="q-n">1</span><div><b>Install the bundle</b><p>In a terminal, add the marketplace and install <code>cockpit</code>. It brings the 11 mods as dependencies.</p><button type="button" class="q-copy" data-copy-target="install-text">Copy the commands</button> <a class="q-go" href="#install">See every install step</a></div></li>
+  <li><span class="q-n">1</span><div><b>Install the bundle</b><p>In a terminal, add the marketplace and install <code>cockpit</code>. It brings the 12 mods as dependencies.</p><button type="button" class="q-copy" data-copy-target="install-text">Copy the commands</button> <a class="q-go" href="#install">See every install step</a></div></li>
   <li><span class="q-n">2</span><div><b>Restart and run the setup</b><p>Restart Claude Code and type <code>/cockpit:setup</code>. It asks four questions with previews, writes the status line, the spinner tip and when to compact, and keeps a backup of the file it changed.</p><a class="q-go" href="#install">See what the setup asks</a></div></li>
   <li><span class="q-n">3</span><div><b>Work as usual</b><p>The guards stay quiet until they act. Type <code>/panel</code> for the address of the session page, and <code>/limit</code> for the plan limits.</p><a class="q-go" href="#first-session">What changes in your first session</a></div></li>
 </ol>
@@ -74,7 +75,7 @@ page('Get started', 'install', 'download', 'Install and set up', 'Install and se
 <p class="lead">Two commands in a terminal, a restart, and a setup with four questions. It takes about five minutes.</p>
 <h2>Install</h2>
 <ol class="steps">
-  <li><b>Add the marketplace and install the bundle</b>{code(INSTALL)}<p>The second command lists the mods it installs, as <code>+ 11 dependencies</code>.</p></li>
+  <li><b>Add the marketplace and install the bundle</b>{code(INSTALL)}<p>The second command lists the mods it installs, as <code>+ 12 dependencies</code>.</p></li>
   <li><b>Restart Claude Code</b><p>The new session loads the mods. A session that was already open picks them up with <code>/reload-plugins</code>.</p></li>
   <li><b>Run the setup</b>{code('/cockpit:setup', 'inside Claude Code')}<p>A plugin cannot write the status line, the spinner tip or when to compact by itself, because they live in your <code>settings.json</code>. The setup writes them, keeps a backup of the file it changed, and tells you what you will notice.</p></li>
 </ol>
@@ -90,7 +91,7 @@ page('Get started', 'install', 'download', 'Install and set up', 'Install and se
 
 <h2>Check the install</h2>
 {code('claude plugin list')}
-<p>You should see 12 entries ending in <code>@cockpit</code>, each marked <code>enabled</code>: the bundle and the 11 mods. An entry marked <code>failed to load</code> points to a version mismatch; see <a href="#troubleshooting">Troubleshooting</a>.</p>
+<p>You should see 13 entries ending in <code>@cockpit</code>, each marked <code>enabled</code>: the bundle and the 12 mods. An entry marked <code>failed to load</code> points to a version mismatch; see <a href="#troubleshooting">Troubleshooting</a>.</p>
 
 <h2>Updates install by themselves</h2>
 <p>With auto-update on, a few minutes after the first message of a session, Claude Code updates every mod with a new version, installs any mod added to the bundle, and shows <code>Plugin updated: &lt;name&gt; · Run /reload-plugins to apply</code>. To turn it off, open <code>/plugin</code>, go to <b>Marketplaces</b>, and select <code>cockpit</code>.</p>
@@ -610,6 +611,37 @@ page('Memory', 'global-memory', 'globe', '<code>global-memory</code>', 'global-m
 {install_one('global-memory')}
 ''')
 
+page('Memory', 'todo', 'tag', '<code>todo</code>', 'todo', f'''
+{meta(VERS['todo'])}
+<p class="lead">Keeps Claude Code's native task list in front of the agent: the open tasks at session start and on each prompt from you, a reminder that a new request becomes a task first, and completed tasks moved to an archive log.</p>
+<h2>Why</h2>
+<p>The task tools (<code>TaskCreate</code>, <code>TaskList</code>, <code>TaskUpdate</code>, <code>TaskGet</code>) write one JSON file per task in <code>~/.claude/tasks/&lt;list&gt;/</code>, so the list outlives a compaction, <code>--resume</code> and <code>--continue</code>. The model forgets that the list is there. After a compaction it works from the summary, and a request that lived only in the conversation is lost. A session that takes many requests, such as a manager that hands work to other agents, needs the list read back to it from disk.</p>
+<h2>What it does</h2>
+<ul>
+  <li>At session start, adds a note with the open tasks of the session's list.</li>
+  <li>On each prompt from you, attaches the open tasks and the tasks completed since the last prompt. Messages from other sessions, notifications and schedules get nothing.</li>
+  <li>With a named list (<code>CLAUDE_CODE_TASK_LIST_ID</code>), the same prompt also carries the rule: a new request becomes a <code>TaskCreate</code> before any other work, with its owner in the subject, such as <code>[owner] what was asked</code>.</li>
+  <li>Moves a completed task to <code>~/.local/state/mods/todo/&lt;list&gt;.jsonl</code> and deletes its file, so the list holds only open work. This covers a task completed by <code>TaskUpdate</code> and a task file a script rewrote.</li>
+</ul>
+<h2>Turn on the task tools</h2>
+<p>Claude Code offers the task tools by default only on Opus 4.7, Sonnet 4.6, Haiku 4.5 and earlier models. On a newer model, start Claude Code with the variable set. To share one list between sessions, name the list too:</p>
+{code('CLAUDE_CODE_ENABLE_TODO_TOOLS=1 CLAUDE_CODE_TASK_LIST_ID=requests claude')}
+<h2>Options</h2>
+{opts([('enabled', '<code>true</code>', 'Off, the mod does nothing. Takes effect in the next session, or after <code>/reload-plugins</code>.'),
+    ('remind', '<code>true</code>', 'With a named list, each prompt from you carries the request rule.'),
+    ('archive', '<code>true</code>', 'Moves completed tasks from the list to the archive log. Off, completed tasks stay in the list.')])}
+{diary('todo', 'one line per note, prompt context and archive run, plus one <code>session-summary</code> line. The archive, one line per completed task, is <code>~/.local/state/mods/todo/&lt;list&gt;.jsonl</code>.')}
+<h2>Cost</h2>
+<p>The open tasks go in whole with each prompt from you, at about 15 tokens per task, 30 tasks at most. The only <code>tool.call</code> hook is on <code>TaskUpdate</code>.</p>
+<h2>Limits</h2>
+<ul>
+  <li>On a Team or Enterprise plan, the built-in guard <code>sec-default@builtin</code> skips the <code>session.compact</code> hook of a mod you installed yourself, so the note right after a compaction does not appear. The next prompt from you carries the list. A <code>SessionStart</code> hook with the matcher <code>compact</code> in the session's <code>settings.json</code> can print the open tasks right away.</li>
+  <li>Task ids restart at 1 after every file has left the list. The archive keeps the subject next to each id.</li>
+  <li>Tested on Linux only.</li>
+</ul>
+{install_one('todo')}
+''')
+
 # --- reference ---
 page('Reference', 'commands', 'term', 'Commands', 'Commands', f'''
 <p class="lead">Every command Cockpit adds. Each one also answers in plain text, so it works where no pane is drawn, such as Remote Control.</p>
@@ -737,6 +769,7 @@ page('Reference', 'versions', 'tag', 'Versions', 'Versions', f'''
 ''' + table(['Mod', 'Version'], [('<code>cockpit</code> (bundle)', VERS['cockpit'])] + [(f'<a href="#{m}"><code>{m}</code></a>', VERS[m]) for m in ORDER]) + '''
 <h2>What changed</h2>
 <ul>
+  <li><b>1.4.0</b>: new mod <code>todo</code>, which keeps the native task list in front of the agent.</li>
   <li><b>1.3.0</b>: every mod has an <code>enabled</code> option, and the guards have one switch per step. <code>/cockpit:setup</code> can turn mods off.</li>
   <li><b>1.2.0</b>: <code>usage-limit</code> limits each window on its own, with a separate throttle, commit and pause for the 5-hour and 7-day windows, each with its own switch and percentage.</li>
   <li><b>1.1.0</b>: <code>secret-guard</code> reads the secrets folder beside the secrets file.</li>

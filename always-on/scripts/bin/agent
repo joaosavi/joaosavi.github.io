@@ -4,7 +4,7 @@
   agent start <projeto> [--worktree BRANCH] [--role PAPEL] [--name NOME] [--resume SESSAO] [--chrome] "<tarefa>"
   agent list
   agent result <nome>
-  agent stop <nome>
+  agent stop [--keep-tasks] <nome>
 
 A pasta e o teto de cada projeto vêm do projects.json do orquestrador. AGENT_ORCHESTRATOR é o nome
 do orquestrador no app, e AGENT_SLICE o slice dos agentes. Os dois vêm do ambiente ou, fora dele,
@@ -14,6 +14,7 @@ de ~/.config/always-on/env, que vale também para o SSH.
 import json
 import os
 import pwd
+import re
 import subprocess
 import sys
 import time
@@ -40,6 +41,9 @@ PROJECTS = Path(os.environ.get("AGENT_PROJECTS", HOME / ORCHESTRATOR / "projects
 SLICE = setting("AGENT_SLICE", "agents.slice")
 STATE = HOME / ".local" / "state" / "agents"
 RUNTIME_DIR = f"/run/user/{os.getuid()}"
+# A lista de pedidos do orquestrador, o CLAUDE_CODE_TASK_LIST_ID do serviço dele. O agente usa a lista
+# da própria sessão, e o agent stop conclui aqui as tarefas com [<nome>] no assunto.
+TASKS = HOME / ".claude" / "tasks" / re.sub(r"[^a-zA-Z0-9_-]", "-", setting("CLAUDE_CODE_TASK_LIST_ID", ORCHESTRATOR))
 # O orquestrador encerra o agente quando recebe o aviso. Numa conversa direta com a pessoa, o aviso
 # antes da hora derrubaria a sessão no meio da conversa.
 DONE_PROMPT = ("Você é o agente {name}, aberto pelo {orch}. Quando concluir o trabalho e não houver mais "
@@ -187,6 +191,10 @@ def run(name):
     # O sudo limpa o ambiente, então o nome do orquestrador vem do spec gravado no start.
     # Sem XDG_RUNTIME_DIR, o socket de mensagens cai em /tmp e o orquestrador não enxerga o agente.
     os.environ["XDG_RUNTIME_DIR"] = RUNTIME_DIR
+    # As ferramentas de tarefa somem nos modelos novos sem a variável. A lista de pedidos é só do
+    # orquestrador: o agente fica com a da própria sessão.
+    os.environ["CLAUDE_CODE_ENABLE_TODO_TOOLS"] = "1"
+    os.environ.pop("CLAUDE_CODE_TASK_LIST_ID", None)
     os.execvp("claude", cmd)
 
 
@@ -229,8 +237,30 @@ def result(argv):
     print(last or f"{argv[0]} ainda não respondeu")
 
 
+def complete_tasks(name):
+    """Conclui as tarefas abertas da lista do orquestrador com [<nome>] no assunto."""
+    tag, done = f"[{name.lower()}]", []
+    for f in sorted(TASKS.glob("*.json")):
+        try:
+            t = json.loads(f.read_text())
+        except (OSError, ValueError):
+            continue
+        if t.get("status") == "completed" or tag not in str(t.get("subject", "")).lower():
+            continue
+        t["status"] = "completed"
+        note = f"Concluída pelo agent stop {name} em {time.strftime('%Y-%m-%dT%H:%M:%S')}."
+        t["description"] = f"{t['description']}\n\n{note}" if t.get("description") else note
+        tmp = f.with_name(f".{f.name}.agent")
+        tmp.write_text(json.dumps(t, indent=2, ensure_ascii=False))
+        os.replace(tmp, f)
+        done.append(f"#{t.get('id')}")
+    return done
+
+
 def stop(argv):
-    name = argv[0] if len(argv) == 1 else die("uso: agent stop <nome>")
+    keep = "--keep-tasks" in argv
+    argv = [a for a in argv if a != "--keep-tasks"]
+    name = argv[0] if len(argv) == 1 else die("uso: agent stop [--keep-tasks] <nome>")
     pid = agent_pid(name)
     tmux(name, "kill-server")
     for _ in range(30):
@@ -246,7 +276,8 @@ def stop(argv):
             f.write(json.dumps({"name": name, "project": spec["project"], "session": spec["session"],
                                 "path": spec["path"], "stopped": time.strftime("%Y-%m-%dT%H:%M:%S")}) + "\n")
         spec_file.unlink()
-    print(f"{name} encerrado")
+    done = [] if keep else complete_tasks(name)
+    print(f"{name} encerrado" + (f"; tarefas concluídas: {' '.join(done)}" if done else ""))
 
 
 def main():

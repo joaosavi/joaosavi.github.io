@@ -1,15 +1,15 @@
-# Cockpit 1.3.0
+# Cockpit 1.4.0
 
 # Quickstart
 
-Cockpit is a bundle of 11 mods for [Claude Code](https://claude.com/product/claude-code). The guards stop an agent's mistake before it costs you: a secret in tool output, a pipe that hides a failed test, a build killed by the memory limit, a commit that sweeps in another session's edits. The instruments show where the session stands, under the prompt, under the spinner, and on a page with every session on the machine.
+Cockpit is a bundle of 12 mods for [Claude Code](https://claude.com/product/claude-code). The guards stop an agent's mistake before it costs you: a secret in tool output, a pipe that hides a failed test, a build killed by the memory limit, a commit that sweeps in another session's edits. The instruments show where the session stands, under the prompt, under the spinner, and on a page with every session on the machine.
 
 ```
 claude plugin marketplace add joaosavi/cockpit
 claude plugin install cockpit@cockpit
 ```
 
--  **Install the bundle** In a terminal, add the marketplace and install `cockpit`. It brings the 11 mods as dependencies.  [See every install step](https://joaosavi.github.io/cockpit/md/install.md)
+-  **Install the bundle** In a terminal, add the marketplace and install `cockpit`. It brings the 12 mods as dependencies.  [See every install step](https://joaosavi.github.io/cockpit/md/install.md)
 -  **Restart and run the setup** Restart Claude Code and type `/cockpit:setup`. It asks four questions with previews, writes the status line, the spinner tip and when to compact, and keeps a backup of the file it changed. [See what the setup asks](https://joaosavi.github.io/cockpit/md/install.md)
 -  **Work as usual** The guards stay quiet until they act. Type `/panel` for the address of the session page, and `/limit` for the plan limits. [What changes in your first session](https://joaosavi.github.io/cockpit/md/first-session.md)
 
@@ -51,6 +51,7 @@ Show where the session stands.
 ## Memory
 
 - `global-memory`: Adds a machine-wide memory folder beside the per-project memory, so facts about the machine reach every session. [Read more](https://joaosavi.github.io/cockpit/md/global-memory.md)
+- `todo`: Shows the open tasks of the native task list at session start and on each prompt from you, and archives completed tasks. [Read more](https://joaosavi.github.io/cockpit/md/todo.md)
 
 ## Requirements
 
@@ -77,7 +78,7 @@ terminal:
 claude plugin marketplace add joaosavi/cockpit
 claude plugin install cockpit@cockpit
 ```
-The second command lists the mods it installs, as `+ 11 dependencies`.
+The second command lists the mods it installs, as `+ 12 dependencies`.
 - **Restart Claude Code** The new session loads the mods. A session that was already open picks them up with `/reload-plugins`.
 - **Run the setup**
 inside Claude Code:
@@ -106,7 +107,7 @@ terminal:
 claude plugin list
 ```
 
-You should see 12 entries ending in `@cockpit`, each marked `enabled`: the bundle and the 11 mods. An entry marked `failed to load` points to a version mismatch; see [Troubleshooting](https://joaosavi.github.io/cockpit/md/troubleshooting.md).
+You should see 13 entries ending in `@cockpit`, each marked `enabled`: the bundle and the 12 mods. An entry marked `failed to load` points to a version mismatch; see [Troubleshooting](https://joaosavi.github.io/cockpit/md/troubleshooting.md).
 
 ## Updates install by themselves
 
@@ -1036,6 +1037,67 @@ claude plugin install global-memory@cockpit
 
 ---
 
+# `todo`
+
+Keeps Claude Code's native task list in front of the agent: the open tasks at session start and on each prompt from you, a reminder that a new request becomes a task first, and completed tasks moved to an archive log.
+
+## Why
+
+The task tools (`TaskCreate`, `TaskList`, `TaskUpdate`, `TaskGet`) write one JSON file per task in `~/.claude/tasks/<list>/`, so the list outlives a compaction, `--resume` and `--continue`. The model forgets that the list is there. After a compaction it works from the summary, and a request that lived only in the conversation is lost. A session that takes many requests, such as a manager that hands work to other agents, needs the list read back to it from disk.
+
+## What it does
+
+- At session start, adds a note with the open tasks of the session's list.
+- On each prompt from you, attaches the open tasks and the tasks completed since the last prompt. Messages from other sessions, notifications and schedules get nothing.
+- With a named list (`CLAUDE_CODE_TASK_LIST_ID`), the same prompt also carries the rule: a new request becomes a `TaskCreate` before any other work, with its owner in the subject, such as `[owner] what was asked`.
+- Moves a completed task to `~/.local/state/mods/todo/<list>.jsonl` and deletes its file, so the list holds only open work. This covers a task completed by `TaskUpdate` and a task file a script rewrote.
+
+## Turn on the task tools
+
+Claude Code offers the task tools by default only on Opus 4.7, Sonnet 4.6, Haiku 4.5 and earlier models. On a newer model, start Claude Code with the variable set. To share one list between sessions, name the list too:
+
+terminal:
+
+```
+CLAUDE_CODE_ENABLE_TODO_TOOLS=1 CLAUDE_CODE_TASK_LIST_ID=requests claude
+```
+
+## Options
+
+| Option | Default | What it does |
+| --- | --- | --- |
+| `enabled` | `true` | Off, the mod does nothing. Takes effect in the next session, or after `/reload-plugins`. |
+| `remind` | `true` | With a named list, each prompt from you carries the request rule. |
+| `archive` | `true` | Moves completed tasks from the list to the archive log. Off, completed tasks stay in the list. |
+
+## What it records
+
+`~/.local/state/mods/todo/<day>-<session>.jsonl`: one line per note, prompt context and archive run, plus one `session-summary` line. The archive, one line per completed task, is `~/.local/state/mods/todo/<list>.jsonl`. Each line has `at`, `session` and `event`.
+
+## Cost
+
+The open tasks go in whole with each prompt from you, at about 15 tokens per task, 30 tasks at most. The only `tool.call` hook is on `TaskUpdate`.
+
+## Limits
+
+- On a Team or Enterprise plan, the built-in guard `sec-default@builtin` skips the `session.compact` hook of a mod you installed yourself, so the note right after a compaction does not appear. The next prompt from you carries the list. A `SessionStart` hook with the matcher `compact` in the session's `settings.json` can print the open tasks right away.
+- Task ids restart at 1 after every file has left the list. The archive keeps the subject next to each id.
+- Tested on Linux only.
+
+## Install this mod alone
+
+The `cockpit` bundle already installs `todo` with the other mods. To install it alone:
+
+terminal:
+
+```
+claude plugin marketplace add joaosavi/cockpit
+claude plugin install todo@cockpit
+```
+
+
+---
+
 # Commands
 
 Every command Cockpit adds. Each one also answers in plain text, so it works where no pane is drawn, such as Remote Control.
@@ -1278,13 +1340,13 @@ The mods leave their diaries in `~/.local/state/mods/`. Delete that folder to re
 
 # Versions
 
-Cockpit 1.3.0. The bundle carries the version of the release, and each mod carries the version of the release where it last changed.
+Cockpit 1.4.0. The bundle carries the version of the release, and each mod carries the version of the release where it last changed.
 
 A mod that did not change in a release keeps its version, so Claude Code does not update it.
 
 | Mod | Version |
 | --- | --- |
-| `cockpit` (bundle) | 1.3.0 |
+| `cockpit` (bundle) | 1.4.0 |
 | [`secret-guard`](https://joaosavi.github.io/cockpit/md/secret-guard.md) | 1.3.0 |
 | [`collision-guard`](https://joaosavi.github.io/cockpit/md/collision-guard.md) | 1.3.0 |
 | [`pipefail`](https://joaosavi.github.io/cockpit/md/pipefail.md) | 1.3.0 |
@@ -1296,9 +1358,11 @@ A mod that did not change in a release keeps its version, so Claude Code does no
 | [`panel`](https://joaosavi.github.io/cockpit/md/panel.md) | 1.3.0 |
 | [`skill-loader`](https://joaosavi.github.io/cockpit/md/skill-loader.md) | 1.3.0 |
 | [`global-memory`](https://joaosavi.github.io/cockpit/md/global-memory.md) | 1.3.0 |
+| [`todo`](https://joaosavi.github.io/cockpit/md/todo.md) | 1.4.0 |
 
 ## What changed
 
+- **1.4.0**: new mod `todo`, which keeps the native task list in front of the agent.
 - **1.3.0**: every mod has an `enabled` option, and the guards have one switch per step. `/cockpit:setup` can turn mods off.
 - **1.2.0**: `usage-limit` limits each window on its own, with a separate throttle, commit and pause for the 5-hour and 7-day windows, each with its own switch and percentage.
 - **1.1.0**: `secret-guard` reads the secrets folder beside the secrets file.

@@ -18,6 +18,7 @@ SLICE=${SLICE:-agents}
 SWAP_GB=${SWAP_GB:-8}
 SYSTEM_MB=${SYSTEM_MB:-1024}
 COCKPIT=${COCKPIT:-1}
+AI_MEMORY=${AI_MEMORY:-0}
 CHECK=0
 case "${1:-}" in
     --check) CHECK=1 ;;
@@ -145,7 +146,8 @@ CPUWeight=1000
 EOF
 
 step "Comandos em $BIN"
-for f in agent orchestrator-rc orchestrator-spawn recover-rc memstat sessions-restart sessions-idle cockpit-panel; do
+for f in agent orchestrator-rc orchestrator-spawn orchestrator-context recover-rc memstat sessions-restart \
+    sessions-idle cockpit-panel ai-memory-sync; do
     put "$BIN/$f" user 755 <"$HERE/bin/$f"
 done
 
@@ -157,6 +159,19 @@ EOF
 sed -e "s/<orquestrador>/$ORCHESTRATOR/g" -e "s/<slice>/$SLICE/g" "$HERE/templates/orchestrator.md" |
     put_once "$HOME/$ORCHESTRATOR/CLAUDE.md"
 put_once "$HOME/$ORCHESTRATOR/projects.json" <"$HERE/templates/projects.json"
+# Ao abrir, retomar e compactar, o hook põe na conversa as tarefas abertas e os agentes vivos.
+put_once "$HOME/$ORCHESTRATOR/.claude/settings.json" <<EOF
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|compact",
+        "hooks": [{ "type": "command", "command": "$BIN/orchestrator-context", "timeout": 30 }]
+      }
+    ]
+  }
+}
+EOF
 sed -e "s/<orquestrador>/$ORCHESTRATOR/g" -e "s/<slice>/$SLICE/g" "$HERE/templates/recover.md" |
     put_once "$HOME/recover/CLAUDE.md"
 
@@ -224,6 +239,9 @@ After=network-online.target user-runtime-dir@$(id -u).service
 Wants=network-online.target user-runtime-dir@$(id -u).service
 
 [Service]
+# A lista de pedidos: sem a primeira variável, os modelos novos não têm as ferramentas de tarefa.
+Environment=CLAUDE_CODE_ENABLE_TODO_TOOLS=1
+Environment=CLAUDE_CODE_TASK_LIST_ID=$ORCHESTRATOR
 Type=forking
 User=$USER
 Slice=$SLICE.slice
@@ -245,6 +263,9 @@ After=network-online.target user-runtime-dir@$(id -u).service
 Wants=network-online.target user-runtime-dir@$(id -u).service
 
 [Service]
+# A lista de pedidos: sem a primeira variável, os modelos novos não têm as ferramentas de tarefa.
+Environment=CLAUDE_CODE_ENABLE_TODO_TOOLS=1
+Environment=CLAUDE_CODE_TASK_LIST_ID=$ORCHESTRATOR
 Type=forking
 User=$USER
 Slice=$SLICE.slice
@@ -429,6 +450,79 @@ EOF
     else
         sudo systemctl enable -q cockpit-panel
         missing "cockpit-panel ligado no boot, mas parado até o Cockpit instalar"
+    fi
+fi
+
+if [ "$AI_MEMORY" = 1 ]; then
+    step "ai-memory"
+    # A memória buscável por MCP: um servidor fora do slice dos agentes, sempre ligado, com espelho da
+    # memória nativa do Claude Code. Os hooks de captura do ai-memory ficam de fora: eles gravariam no
+    # banco a senha digitada num prompt.
+    if [ -x "$HOME/.local/opt/ai-memory/3.2.0/ai-memory" ] && grep -q 'senhas?' "$HOME/.local/share/ai-memory/config.toml" 2>/dev/null; then
+        ok "ai-memory 3.2.0 com o padrão de senha"
+    elif [ "$CHECK" = 1 ]; then
+        missing "o ai-memory não está instalado"
+    else
+        python3 "$BIN/ai-memory-sync" install >/dev/null && done_ "ai-memory 3.2.0 com o padrão de senha"
+    fi
+    put "$UNITS/ai-memory.service" root 644 <<EOF
+[Unit]
+Description=Servidor do ai-memory, MCP e API em 127.0.0.1:49374
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=$USER
+MemoryHigh=768M
+MemoryMax=1G
+Environment=HOME=$HOME
+Environment=RUST_LOG=warn
+ExecStart=$BIN/ai-memory serve --transport http
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    put "$UNITS/ai-memory-sync.service" root 644 <<EOF
+[Unit]
+Description=Espelha a memória do Claude Code no ai-memory
+After=ai-memory.service
+Requires=ai-memory.service
+
+[Service]
+Type=oneshot
+User=$USER
+Environment=HOME=$HOME
+Environment=RUST_LOG=warn
+ExecStart=/usr/bin/python3 -I $BIN/ai-memory-sync
+EOF
+    put "$UNITS/ai-memory-sync.timer" root 644 <<'EOF'
+[Unit]
+Description=Espelha a memória no ai-memory a cada 10 minutos
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=10min
+
+[Install]
+WantedBy=timers.target
+EOF
+    [ "$CHECK" = 0 ] && sudo systemctl daemon-reload
+    for u in ai-memory.service ai-memory-sync.timer; do
+        if systemctl is-active -q "$u"; then ok "$u rodando"
+        elif [ "$CHECK" = 1 ]; then missing "$u parado"
+        else sudo systemctl enable -q --now "$u" && done_ "$u rodando"
+        fi
+    done
+    if claude mcp get ai-memory >/dev/null 2>&1; then
+        ok "MCP ai-memory registrado"
+    elif [ "$CHECK" = 1 ]; then
+        missing "MCP ai-memory não registrado"
+    else
+        claude mcp add -s user ai-memory -e RUST_LOG=warn -- "$BIN/ai-memory" mcp-bridge \
+            --server-url http://127.0.0.1:49374/mcp >/dev/null && done_ "MCP ai-memory registrado"
     fi
 fi
 

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Cockpit for Claude Code</title>
-<meta name="description" content="The 11 Cockpit mods for Claude Code: guards that catch an agent's mistakes, and instruments that show where every session stands.">
+<meta name="description" content="The 12 Cockpit mods for Claude Code: guards that catch an agent's mistakes, and instruments that show where every session stands.">
 <link rel="alternate" hreflang="en" href="https://joaosavi.github.io/cockpit/">
 <link rel="alternate" hreflang="pt-BR" href="https://joaosavi.github.io/cockpit/pt/">
 <link rel="alternate" type="text/plain" title="llms.txt" href="llms.txt">
@@ -614,7 +614,7 @@ a.mod:hover { border-color: var(--led); }
     <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l4-4M3.34 19a10 10 0 1 1 17.32 0"/></svg></span>
     <span class="wordmark">Cockpit</span>
   </a>
-  <div class="top-right"><nav class="lang-sw" aria-label="Language"><a href="./" data-lang-link aria-current="true">EN</a><a href="pt/" data-lang-link>PT</a></nav><a class="gh" href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">v1.3.0 on GitHub</a></div>
+  <div class="top-right"><nav class="lang-sw" aria-label="Language"><a href="./" data-lang-link aria-current="true">EN</a><a href="pt/" data-lang-link>PT</a></nav><a class="gh" href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">v1.4.0 on GitHub</a></div>
 </header>
 
 <div class="shell">
@@ -642,6 +642,7 @@ a.mod:hover { border-color: var(--led); }
   </div>
   <div class="nav-group"><h4><button type="button" class="ng-toggle" aria-expanded="true"><svg class="" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8c4.97 0 9-1.34 9-3s-4.03-3-9-3-9 1.34-9 3 4.03 3 9 3zM3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>Memory</button></h4>
     <a href="#global-memory" data-id="global-memory"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span><span class="lbl"><code>global-memory</code></span></a>
+    <a href="#todo" data-id="todo"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2H2v10l9.29 9.29a1 1 0 0 0 1.41 0l6.59-6.59a1 1 0 0 0 0-1.41zM7 7h.01"/></svg></span><span class="lbl"><code>todo</code></span></a>
   </div>
   <div class="nav-group"><h4><button type="button" class="ng-toggle" aria-expanded="true"><svg class="" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-3.5-3.5"/></svg>Reference<span class="ng-caret" aria-hidden="true"></span></button></h4>
     <a href="#commands" data-id="commands"><span class="nav-ic"><svg class="gen-ic" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11l2-2-2-2M11 13h4M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/></svg></span><span class="lbl">Commands</span></a>
@@ -660,11 +661,11 @@ a.mod:hover { border-color: var(--led); }
   <div class="crumb">Get started</div>
   <h1>Quickstart</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="start">Copy for your agent</button><a href="md/start.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
-<p class="lead">Cockpit is a bundle of 11 mods for <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a>. The guards stop an agent's mistake before it costs you: a secret in tool output, a pipe that hides a failed test, a build killed by the memory limit, a commit that sweeps in another session's edits. The instruments show where the session stands, under the prompt, under the spinner, and on a page with every session on the machine.</p>
+<p class="lead">Cockpit is a bundle of 12 mods for <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a>. The guards stop an agent's mistake before it costs you: a secret in tool output, a pipe that hides a failed test, a build killed by the memory limit, a commit that sweeps in another session's edits. The instruments show where the session stands, under the prompt, under the spinner, and on a page with every session on the machine.</p>
 <pre id="install-text" hidden>claude plugin marketplace add joaosavi/cockpit
 claude plugin install cockpit@cockpit</pre>
 <ol class="quick">
-  <li><span class="q-n">1</span><div><b>Install the bundle</b><p>In a terminal, add the marketplace and install <code>cockpit</code>. It brings the 11 mods as dependencies.</p><button type="button" class="q-copy" data-copy-target="install-text">Copy the commands</button> <a class="q-go" href="#install">See every install step</a></div></li>
+  <li><span class="q-n">1</span><div><b>Install the bundle</b><p>In a terminal, add the marketplace and install <code>cockpit</code>. It brings the 12 mods as dependencies.</p><button type="button" class="q-copy" data-copy-target="install-text">Copy the commands</button> <a class="q-go" href="#install">See every install step</a></div></li>
   <li><span class="q-n">2</span><div><b>Restart and run the setup</b><p>Restart Claude Code and type <code>/cockpit:setup</code>. It asks four questions with previews, writes the status line, the spinner tip and when to compact, and keeps a backup of the file it changed.</p><a class="q-go" href="#install">See what the setup asks</a></div></li>
   <li><span class="q-n">3</span><div><b>Work as usual</b><p>The guards stay quiet until they act. Type <code>/panel</code> for the address of the session page, and <code>/limit</code> for the plan limits.</p><a class="q-go" href="#first-session">What changes in your first session</a></div></li>
 </ol>
@@ -687,7 +688,7 @@ claude plugin install cockpit@cockpit</pre>
 <p>Show where the session stands.</p>
 <div class="mods"><a class="mod" href="#hud"><div class="mod-h"><code>hud</code> <span class="mod-cmd">/hud</span></div><p>Model, project, git branch and PR, context window, plan limits and memory, in a status line under the prompt. Four styles.</p></a><a class="mod" href="#spinner-status"><div class="mod-h"><code>spinner-status</code></div><p>Replaces the tip under the spinner with one line from Haiku: where the session stands, or a tip about these mods.</p></a><a class="mod" href="#panel"><div class="mod-h"><code>panel</code> <span class="mod-cmd">/panel</span></div><p>A local web page with a card for every session on this machine: its state, what it needs from you, the tool running now and the next step.</p></a><a class="mod" href="#skill-loader"><div class="mod-h"><code>skill-loader</code></div><p>Delivers the right skill when the agent touches a matching file or writes a commit, and reminds it to diagnose before fixing when you paste an error.</p></a></div>
 <h2>Memory</h2>
-<div class="mods"><a class="mod" href="#global-memory"><div class="mod-h"><code>global-memory</code></div><p>Adds a machine-wide memory folder beside the per-project memory, so facts about the machine reach every session.</p></a></div>
+<div class="mods"><a class="mod" href="#global-memory"><div class="mod-h"><code>global-memory</code></div><p>Adds a machine-wide memory folder beside the per-project memory, so facts about the machine reach every session.</p></a><a class="mod" href="#todo"><div class="mod-h"><code>todo</code></div><p>Shows the open tasks of the native task list at session start and on each prompt from you, and archives completed tasks.</p></a></div>
 
 <h2>Requirements</h2>
 <ul>
@@ -707,7 +708,7 @@ claude plugin install cockpit@cockpit</pre>
 <h2>Install</h2>
 <ol class="steps">
   <li><b>Add the marketplace and install the bundle</b><div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin marketplace add joaosavi/cockpit
-claude plugin install cockpit@cockpit</pre></div><p>The second command lists the mods it installs, as <code>+ 11 dependencies</code>.</p></li>
+claude plugin install cockpit@cockpit</pre></div><p>The second command lists the mods it installs, as <code>+ 12 dependencies</code>.</p></li>
   <li><b>Restart Claude Code</b><p>The new session loads the mods. A session that was already open picks them up with <code>/reload-plugins</code>.</p></li>
   <li><b>Run the setup</b><div class="code"><div class="code-head"><span>inside Claude Code</span><button class="copy">Copy</button></div><pre>/cockpit:setup</pre></div><p>A plugin cannot write the status line, the spinner tip or when to compact by itself, because they live in your <code>settings.json</code>. The setup writes them, keeps a backup of the file it changed, and tells you what you will notice.</p></li>
 </ol>
@@ -718,7 +719,7 @@ claude plugin install cockpit@cockpit</pre></div><p>The second command lists the
 
 <h2>Check the install</h2>
 <div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin list</pre></div>
-<p>You should see 12 entries ending in <code>@cockpit</code>, each marked <code>enabled</code>: the bundle and the 11 mods. An entry marked <code>failed to load</code> points to a version mismatch; see <a href="#troubleshooting">Troubleshooting</a>.</p>
+<p>You should see 13 entries ending in <code>@cockpit</code>, each marked <code>enabled</code>: the bundle and the 12 mods. An entry marked <code>failed to load</code> points to a version mismatch; see <a href="#troubleshooting">Troubleshooting</a>.</p>
 
 <h2>Updates install by themselves</h2>
 <p>With auto-update on, a few minutes after the first message of a session, Claude Code updates every mod with a new version, installs any mod added to the bundle, and shows <code>Plugin updated: &lt;name&gt; · Run /reload-plugins to apply</code>. To turn it off, open <code>/plugin</code>, go to <b>Marketplaces</b>, and select <code>cockpit</code>.</p>
@@ -1199,6 +1200,39 @@ claude plugin install skill-loader@cockpit</pre></div>
 claude plugin install global-memory@cockpit</pre></div>
 </article>
 
+<article class="page" id="todo" data-title="todo" hidden>
+  <div class="crumb">Memory</div>
+  <h1><code style="font-size:.82em;background:none;border:0;padding:0">todo</code></h1>
+  <div class="page-actions"><button type="button" class="pa-copy" data-agent="todo">Copy for your agent</button><a href="md/todo.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
+<div class="meta"><span class="pill mute">v1.4.0</span></div>
+<p class="lead">Keeps Claude Code's native task list in front of the agent: the open tasks at session start and on each prompt from you, a reminder that a new request becomes a task first, and completed tasks moved to an archive log.</p>
+<h2>Why</h2>
+<p>The task tools (<code>TaskCreate</code>, <code>TaskList</code>, <code>TaskUpdate</code>, <code>TaskGet</code>) write one JSON file per task in <code>~/.claude/tasks/&lt;list&gt;/</code>, so the list outlives a compaction, <code>--resume</code> and <code>--continue</code>. The model forgets that the list is there. After a compaction it works from the summary, and a request that lived only in the conversation is lost. A session that takes many requests, such as a manager that hands work to other agents, needs the list read back to it from disk.</p>
+<h2>What it does</h2>
+<ul>
+  <li>At session start, adds a note with the open tasks of the session's list.</li>
+  <li>On each prompt from you, attaches the open tasks and the tasks completed since the last prompt. Messages from other sessions, notifications and schedules get nothing.</li>
+  <li>With a named list (<code>CLAUDE_CODE_TASK_LIST_ID</code>), the same prompt also carries the rule: a new request becomes a <code>TaskCreate</code> before any other work, with its owner in the subject, such as <code>[owner] what was asked</code>.</li>
+  <li>Moves a completed task to <code>~/.local/state/mods/todo/&lt;list&gt;.jsonl</code> and deletes its file, so the list holds only open work. This covers a task completed by <code>TaskUpdate</code> and a task file a script rewrote.</li>
+</ul>
+<h2>Turn on the task tools</h2>
+<p>Claude Code offers the task tools by default only on Opus 4.7, Sonnet 4.6, Haiku 4.5 and earlier models. On a newer model, start Claude Code with the variable set. To share one list between sessions, name the list too:</p>
+<div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>CLAUDE_CODE_ENABLE_TODO_TOOLS=1 CLAUDE_CODE_TASK_LIST_ID=requests claude</pre></div>
+<h2>Options</h2>
+<div class="table-wrap stack"><table><tr><th>Option</th><th>Default</th><th>What it does</th></tr><tr><td><code>enabled</code></td><td><code>true</code></td><td>Off, the mod does nothing. Takes effect in the next session, or after <code>/reload-plugins</code>.</td></tr><tr><td><code>remind</code></td><td><code>true</code></td><td>With a named list, each prompt from you carries the request rule.</td></tr><tr><td><code>archive</code></td><td><code>true</code></td><td>Moves completed tasks from the list to the archive log. Off, completed tasks stay in the list.</td></tr></table></div>
+<h2>What it records</h2><p><code>~/.local/state/mods/todo/&lt;day&gt;-&lt;session&gt;.jsonl</code>: one line per note, prompt context and archive run, plus one <code>session-summary</code> line. The archive, one line per completed task, is <code>~/.local/state/mods/todo/&lt;list&gt;.jsonl</code>. Each line has <code>at</code>, <code>session</code> and <code>event</code>.</p>
+<h2>Cost</h2>
+<p>The open tasks go in whole with each prompt from you, at about 15 tokens per task, 30 tasks at most. The only <code>tool.call</code> hook is on <code>TaskUpdate</code>.</p>
+<h2>Limits</h2>
+<ul>
+  <li>On a Team or Enterprise plan, the built-in guard <code>sec-default@builtin</code> skips the <code>session.compact</code> hook of a mod you installed yourself, so the note right after a compaction does not appear. The next prompt from you carries the list. A <code>SessionStart</code> hook with the matcher <code>compact</code> in the session's <code>settings.json</code> can print the open tasks right away.</li>
+  <li>Task ids restart at 1 after every file has left the list. The archive keeps the subject next to each id.</li>
+  <li>Tested on Linux only.</li>
+</ul>
+<h2>Install this mod alone</h2><p>The <code>cockpit</code> bundle already installs <code>todo</code> with the other mods. To install it alone:</p><div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin marketplace add joaosavi/cockpit
+claude plugin install todo@cockpit</pre></div>
+</article>
+
 <article class="page" id="commands" data-title="Commands" hidden>
   <div class="crumb">Reference</div>
   <h1>Commands</h1>
@@ -1320,11 +1354,12 @@ claude plugin prune</pre></div>
   <div class="crumb">Reference</div>
   <h1>Versions</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="versions">Copy for your agent</button><a href="md/versions.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
-<p class="lead">Cockpit 1.3.0. The bundle carries the version of the release, and each mod carries the version of the release where it last changed.</p>
+<p class="lead">Cockpit 1.4.0. The bundle carries the version of the release, and each mod carries the version of the release where it last changed.</p>
 <p>A mod that did not change in a release keeps its version, so Claude Code does not update it.</p>
-<div class="table-wrap"><table><tr><th>Mod</th><th>Version</th></tr><tr><td><code>cockpit</code> (bundle)</td><td>1.3.0</td></tr><tr><td><a href="#secret-guard"><code>secret-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#collision-guard"><code>collision-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#pipefail"><code>pipefail</code></a></td><td>1.3.0</td></tr><tr><td><a href="#memory-guard"><code>memory-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#loop-breaker"><code>loop-breaker</code></a></td><td>1.3.0</td></tr><tr><td><a href="#usage-limit"><code>usage-limit</code></a></td><td>1.3.0</td></tr><tr><td><a href="#hud"><code>hud</code></a></td><td>1.3.0</td></tr><tr><td><a href="#spinner-status"><code>spinner-status</code></a></td><td>1.0.0</td></tr><tr><td><a href="#panel"><code>panel</code></a></td><td>1.3.0</td></tr><tr><td><a href="#skill-loader"><code>skill-loader</code></a></td><td>1.3.0</td></tr><tr><td><a href="#global-memory"><code>global-memory</code></a></td><td>1.3.0</td></tr></table></div>
+<div class="table-wrap"><table><tr><th>Mod</th><th>Version</th></tr><tr><td><code>cockpit</code> (bundle)</td><td>1.4.0</td></tr><tr><td><a href="#secret-guard"><code>secret-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#collision-guard"><code>collision-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#pipefail"><code>pipefail</code></a></td><td>1.3.0</td></tr><tr><td><a href="#memory-guard"><code>memory-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#loop-breaker"><code>loop-breaker</code></a></td><td>1.3.0</td></tr><tr><td><a href="#usage-limit"><code>usage-limit</code></a></td><td>1.3.0</td></tr><tr><td><a href="#hud"><code>hud</code></a></td><td>1.3.0</td></tr><tr><td><a href="#spinner-status"><code>spinner-status</code></a></td><td>1.0.0</td></tr><tr><td><a href="#panel"><code>panel</code></a></td><td>1.3.0</td></tr><tr><td><a href="#skill-loader"><code>skill-loader</code></a></td><td>1.3.0</td></tr><tr><td><a href="#global-memory"><code>global-memory</code></a></td><td>1.3.0</td></tr><tr><td><a href="#todo"><code>todo</code></a></td><td>1.4.0</td></tr></table></div>
 <h2>What changed</h2>
 <ul>
+  <li><b>1.4.0</b>: new mod <code>todo</code>, which keeps the native task list in front of the agent.</li>
   <li><b>1.3.0</b>: every mod has an <code>enabled</code> option, and the guards have one switch per step. <code>/cockpit:setup</code> can turn mods off.</li>
   <li><b>1.2.0</b>: <code>usage-limit</code> limits each window on its own, with a separate throttle, commit and pause for the 5-hour and 7-day windows, each with its own switch and percentage.</li>
   <li><b>1.1.0</b>: <code>secret-guard</code> reads the secrets folder beside the secrets file.</li>
@@ -1332,7 +1367,7 @@ claude plugin prune</pre></div>
 </article>
 
 <nav class="pager" id="pager" aria-label="Previous and next page"></nav>
-<div class="foot">Cockpit 1.3.0 · <a href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">github.com/joaosavi/cockpit</a> · MIT license · Not affiliated with Anthropic · <a href="llms.txt">llms.txt</a> · Reviewed on October 20, 2026</div>
+<div class="foot">Cockpit 1.4.0 · <a href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">github.com/joaosavi/cockpit</a> · MIT license · Not affiliated with Anthropic · <a href="llms.txt">llms.txt</a> · Reviewed on October 20, 2026</div>
 </main>
 
 <aside class="toc" id="toc" aria-label="On this page"><h5>On this page</h5><div id="tocList"></div></aside>

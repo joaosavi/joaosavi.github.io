@@ -1,13 +1,13 @@
 # Início rápido
 
-O Cockpit é um pacote de 11 mods para o [Claude Code](https://claude.com/product/claude-code). Os guardas barram o erro de um agente antes de ele custar caro: um segredo na saída de uma ferramenta, um pipe que esconde um teste reprovado, um build morto por falta de memória, um commit que leva junto a edição de outra sessão. Os instrumentos mostram em que ponto a sessão está, embaixo do prompt, embaixo do spinner e numa página com todas as sessões da máquina.
+O Cockpit é um pacote de 12 mods para o [Claude Code](https://claude.com/product/claude-code). Os guardas barram o erro de um agente antes de ele custar caro: um segredo na saída de uma ferramenta, um pipe que esconde um teste reprovado, um build morto por falta de memória, um commit que leva junto a edição de outra sessão. Os instrumentos mostram em que ponto a sessão está, embaixo do prompt, embaixo do spinner e numa página com todas as sessões da máquina.
 
 ```
 claude plugin marketplace add joaosavi/cockpit
 claude plugin install cockpit@cockpit
 ```
 
--  **Instale o pacote** No terminal, adicione o marketplace e instale o `cockpit`. Ele traz os 11 mods como dependência.  [Ver a instalação passo a passo](https://joaosavi.github.io/cockpit/pt/md/install.md)
+-  **Instale o pacote** No terminal, adicione o marketplace e instale o `cockpit`. Ele traz os 12 mods como dependência.  [Ver a instalação passo a passo](https://joaosavi.github.io/cockpit/pt/md/install.md)
 -  **Reinicie e rode o setup** Reinicie o Claude Code e digite `/cockpit:setup`. Ele faz quatro perguntas com prévia, grava a status line, a dica do spinner e o momento de compactar, e guarda um backup do arquivo que mudou. [Ver o que o setup pergunta](https://joaosavi.github.io/cockpit/pt/md/install.md)
 -  **Trabalhe como sempre** Os guardas ficam quietos até agir. Digite `/panel` para o endereço da página das sessões e `/limit` para ver o limite do plano. [O que muda na primeira sessão](https://joaosavi.github.io/cockpit/pt/md/first-session.md)
 
@@ -49,6 +49,7 @@ Mostram em que ponto a sessão está.
 ## Memória
 
 - `global-memory`: Acrescenta uma pasta de memória da máquina ao lado da memória de cada projeto, para o que vale na máquina chegar a toda sessão. [Leia mais](https://joaosavi.github.io/cockpit/pt/md/global-memory.md)
+- `todo`: Mostra as tarefas abertas da lista nativa no início da sessão e em cada prompt seu, e arquiva a tarefa concluída. [Leia mais](https://joaosavi.github.io/cockpit/pt/md/todo.md)
 
 ## O que você precisa ter
 

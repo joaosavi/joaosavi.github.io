@@ -1,13 +1,13 @@
 # Quickstart
 
-Cockpit is a bundle of 11 mods for [Claude Code](https://claude.com/product/claude-code). The guards stop an agent's mistake before it costs you: a secret in tool output, a pipe that hides a failed test, a build killed by the memory limit, a commit that sweeps in another session's edits. The instruments show where the session stands, under the prompt, under the spinner, and on a page with every session on the machine.
+Cockpit is a bundle of 12 mods for [Claude Code](https://claude.com/product/claude-code). The guards stop an agent's mistake before it costs you: a secret in tool output, a pipe that hides a failed test, a build killed by the memory limit, a commit that sweeps in another session's edits. The instruments show where the session stands, under the prompt, under the spinner, and on a page with every session on the machine.
 
 ```
 claude plugin marketplace add joaosavi/cockpit
 claude plugin install cockpit@cockpit
 ```
 
--  **Install the bundle** In a terminal, add the marketplace and install `cockpit`. It brings the 11 mods as dependencies.  [See every install step](https://joaosavi.github.io/cockpit/md/install.md)
+-  **Install the bundle** In a terminal, add the marketplace and install `cockpit`. It brings the 12 mods as dependencies.  [See every install step](https://joaosavi.github.io/cockpit/md/install.md)
 -  **Restart and run the setup** Restart Claude Code and type `/cockpit:setup`. It asks four questions with previews, writes the status line, the spinner tip and when to compact, and keeps a backup of the file it changed. [See what the setup asks](https://joaosavi.github.io/cockpit/md/install.md)
 -  **Work as usual** The guards stay quiet until they act. Type `/panel` for the address of the session page, and `/limit` for the plan limits. [What changes in your first session](https://joaosavi.github.io/cockpit/md/first-session.md)
 
@@ -49,6 +49,7 @@ Show where the session stands.
 ## Memory
 
 - `global-memory`: Adds a machine-wide memory folder beside the per-project memory, so facts about the machine reach every session. [Read more](https://joaosavi.github.io/cockpit/md/global-memory.md)
+- `todo`: Shows the open tasks of the native task list at session start and on each prompt from you, and archives completed tasks. [Read more](https://joaosavi.github.io/cockpit/md/todo.md)
 
 ## Requirements
 

@@ -3,7 +3,7 @@ import lib
 from lib import *
 
 TITLE = 'Cockpit para Claude Code'
-DESCRIPTION = 'Os 11 mods do Cockpit para o Claude Code: guardas que barram os erros de um agente e instrumentos que mostram em que ponto cada sessão está.'
+DESCRIPTION = 'Os 12 mods do Cockpit para o Claude Code: guardas que barram os erros de um agente e instrumentos que mostram em que ponto cada sessão está.'
 LLMS_INTRO = 'Cada página abaixo é um arquivo Markdown. Para instalar: `claude plugin marketplace add joaosavi/cockpit` e `claude plugin install cockpit@cockpit`, depois reinicie o Claude Code e rode `/cockpit:setup`.'
 FULL_LABEL = 'Todas as páginas num arquivo só'
 OTHER_LABEL = 'English version'
@@ -32,6 +32,7 @@ MODS = [
     ]),
     ('Memória', [
         ('global-memory', 'globe', 'Acrescenta uma pasta de memória da máquina ao lado da memória de cada projeto, para o que vale na máquina chegar a toda sessão.', None),
+        ('todo', 'tag', 'Mostra as tarefas abertas da lista nativa no início da sessão e em cada prompt seu, e arquiva a tarefa concluída.', None),
     ]),
 ]
 def modgrid(group):
@@ -40,10 +41,10 @@ def modgrid(group):
 
 # Quickstart
 page('Começar', 'start', 'rocket', 'Início rápido', 'Início rápido', f'''
-<p class="lead">O Cockpit é um pacote de 11 mods para o <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a>. Os guardas barram o erro de um agente antes de ele custar caro: um segredo na saída de uma ferramenta, um pipe que esconde um teste reprovado, um build morto por falta de memória, um commit que leva junto a edição de outra sessão. Os instrumentos mostram em que ponto a sessão está, embaixo do prompt, embaixo do spinner e numa página com todas as sessões da máquina.</p>
+<p class="lead">O Cockpit é um pacote de 12 mods para o <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a>. Os guardas barram o erro de um agente antes de ele custar caro: um segredo na saída de uma ferramenta, um pipe que esconde um teste reprovado, um build morto por falta de memória, um commit que leva junto a edição de outra sessão. Os instrumentos mostram em que ponto a sessão está, embaixo do prompt, embaixo do spinner e numa página com todas as sessões da máquina.</p>
 <pre id="install-text" hidden>{INSTALL}</pre>
 <ol class="quick">
-  <li><span class="q-n">1</span><div><b>Instale o pacote</b><p>No terminal, adicione o marketplace e instale o <code>cockpit</code>. Ele traz os 11 mods como dependência.</p><button type="button" class="q-copy" data-copy-target="install-text">Copiar os comandos</button> <a class="q-go" href="#install">Ver a instalação passo a passo</a></div></li>
+  <li><span class="q-n">1</span><div><b>Instale o pacote</b><p>No terminal, adicione o marketplace e instale o <code>cockpit</code>. Ele traz os 12 mods como dependência.</p><button type="button" class="q-copy" data-copy-target="install-text">Copiar os comandos</button> <a class="q-go" href="#install">Ver a instalação passo a passo</a></div></li>
   <li><span class="q-n">2</span><div><b>Reinicie e rode o setup</b><p>Reinicie o Claude Code e digite <code>/cockpit:setup</code>. Ele faz quatro perguntas com prévia, grava a status line, a dica do spinner e o momento de compactar, e guarda um backup do arquivo que mudou.</p><a class="q-go" href="#install">Ver o que o setup pergunta</a></div></li>
   <li><span class="q-n">3</span><div><b>Trabalhe como sempre</b><p>Os guardas ficam quietos até agir. Digite <code>/panel</code> para o endereço da página das sessões e <code>/limit</code> para ver o limite do plano.</p><a class="q-go" href="#first-session">O que muda na primeira sessão</a></div></li>
 </ol>
@@ -75,7 +76,7 @@ page('Começar', 'install', 'download', 'Como instalar e configurar', 'Como inst
 <p class="lead">Dois comandos no terminal, um reinício e um setup de quatro perguntas. Leva uns cinco minutos.</p>
 <h2>Instalar</h2>
 <ol class="steps">
-  <li><b>Adicione o marketplace e instale o pacote</b>{code(INSTALL)}<p>O segundo comando lista os mods que instala, como <code>+ 11 dependencies</code>.</p></li>
+  <li><b>Adicione o marketplace e instale o pacote</b>{code(INSTALL)}<p>O segundo comando lista os mods que instala, como <code>+ 12 dependencies</code>.</p></li>
   <li><b>Reinicie o Claude Code</b><p>A sessão nova carrega os mods. Uma sessão que já estava aberta pega com <code>/reload-plugins</code>.</p></li>
   <li><b>Rode o setup</b>{code('/cockpit:setup', 'dentro do Claude Code')}<p>Um plugin não consegue gravar sozinho a status line, a dica do spinner e o momento de compactar, porque esses ficam no seu <code>settings.json</code>. O setup faz isso, guarda um backup do arquivo que mudou e diz o que você vai notar.</p></li>
 </ol>
@@ -91,7 +92,7 @@ page('Começar', 'install', 'download', 'Como instalar e configurar', 'Como inst
 
 <h2>Conferir</h2>
 {code('claude plugin list')}
-<p>Aparecem 12 entradas terminadas em <code>@cockpit</code>, cada uma <code>enabled</code>: o pacote e os 11 mods. Uma entrada <code>failed to load</code> é versão fora de passo; veja <a href="#troubleshooting">Algo quebrou?</a>.</p>
+<p>Aparecem 13 entradas terminadas em <code>@cockpit</code>, cada uma <code>enabled</code>: o pacote e os 12 mods. Uma entrada <code>failed to load</code> é versão fora de passo; veja <a href="#troubleshooting">Algo quebrou?</a>.</p>
 
 <h2>Atualizações chegam sozinhas</h2>
 <p>Com a atualização automática ligada, o Claude Code atualiza cada mod que tem versão nova uns minutos depois da primeira mensagem de uma sessão, instala o mod que entrou no pacote e mostra <code>Plugin updated: &lt;nome&gt; · Run /reload-plugins to apply</code>. Para desligar, abra <code>/plugin</code>, vá em <b>Marketplaces</b> e escolha <code>cockpit</code>.</p>
@@ -611,6 +612,37 @@ page('Memória', 'global-memory', 'globe', '<code>global-memory</code>', 'global
 {install_one('global-memory')}
 ''')
 
+page('Memória', 'todo', 'tag', '<code>todo</code>', 'todo', f'''
+{meta(VERS['todo'])}
+<p class="lead">Mantém a lista de tarefas nativa do Claude Code na frente do agente: as tarefas abertas no início da sessão e em cada prompt seu, o lembrete de que pedido novo vira tarefa antes de tudo, e a tarefa concluída movida para um arquivo de histórico.</p>
+<h2>Por quê</h2>
+<p>As ferramentas de tarefa (<code>TaskCreate</code>, <code>TaskList</code>, <code>TaskUpdate</code>, <code>TaskGet</code>) gravam um JSON por tarefa em <code>~/.claude/tasks/&lt;lista&gt;/</code>, então a lista sobrevive à compactação, ao <code>--resume</code> e ao <code>--continue</code>. O modelo esquece que a lista existe. Depois da compactação ele trabalha pelo resumo, e o pedido que vivia só na conversa se perde. Uma sessão que recebe muitos pedidos, como um orquestrador que distribui trabalho a outros agentes, precisa da lista lida de volta do disco.</p>
+<h2>O que faz</h2>
+<ul>
+  <li>No início da sessão, acrescenta uma nota com as tarefas abertas da lista da sessão.</li>
+  <li>Em cada prompt seu, anexa as tarefas abertas e as concluídas desde o último prompt. Mensagem de outra sessão, notificação e agendamento não recebem nada.</li>
+  <li>Com lista nomeada (<code>CLAUDE_CODE_TASK_LIST_ID</code>), o mesmo prompt leva a regra: pedido novo vira <code>TaskCreate</code> antes de qualquer trabalho, com o dono no assunto, como <code>[dono] o que foi pedido</code>.</li>
+  <li>Move a tarefa concluída para <code>~/.local/state/mods/todo/&lt;lista&gt;.jsonl</code> e apaga o arquivo dela, para a lista guardar só o que está aberto. Vale para tarefa concluída pelo <code>TaskUpdate</code> e para arquivo que um script reescreveu.</li>
+</ul>
+<h2>Ligue as ferramentas de tarefa</h2>
+<p>O Claude Code oferece as ferramentas de tarefa por padrão só no Opus 4.7, no Sonnet 4.6, no Haiku 4.5 e nos modelos anteriores. Num modelo mais novo, abra o Claude Code com a variável. Para dividir uma lista entre sessões, dê nome a ela também:</p>
+{code('CLAUDE_CODE_ENABLE_TODO_TOOLS=1 CLAUDE_CODE_TASK_LIST_ID=pedidos claude')}
+<h2>Opções</h2>
+{opts([('enabled', '<code>true</code>', 'Desligado, o mod não faz nada. Vale na próxima sessão, ou depois de <code>/reload-plugins</code>.'),
+    ('remind', '<code>true</code>', 'Com lista nomeada, cada prompt seu leva a regra do pedido.'),
+    ('archive', '<code>true</code>', 'Move a tarefa concluída da lista para o histórico. Desligado, a concluída fica na lista.')])}
+{diary('todo', 'uma linha por nota, contexto de prompt e arquivamento, mais uma linha <code>session-summary</code>. O histórico, uma linha por tarefa concluída, fica em <code>~/.local/state/mods/todo/&lt;lista&gt;.jsonl</code>.')}
+<h2>Custo</h2>
+<p>As tarefas abertas vão inteiras em cada prompt seu, uns 15 tokens por tarefa, no máximo 30. O único hook de <code>tool.call</code> é no <code>TaskUpdate</code>.</p>
+<h2>Limites</h2>
+<ul>
+  <li>No plano Team ou Enterprise, o guarda embutido <code>sec-default@builtin</code> ignora o hook <code>session.compact</code> de mod instalado pelo usuário, e a nota logo depois da compactação não aparece. O próximo prompt seu leva a lista. Um hook <code>SessionStart</code> com o matcher <code>compact</code> no <code>settings.json</code> da sessão imprime as tarefas abertas na hora.</li>
+  <li>O id das tarefas volta a 1 quando todo arquivo saiu da lista. O histórico guarda o assunto ao lado de cada id.</li>
+  <li>Testado só no Linux.</li>
+</ul>
+{install_one('todo')}
+''')
+
 # --- consultar ---
 page('Consultar', 'commands', 'term', 'Os comandos do Cockpit', 'Os comandos do Cockpit', f'''
 <p class="lead">Todo comando que o Cockpit acrescenta. Cada um também responde em texto simples, então funciona onde nenhuma janela é desenhada, como no Remote Control.</p>
@@ -738,6 +770,7 @@ page('Consultar', 'versions', 'tag', 'Versões', 'Versões', f'''
 ''' + table(['Mod', 'Versão'], [('<code>cockpit</code> (pacote)', VERS['cockpit'])] + [(f'<a href="#{m}"><code>{m}</code></a>', VERS[m]) for m in ORDER]) + '''
 <h2>O que mudou</h2>
 <ul>
+  <li><b>1.4.0</b>: mod novo <code>todo</code>, que mantém a lista de tarefas nativa na frente do agente.</li>
   <li><b>1.3.0</b>: todo mod ganhou a opção <code>enabled</code>, e os guardas ganharam uma chave por passo. O <code>/cockpit:setup</code> desliga mods.</li>
   <li><b>1.2.0</b>: o <code>usage-limit</code> passou a cuidar de cada janela por conta própria, com freio, commit e pausa separados para 5 horas e 7 dias, cada um com chave e porcentagem.</li>
   <li><b>1.1.0</b>: o <code>secret-guard</code> passou a ler a pasta de segredos ao lado do arquivo de segredos.</li>

@@ -11,7 +11,7 @@ terminal:
 claude plugin marketplace add joaosavi/cockpit
 claude plugin install cockpit@cockpit
 ```
-O segundo comando lista os mods que instala, como `+ 11 dependencies`.
+O segundo comando lista os mods que instala, como `+ 12 dependencies`.
 - **Reinicie o Claude Code** A sessão nova carrega os mods. Uma sessão que já estava aberta pega com `/reload-plugins`.
 - **Rode o setup**
 dentro do Claude Code:
@@ -40,7 +40,7 @@ terminal:
 claude plugin list
 ```
 
-Aparecem 12 entradas terminadas em `@cockpit`, cada uma `enabled`: o pacote e os 11 mods. Uma entrada `failed to load` é versão fora de passo; veja [Algo quebrou?](https://joaosavi.github.io/cockpit/pt/md/troubleshooting.md).
+Aparecem 13 entradas terminadas em `@cockpit`, cada uma `enabled`: o pacote e os 12 mods. Uma entrada `failed to load` é versão fora de passo; veja [Algo quebrou?](https://joaosavi.github.io/cockpit/pt/md/troubleshooting.md).
 
 ## Atualizações chegam sozinhas
 
