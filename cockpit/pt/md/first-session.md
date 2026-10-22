@@ -34,7 +34,7 @@ O `panel` sobe uma página local com todas as sessões da máquina. Digite `/pan
      4 sessions: 1 need you, 2 working.
 ```
 
-Abra o endereço no navegador. A sessão que espera você vem primeiro, com as opções que ela ofereceu em botões. A [página do panel](https://joaosavi.github.io/cockpit/pt/md/panel.md) mostra as cinco vistas.
+Abra o endereço no navegador. A sessão que espera você vem primeiro, com as opções que ela ofereceu em botões. A [página do panel](https://joaosavi.github.io/cockpit/pt/md/panel.md) mostra as seis vistas.
 
 ## Comandos para testar
 

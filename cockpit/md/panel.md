@@ -16,7 +16,7 @@ Type `/panel` in any session for the address, `http://localhost:7777` by default
 - Each session shows its state (`Working`, `Waiting for you`, `Blocked`, `Done`, `Idle`), a title, the project, the git branch with its changed files and commits ahead or behind, the model, your last message, the tool running now, the summary of where the task stands, the next step and what it finished. Four figures close it: the context used against the point where it compacts, the tokens of the last 24 hours, the memory of the session's processes, and how long it has run.
 - The **Mods** drawer shows the computer in full, the latest actions of the guards, what each guard did today, and how many summaries the page made today with their tokens and their price at API list prices. On Linux it also shows the memory of each cgroup with a limit and the state of their systemd services.
 
-## The five views
+## The six views
 
 The switcher under the header picks the view, and the page remembers it. The address also takes a view as its hash, such as `#board`, and `#mods` opens the drawer.
 
@@ -27,6 +27,7 @@ The switcher under the header picks the view, and the page remembers it. The add
 | **Deck** | A grid of full cards, with filters for all sessions, the ones that need you, working, done and ended. |  |
 | **Focus** | One large card for the session that needs you most, and the others below it. | `n` and `p` or the arrows move |
 | **Timeline** | A row per session with its tokens hour by hour over the last 24 hours, and a row for all sessions together. |  |
+| **Tasks** | The open tasks of the native task list in groups (In progress, Waiting, Queued), each from P0 up, with filters by priority and group, and the last 30 tasks the [`todo`](https://joaosavi.github.io/cockpit/md/todo.md) mod archived. A row opens to show the description. It calls no model. |  |
 
 **Working** comes from Claude Code itself, as soon as a turn starts. **Waiting for you**, **Blocked**, **Done** and **Idle** come from the summary, which `claude -p` writes from the transcript: 20 seconds after a turn ends, every 5 minutes for a session that changed, and when you press **Refresh**.
 

@@ -1,4 +1,4 @@
-# Cockpit 1.5.0
+# Cockpit 1.6.0
 
 # Início rápido
 
@@ -167,7 +167,7 @@ O `panel` sobe uma página local com todas as sessões da máquina. Digite `/pan
      4 sessions: 1 need you, 2 working.
 ```
 
-Abra o endereço no navegador. A sessão que espera você vem primeiro, com as opções que ela ofereceu em botões. A [página do panel](https://joaosavi.github.io/cockpit/pt/md/panel.md) mostra as cinco vistas.
+Abra o endereço no navegador. A sessão que espera você vem primeiro, com as opções que ela ofereceu em botões. A [página do panel](https://joaosavi.github.io/cockpit/pt/md/panel.md) mostra as seis vistas.
 
 ## Comandos para testar
 
@@ -813,7 +813,7 @@ Digite `/panel` em qualquer sessão para o endereço, `http://localhost:7777` po
 - Cada sessão mostra o estado (`Working`, `Waiting for you`, `Blocked`, `Done`, `Idle`), um título, o projeto, a branch com arquivos mudados e commits à frente ou atrás, o modelo, a sua última mensagem, a ferramenta rodando agora, o resumo da tarefa, o próximo passo e o que terminou. Fecham o cartão o contexto usado até o ponto de compactar, os tokens das últimas 24 horas, a memória dos processos e há quanto tempo roda.
 - A gaveta **Mods** mostra o computador completo, as últimas ações dos guardas, o que cada guarda fez hoje e quantos resumos a página fez hoje, com tokens e preço de API. No Linux mostra também a memória de cada cgroup com limite e o estado dos serviços do systemd.
 
-## As cinco vistas
+## As seis vistas
 
 O seletor embaixo do topo escolhe a vista, e a página lembra. O endereço também aceita a vista no hash, como `#board`, e `#mods` abre a gaveta.
 
@@ -824,6 +824,7 @@ O seletor embaixo do topo escolhe a vista, e a página lembra. O endereço tamb�
 | **Deck** | Uma grade de cartões completos, com filtros: todas, as que precisam de você, rodando, terminadas e encerradas. |  |
 | **Focus** | Um cartão grande para a sessão que mais precisa de você, e as outras embaixo. | `n` e `p` ou setas movem |
 | **Timeline** | Uma linha por sessão com os tokens hora a hora nas últimas 24 horas, e uma linha com todas juntas. |  |
+| **Tasks** | As tarefas abertas da lista nativa em grupos (In progress, Waiting, Queued), cada um de P0 para cima, com filtros por prioridade e grupo, e as 30 últimas que o mod [`todo`](https://joaosavi.github.io/cockpit/pt/md/todo.md) arquivou. Uma linha abre a descrição. Não chama modelo. |  |
 
 **Working** vem do próprio Claude Code assim que um turno começa. **Waiting for you**, **Blocked**, **Done** e **Idle** vêm do resumo, que o `claude -p` escreve a partir da conversa: 20 segundos depois de um turno terminar, a cada 5 minutos para sessão que mudou, e quando você aperta **Refresh**.
 
@@ -1351,13 +1352,13 @@ Os mods deixam os diários em `~/.local/state/mods/`. Apague essa pasta para rem
 
 # Versões
 
-Cockpit 1.5.0. O pacote leva a versão do lançamento, e cada mod leva a versão do lançamento em que mudou pela última vez.
+Cockpit 1.6.0. O pacote leva a versão do lançamento, e cada mod leva a versão do lançamento em que mudou pela última vez.
 
 Um mod que não mudou num lançamento mantém a versão, então o Claude Code não atualiza ele à toa.
 
 | Mod | Versão |
 | --- | --- |
-| `cockpit` (pacote) | 1.5.0 |
+| `cockpit` (pacote) | 1.6.0 |
 | [`secret-guard`](https://joaosavi.github.io/cockpit/pt/md/secret-guard.md) | 1.3.0 |
 | [`collision-guard`](https://joaosavi.github.io/cockpit/pt/md/collision-guard.md) | 1.3.0 |
 | [`pipefail`](https://joaosavi.github.io/cockpit/pt/md/pipefail.md) | 1.3.0 |
@@ -1366,13 +1367,14 @@ Um mod que não mudou num lançamento mantém a versão, então o Claude Code n�
 | [`usage-limit`](https://joaosavi.github.io/cockpit/pt/md/usage-limit.md) | 1.3.0 |
 | [`hud`](https://joaosavi.github.io/cockpit/pt/md/hud.md) | 1.3.0 |
 | [`spinner-status`](https://joaosavi.github.io/cockpit/pt/md/spinner-status.md) | 1.0.0 |
-| [`panel`](https://joaosavi.github.io/cockpit/pt/md/panel.md) | 1.3.0 |
+| [`panel`](https://joaosavi.github.io/cockpit/pt/md/panel.md) | 1.6.0 |
 | [`skill-loader`](https://joaosavi.github.io/cockpit/pt/md/skill-loader.md) | 1.3.0 |
 | [`global-memory`](https://joaosavi.github.io/cockpit/pt/md/global-memory.md) | 1.3.0 |
 | [`todo`](https://joaosavi.github.io/cockpit/pt/md/todo.md) | 1.5.0 |
 
 ## O que mudou
 
+- **1.6.0**: o `panel` ganhou a vista Tasks, com as tarefas abertas da lista nativa agrupadas e filtradas por prioridade.
 - **1.5.0**: o `todo` lista as tarefas abertas num grupo por estado, cada um ordenado por prioridade, a partir do metadata da tarefa ou de um assunto como `[dono] P1 espera: o que foi pedido`.
 - **1.4.0**: mod novo `todo`, que mantém a lista de tarefas nativa na frente do agente.
 - **1.3.0**: todo mod ganhou a opção `enabled`, e os guardas ganharam uma chave por passo. O `/cockpit:setup` desliga mods.

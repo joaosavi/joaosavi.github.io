@@ -16,7 +16,7 @@ Digite `/panel` em qualquer sessão para o endereço, `http://localhost:7777` po
 - Cada sessão mostra o estado (`Working`, `Waiting for you`, `Blocked`, `Done`, `Idle`), um título, o projeto, a branch com arquivos mudados e commits à frente ou atrás, o modelo, a sua última mensagem, a ferramenta rodando agora, o resumo da tarefa, o próximo passo e o que terminou. Fecham o cartão o contexto usado até o ponto de compactar, os tokens das últimas 24 horas, a memória dos processos e há quanto tempo roda.
 - A gaveta **Mods** mostra o computador completo, as últimas ações dos guardas, o que cada guarda fez hoje e quantos resumos a página fez hoje, com tokens e preço de API. No Linux mostra também a memória de cada cgroup com limite e o estado dos serviços do systemd.
 
-## As cinco vistas
+## As seis vistas
 
 O seletor embaixo do topo escolhe a vista, e a página lembra. O endereço também aceita a vista no hash, como `#board`, e `#mods` abre a gaveta.
 
@@ -27,6 +27,7 @@ O seletor embaixo do topo escolhe a vista, e a página lembra. O endereço tamb�
 | **Deck** | Uma grade de cartões completos, com filtros: todas, as que precisam de você, rodando, terminadas e encerradas. |  |
 | **Focus** | Um cartão grande para a sessão que mais precisa de você, e as outras embaixo. | `n` e `p` ou setas movem |
 | **Timeline** | Uma linha por sessão com os tokens hora a hora nas últimas 24 horas, e uma linha com todas juntas. |  |
+| **Tasks** | As tarefas abertas da lista nativa em grupos (In progress, Waiting, Queued), cada um de P0 para cima, com filtros por prioridade e grupo, e as 30 últimas que o mod [`todo`](https://joaosavi.github.io/cockpit/pt/md/todo.md) arquivou. Uma linha abre a descrição. Não chama modelo. |  |
 
 **Working** vem do próprio Claude Code assim que um turno começa. **Waiting for you**, **Blocked**, **Done** e **Idle** vêm do resumo, que o `claude -p` escreve a partir da conversa: 20 segundos depois de um turno terminar, a cada 5 minutos para sessão que mudou, e quando você aperta **Refresh**.
 

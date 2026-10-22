@@ -34,7 +34,7 @@ While a turn runs, Claude Code shows a tip under the spinner. `spinner-status` r
      4 sessions: 1 need you, 2 working.
 ```
 
-Open the address in a browser. A session that waits for you comes first, with the options it offered as buttons. The [panel page](https://joaosavi.github.io/cockpit/md/panel.md) shows its five views.
+Open the address in a browser. A session that waits for you comes first, with the options it offered as buttons. The [panel page](https://joaosavi.github.io/cockpit/md/panel.md) shows its six views.
 
 ## Commands to try
 

@@ -122,7 +122,7 @@ page('Get started', 'first-session', 'firstrun', 'Your first session', 'Your fir
 <h2>The session page</h2>
 <p><code>panel</code> starts a local web page with every session on the machine. Type <code>/panel</code> for its address.</p>
 {term(PANEL_OUT)}
-<p>Open the address in a browser. A session that waits for you comes first, with the options it offered as buttons. The <a href="#panel">panel page</a> shows its five views.</p>
+<p>Open the address in a browser. A session that waits for you comes first, with the options it offered as buttons. The <a href="#panel">panel page</a> shows its six views.</p>
 <h2>Commands to try</h2>
 {table(['Command', 'What it shows'], [
     ('<code>/limit</code>', 'The plan windows, when each resets, and what the mod holds back near the limit.'),
@@ -490,7 +490,7 @@ page('Instruments', 'panel', 'grid', '<code>panel</code>', 'panel', f'''
   <li>Each session shows its state (<code>Working</code>, <code>Waiting for you</code>, <code>Blocked</code>, <code>Done</code>, <code>Idle</code>), a title, the project, the git branch with its changed files and commits ahead or behind, the model, your last message, the tool running now, the summary of where the task stands, the next step and what it finished. Four figures close it: the context used against the point where it compacts, the tokens of the last 24 hours, the memory of the session's processes, and how long it has run.</li>
   <li>The <b>Mods</b> drawer shows the computer in full, the latest actions of the guards, what each guard did today, and how many summaries the page made today with their tokens and their price at API list prices. On Linux it also shows the memory of each cgroup with a limit and the state of their systemd services.</li>
 </ul>
-<h2>The five views</h2>
+<h2>The six views</h2>
 <p>The switcher under the header picks the view, and the page remembers it. The address also takes a view as its hash, such as <code>#board</code>, and <code>#mods</code> opens the drawer.</p>
 {table(['View', 'What it shows', 'Keys'], [
     ('<b>Inbox</b>', 'The default. The sessions by urgency on the left, and the selected one in full on the right.', '<code>j</code> and <code>k</code> or the arrows move, <code>1</code> to <code>4</code> pick an option, <code>r</code> goes to the reply field'),
@@ -498,6 +498,7 @@ page('Instruments', 'panel', 'grid', '<code>panel</code>', 'panel', f'''
     ('<b>Deck</b>', 'A grid of full cards, with filters for all sessions, the ones that need you, working, done and ended.', ''),
     ('<b>Focus</b>', 'One large card for the session that needs you most, and the others below it.', '<code>n</code> and <code>p</code> or the arrows move'),
     ('<b>Timeline</b>', 'A row per session with its tokens hour by hour over the last 24 hours, and a row for all sessions together.', ''),
+    ('<b>Tasks</b>', 'The open tasks of the native task list in groups (In progress, Waiting, Queued), each from P0 up, with filters by priority and group, and the last 30 tasks the <a href="#todo"><code>todo</code></a> mod archived. A row opens to show the description. It calls no model.', ''),
 ], 'stack')}
 <p><b>Working</b> comes from Claude Code itself, as soon as a turn starts. <b>Waiting for you</b>, <b>Blocked</b>, <b>Done</b> and <b>Idle</b> come from the summary, which <code>claude -p</code> writes from the transcript: 20 seconds after a turn ends, every 5 minutes for a session that changed, and when you press <b>Refresh</b>.</p>
 <h2>Answer a session from the page</h2>
@@ -778,6 +779,7 @@ page('Reference', 'versions', 'tag', 'Versions', 'Versions', f'''
 ''' + table(['Mod', 'Version'], [('<code>cockpit</code> (bundle)', VERS['cockpit'])] + [(f'<a href="#{m}"><code>{m}</code></a>', VERS[m]) for m in ORDER]) + '''
 <h2>What changed</h2>
 <ul>
+  <li><b>1.6.0</b>: <code>panel</code> has a Tasks view with the open tasks of the native task list, grouped and filtered by priority.</li>
   <li><b>1.5.0</b>: <code>todo</code> lists the open tasks in one group per state, each sorted by priority, from the task metadata or from a subject such as <code>[owner] P1 waiting: what was asked</code>.</li>
   <li><b>1.4.0</b>: new mod <code>todo</code>, which keeps the native task list in front of the agent.</li>
   <li><b>1.3.0</b>: every mod has an <code>enabled</code> option, and the guards have one switch per step. <code>/cockpit:setup</code> can turn mods off.</li>

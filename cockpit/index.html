@@ -614,7 +614,7 @@ a.mod:hover { border-color: var(--led); }
     <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l4-4M3.34 19a10 10 0 1 1 17.32 0"/></svg></span>
     <span class="wordmark">Cockpit</span>
   </a>
-  <div class="top-right"><nav class="lang-sw" aria-label="Language"><a href="./" data-lang-link aria-current="true">EN</a><a href="pt/" data-lang-link>PT</a></nav><a class="gh" href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">v1.5.0 on GitHub</a></div>
+  <div class="top-right"><nav class="lang-sw" aria-label="Language"><a href="./" data-lang-link aria-current="true">EN</a><a href="pt/" data-lang-link>PT</a></nav><a class="gh" href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">v1.6.0 on GitHub</a></div>
 </header>
 
 <div class="shell">
@@ -757,7 +757,7 @@ claude plugin install cockpit@cockpit</pre></div><p>The second command lists the
 <div class="tw" data-search="skip"><div class="tw-bar" aria-hidden="true"><i></i><i></i><i></i><span>claude · ~/acme-api</span></div><pre class="term"><span class="d">❯</span> /panel
   <span class="d">⎿</span>  panel: http://localhost:7777
      4 sessions: <b class="a">1 need you</b>, <span class="bl">2 working</span>.</pre></div>
-<p>Open the address in a browser. A session that waits for you comes first, with the options it offered as buttons. The <a href="#panel">panel page</a> shows its five views.</p>
+<p>Open the address in a browser. A session that waits for you comes first, with the options it offered as buttons. The <a href="#panel">panel page</a> shows its six views.</p>
 <h2>Commands to try</h2>
 <div class="table-wrap"><table><tr><th>Command</th><th>What it shows</th></tr><tr><td><code>/limit</code></td><td>The plan windows, when each resets, and what the mod holds back near the limit.</td></tr><tr><td><code>/hud</code></td><td>The full heads-up display: session, limits, memory, what runs now, and today's mod actions.</td></tr><tr><td><code>/ram</code></td><td>Memory headroom per group, or of the machine, and the measured peak of each heavy command.</td></tr></table></div>
 <h2>When a guard acts</h2>
@@ -1078,7 +1078,7 @@ claude plugin install spinner-status@cockpit</pre></div>
   <div class="crumb">Instruments</div>
   <h1><code style="font-size:.82em;background:none;border:0;padding:0">panel</code></h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="panel">Copy for your agent</button><a href="md/panel.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
-<div class="meta"><span class="pill mute">v1.3.0</span><span class="pill led">/panel</span><span class="pill led">calls claude -p</span></div>
+<div class="meta"><span class="pill mute">v1.6.0</span><span class="pill led">/panel</span><span class="pill led">calls claude -p</span></div>
 <p class="lead">A local web page with every Claude Code session on your computer: whether it waits for you, what it needs, what it is doing now, and what it finished. Each session's summary comes from <code>claude -p</code>, refreshed every few minutes and when you ask.</p>
 <div class="shot"><img src="img/panel-dark.png" alt="The panel page in the Inbox view: the machine in the header, the sessions by urgency on the left, and the selected session on the right" loading="lazy"></div>
 <p class="figcap">The page with made-up sessions, in the Inbox view.</p>
@@ -1090,9 +1090,9 @@ claude plugin install spinner-status@cockpit</pre></div>
   <li>Each session shows its state (<code>Working</code>, <code>Waiting for you</code>, <code>Blocked</code>, <code>Done</code>, <code>Idle</code>), a title, the project, the git branch with its changed files and commits ahead or behind, the model, your last message, the tool running now, the summary of where the task stands, the next step and what it finished. Four figures close it: the context used against the point where it compacts, the tokens of the last 24 hours, the memory of the session's processes, and how long it has run.</li>
   <li>The <b>Mods</b> drawer shows the computer in full, the latest actions of the guards, what each guard did today, and how many summaries the page made today with their tokens and their price at API list prices. On Linux it also shows the memory of each cgroup with a limit and the state of their systemd services.</li>
 </ul>
-<h2>The five views</h2>
+<h2>The six views</h2>
 <p>The switcher under the header picks the view, and the page remembers it. The address also takes a view as its hash, such as <code>#board</code>, and <code>#mods</code> opens the drawer.</p>
-<div class="table-wrap stack"><table><tr><th>View</th><th>What it shows</th><th>Keys</th></tr><tr><td><b>Inbox</b></td><td>The default. The sessions by urgency on the left, and the selected one in full on the right.</td><td><code>j</code> and <code>k</code> or the arrows move, <code>1</code> to <code>4</code> pick an option, <code>r</code> goes to the reply field</td></tr><tr><td><b>Board</b></td><td>Columns by state, with small cards. A card opens the session in a side drawer.</td><td><code>1</code> to <code>4</code> in the drawer, <code>esc</code> closes it</td></tr><tr><td><b>Deck</b></td><td>A grid of full cards, with filters for all sessions, the ones that need you, working, done and ended.</td><td></td></tr><tr><td><b>Focus</b></td><td>One large card for the session that needs you most, and the others below it.</td><td><code>n</code> and <code>p</code> or the arrows move</td></tr><tr><td><b>Timeline</b></td><td>A row per session with its tokens hour by hour over the last 24 hours, and a row for all sessions together.</td><td></td></tr></table></div>
+<div class="table-wrap stack"><table><tr><th>View</th><th>What it shows</th><th>Keys</th></tr><tr><td><b>Inbox</b></td><td>The default. The sessions by urgency on the left, and the selected one in full on the right.</td><td><code>j</code> and <code>k</code> or the arrows move, <code>1</code> to <code>4</code> pick an option, <code>r</code> goes to the reply field</td></tr><tr><td><b>Board</b></td><td>Columns by state, with small cards. A card opens the session in a side drawer.</td><td><code>1</code> to <code>4</code> in the drawer, <code>esc</code> closes it</td></tr><tr><td><b>Deck</b></td><td>A grid of full cards, with filters for all sessions, the ones that need you, working, done and ended.</td><td></td></tr><tr><td><b>Focus</b></td><td>One large card for the session that needs you most, and the others below it.</td><td><code>n</code> and <code>p</code> or the arrows move</td></tr><tr><td><b>Timeline</b></td><td>A row per session with its tokens hour by hour over the last 24 hours, and a row for all sessions together.</td><td></td></tr><tr><td><b>Tasks</b></td><td>The open tasks of the native task list in groups (In progress, Waiting, Queued), each from P0 up, with filters by priority and group, and the last 30 tasks the <a href="#todo"><code>todo</code></a> mod archived. A row opens to show the description. It calls no model.</td><td></td></tr></table></div>
 <p><b>Working</b> comes from Claude Code itself, as soon as a turn starts. <b>Waiting for you</b>, <b>Blocked</b>, <b>Done</b> and <b>Idle</b> come from the summary, which <code>claude -p</code> writes from the transcript: 20 seconds after a turn ends, every 5 minutes for a session that changed, and when you press <b>Refresh</b>.</p>
 <h2>Answer a session from the page</h2>
 <p>When a session waits for a decision, its options are buttons. Press one, or its number key, check the text, and confirm. The reply field sends any text the same way. The page leaves the text in the session's inbox, the <code>panel</code> mod in that session checks the inbox every 2 seconds and submits the text as your prompt, and Claude Code runs it once the session is idle. It works on macOS, Windows and Linux, in a terminal, the Desktop app, an IDE or Remote Control, with or without tmux.</p>
@@ -1363,11 +1363,12 @@ claude plugin prune</pre></div>
   <div class="crumb">Reference</div>
   <h1>Versions</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="versions">Copy for your agent</button><a href="md/versions.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
-<p class="lead">Cockpit 1.5.0. The bundle carries the version of the release, and each mod carries the version of the release where it last changed.</p>
+<p class="lead">Cockpit 1.6.0. The bundle carries the version of the release, and each mod carries the version of the release where it last changed.</p>
 <p>A mod that did not change in a release keeps its version, so Claude Code does not update it.</p>
-<div class="table-wrap"><table><tr><th>Mod</th><th>Version</th></tr><tr><td><code>cockpit</code> (bundle)</td><td>1.5.0</td></tr><tr><td><a href="#secret-guard"><code>secret-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#collision-guard"><code>collision-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#pipefail"><code>pipefail</code></a></td><td>1.3.0</td></tr><tr><td><a href="#memory-guard"><code>memory-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#loop-breaker"><code>loop-breaker</code></a></td><td>1.3.0</td></tr><tr><td><a href="#usage-limit"><code>usage-limit</code></a></td><td>1.3.0</td></tr><tr><td><a href="#hud"><code>hud</code></a></td><td>1.3.0</td></tr><tr><td><a href="#spinner-status"><code>spinner-status</code></a></td><td>1.0.0</td></tr><tr><td><a href="#panel"><code>panel</code></a></td><td>1.3.0</td></tr><tr><td><a href="#skill-loader"><code>skill-loader</code></a></td><td>1.3.0</td></tr><tr><td><a href="#global-memory"><code>global-memory</code></a></td><td>1.3.0</td></tr><tr><td><a href="#todo"><code>todo</code></a></td><td>1.5.0</td></tr></table></div>
+<div class="table-wrap"><table><tr><th>Mod</th><th>Version</th></tr><tr><td><code>cockpit</code> (bundle)</td><td>1.6.0</td></tr><tr><td><a href="#secret-guard"><code>secret-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#collision-guard"><code>collision-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#pipefail"><code>pipefail</code></a></td><td>1.3.0</td></tr><tr><td><a href="#memory-guard"><code>memory-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#loop-breaker"><code>loop-breaker</code></a></td><td>1.3.0</td></tr><tr><td><a href="#usage-limit"><code>usage-limit</code></a></td><td>1.3.0</td></tr><tr><td><a href="#hud"><code>hud</code></a></td><td>1.3.0</td></tr><tr><td><a href="#spinner-status"><code>spinner-status</code></a></td><td>1.0.0</td></tr><tr><td><a href="#panel"><code>panel</code></a></td><td>1.6.0</td></tr><tr><td><a href="#skill-loader"><code>skill-loader</code></a></td><td>1.3.0</td></tr><tr><td><a href="#global-memory"><code>global-memory</code></a></td><td>1.3.0</td></tr><tr><td><a href="#todo"><code>todo</code></a></td><td>1.5.0</td></tr></table></div>
 <h2>What changed</h2>
 <ul>
+  <li><b>1.6.0</b>: <code>panel</code> has a Tasks view with the open tasks of the native task list, grouped and filtered by priority.</li>
   <li><b>1.5.0</b>: <code>todo</code> lists the open tasks in one group per state, each sorted by priority, from the task metadata or from a subject such as <code>[owner] P1 waiting: what was asked</code>.</li>
   <li><b>1.4.0</b>: new mod <code>todo</code>, which keeps the native task list in front of the agent.</li>
   <li><b>1.3.0</b>: every mod has an <code>enabled</code> option, and the guards have one switch per step. <code>/cockpit:setup</code> can turn mods off.</li>
@@ -1377,7 +1378,7 @@ claude plugin prune</pre></div>
 </article>
 
 <nav class="pager" id="pager" aria-label="Previous and next page"></nav>
-<div class="foot">Cockpit 1.5.0 · <a href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">github.com/joaosavi/cockpit</a> · MIT license · Not affiliated with Anthropic · <a href="llms.txt">llms.txt</a> · Reviewed on October 20, 2026</div>
+<div class="foot">Cockpit 1.6.0 · <a href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">github.com/joaosavi/cockpit</a> · MIT license · Not affiliated with Anthropic · <a href="llms.txt">llms.txt</a> · Reviewed on October 20, 2026</div>
 </main>
 
 <aside class="toc" id="toc" aria-label="On this page"><h5>On this page</h5><div id="tocList"></div></aside>

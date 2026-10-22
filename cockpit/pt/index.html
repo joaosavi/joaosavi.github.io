@@ -614,7 +614,7 @@ a.mod:hover { border-color: var(--led); }
     <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l4-4M3.34 19a10 10 0 1 1 17.32 0"/></svg></span>
     <span class="wordmark">Cockpit</span>
   </a>
-  <div class="top-right"><nav class="lang-sw" aria-label="Language"><a href="../" data-lang-link>EN</a><a href="./" data-lang-link aria-current="true">PT</a></nav><a class="gh" href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">v1.5.0 no GitHub</a></div>
+  <div class="top-right"><nav class="lang-sw" aria-label="Language"><a href="../" data-lang-link>EN</a><a href="./" data-lang-link aria-current="true">PT</a></nav><a class="gh" href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">v1.6.0 no GitHub</a></div>
 </header>
 
 <div class="shell">
@@ -757,7 +757,7 @@ claude plugin install cockpit@cockpit</pre></div><p>O segundo comando lista os m
 <div class="tw" data-search="skip"><div class="tw-bar" aria-hidden="true"><i></i><i></i><i></i><span>claude · ~/acme-api</span></div><pre class="term"><span class="d">❯</span> /panel
   <span class="d">⎿</span>  panel: http://localhost:7777
      4 sessions: <b class="a">1 need you</b>, <span class="bl">2 working</span>.</pre></div>
-<p>Abra o endereço no navegador. A sessão que espera você vem primeiro, com as opções que ela ofereceu em botões. A <a href="#panel">página do panel</a> mostra as cinco vistas.</p>
+<p>Abra o endereço no navegador. A sessão que espera você vem primeiro, com as opções que ela ofereceu em botões. A <a href="#panel">página do panel</a> mostra as seis vistas.</p>
 <h2>Comandos para testar</h2>
 <div class="table-wrap"><table><tr><th>Comando</th><th>O que mostra</th></tr><tr><td><code>/limit</code></td><td>As janelas do plano, quando cada uma reinicia e o que o mod segura perto do limite.</td></tr><tr><td><code>/hud</code></td><td>A visão completa: sessão, limites, memória, o que roda agora e as ações dos mods hoje.</td></tr><tr><td><code>/ram</code></td><td>A folga de memória por grupo, ou da máquina, e o pico medido de cada comando pesado.</td></tr></table></div>
 <h2>Quando um guarda age</h2>
@@ -1078,7 +1078,7 @@ claude plugin install spinner-status@cockpit</pre></div>
   <div class="crumb">Instrumentos</div>
   <h1><code style="font-size:.82em;background:none;border:0;padding:0">panel</code></h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="panel">Copiar para o agente</button><a href="md/panel.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
-<div class="meta"><span class="pill mute">v1.3.0</span><span class="pill led">/panel</span><span class="pill led">chama o claude -p</span></div>
+<div class="meta"><span class="pill mute">v1.6.0</span><span class="pill led">/panel</span><span class="pill led">chama o claude -p</span></div>
 <p class="lead">Uma página local com todas as sessões do Claude Code no seu computador: se ela espera você, o que precisa, o que está fazendo agora e o que terminou. O resumo de cada sessão vem do <code>claude -p</code>, refeito a cada poucos minutos e quando você pede.</p>
 <div class="shot"><img src="../img/panel-dark.png" alt="A página do panel na vista Inbox: a máquina no topo, as sessões por urgência à esquerda e a sessão escolhida à direita" loading="lazy"></div>
 <p class="figcap">A página com sessões inventadas, na vista Inbox.</p>
@@ -1090,9 +1090,9 @@ claude plugin install spinner-status@cockpit</pre></div>
   <li>Cada sessão mostra o estado (<code>Working</code>, <code>Waiting for you</code>, <code>Blocked</code>, <code>Done</code>, <code>Idle</code>), um título, o projeto, a branch com arquivos mudados e commits à frente ou atrás, o modelo, a sua última mensagem, a ferramenta rodando agora, o resumo da tarefa, o próximo passo e o que terminou. Fecham o cartão o contexto usado até o ponto de compactar, os tokens das últimas 24 horas, a memória dos processos e há quanto tempo roda.</li>
   <li>A gaveta <b>Mods</b> mostra o computador completo, as últimas ações dos guardas, o que cada guarda fez hoje e quantos resumos a página fez hoje, com tokens e preço de API. No Linux mostra também a memória de cada cgroup com limite e o estado dos serviços do systemd.</li>
 </ul>
-<h2>As cinco vistas</h2>
+<h2>As seis vistas</h2>
 <p>O seletor embaixo do topo escolhe a vista, e a página lembra. O endereço também aceita a vista no hash, como <code>#board</code>, e <code>#mods</code> abre a gaveta.</p>
-<div class="table-wrap stack"><table><tr><th>Vista</th><th>O que mostra</th><th>Teclas</th></tr><tr><td><b>Inbox</b></td><td>O padrão. As sessões por urgência à esquerda e a escolhida inteira à direita.</td><td><code>j</code> e <code>k</code> ou setas movem, <code>1</code> a <code>4</code> escolhem opção, <code>r</code> vai para a resposta</td></tr><tr><td><b>Board</b></td><td>Colunas por estado, com cartões pequenos. Um cartão abre a sessão numa gaveta lateral.</td><td><code>1</code> a <code>4</code> na gaveta, <code>esc</code> fecha</td></tr><tr><td><b>Deck</b></td><td>Uma grade de cartões completos, com filtros: todas, as que precisam de você, rodando, terminadas e encerradas.</td><td></td></tr><tr><td><b>Focus</b></td><td>Um cartão grande para a sessão que mais precisa de você, e as outras embaixo.</td><td><code>n</code> e <code>p</code> ou setas movem</td></tr><tr><td><b>Timeline</b></td><td>Uma linha por sessão com os tokens hora a hora nas últimas 24 horas, e uma linha com todas juntas.</td><td></td></tr></table></div>
+<div class="table-wrap stack"><table><tr><th>Vista</th><th>O que mostra</th><th>Teclas</th></tr><tr><td><b>Inbox</b></td><td>O padrão. As sessões por urgência à esquerda e a escolhida inteira à direita.</td><td><code>j</code> e <code>k</code> ou setas movem, <code>1</code> a <code>4</code> escolhem opção, <code>r</code> vai para a resposta</td></tr><tr><td><b>Board</b></td><td>Colunas por estado, com cartões pequenos. Um cartão abre a sessão numa gaveta lateral.</td><td><code>1</code> a <code>4</code> na gaveta, <code>esc</code> fecha</td></tr><tr><td><b>Deck</b></td><td>Uma grade de cartões completos, com filtros: todas, as que precisam de você, rodando, terminadas e encerradas.</td><td></td></tr><tr><td><b>Focus</b></td><td>Um cartão grande para a sessão que mais precisa de você, e as outras embaixo.</td><td><code>n</code> e <code>p</code> ou setas movem</td></tr><tr><td><b>Timeline</b></td><td>Uma linha por sessão com os tokens hora a hora nas últimas 24 horas, e uma linha com todas juntas.</td><td></td></tr><tr><td><b>Tasks</b></td><td>As tarefas abertas da lista nativa em grupos (In progress, Waiting, Queued), cada um de P0 para cima, com filtros por prioridade e grupo, e as 30 últimas que o mod <a href="#todo"><code>todo</code></a> arquivou. Uma linha abre a descrição. Não chama modelo.</td><td></td></tr></table></div>
 <p><b>Working</b> vem do próprio Claude Code assim que um turno começa. <b>Waiting for you</b>, <b>Blocked</b>, <b>Done</b> e <b>Idle</b> vêm do resumo, que o <code>claude -p</code> escreve a partir da conversa: 20 segundos depois de um turno terminar, a cada 5 minutos para sessão que mudou, e quando você aperta <b>Refresh</b>.</p>
 <h2>Responder uma sessão pela página</h2>
 <p>Quando uma sessão espera uma decisão, as opções dela viram botões. Aperte uma, ou o número dela, confira o texto e confirme. O campo de resposta manda qualquer texto do mesmo jeito. A página deixa o texto na caixa de entrada da sessão, o mod <code>panel</code> daquela sessão confere a caixa a cada 2 segundos e envia o texto como prompt seu, e o Claude Code roda quando a sessão fica parada. Funciona no macOS, no Windows e no Linux, no terminal, no app Desktop, numa IDE ou pelo Remote Control, com ou sem tmux.</p>
@@ -1363,11 +1363,12 @@ claude plugin prune</pre></div>
   <div class="crumb">Consultar</div>
   <h1>Versões</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="versions">Copiar para o agente</button><a href="md/versions.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
-<p class="lead">Cockpit 1.5.0. O pacote leva a versão do lançamento, e cada mod leva a versão do lançamento em que mudou pela última vez.</p>
+<p class="lead">Cockpit 1.6.0. O pacote leva a versão do lançamento, e cada mod leva a versão do lançamento em que mudou pela última vez.</p>
 <p>Um mod que não mudou num lançamento mantém a versão, então o Claude Code não atualiza ele à toa.</p>
-<div class="table-wrap"><table><tr><th>Mod</th><th>Versão</th></tr><tr><td><code>cockpit</code> (pacote)</td><td>1.5.0</td></tr><tr><td><a href="#secret-guard"><code>secret-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#collision-guard"><code>collision-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#pipefail"><code>pipefail</code></a></td><td>1.3.0</td></tr><tr><td><a href="#memory-guard"><code>memory-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#loop-breaker"><code>loop-breaker</code></a></td><td>1.3.0</td></tr><tr><td><a href="#usage-limit"><code>usage-limit</code></a></td><td>1.3.0</td></tr><tr><td><a href="#hud"><code>hud</code></a></td><td>1.3.0</td></tr><tr><td><a href="#spinner-status"><code>spinner-status</code></a></td><td>1.0.0</td></tr><tr><td><a href="#panel"><code>panel</code></a></td><td>1.3.0</td></tr><tr><td><a href="#skill-loader"><code>skill-loader</code></a></td><td>1.3.0</td></tr><tr><td><a href="#global-memory"><code>global-memory</code></a></td><td>1.3.0</td></tr><tr><td><a href="#todo"><code>todo</code></a></td><td>1.5.0</td></tr></table></div>
+<div class="table-wrap"><table><tr><th>Mod</th><th>Versão</th></tr><tr><td><code>cockpit</code> (pacote)</td><td>1.6.0</td></tr><tr><td><a href="#secret-guard"><code>secret-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#collision-guard"><code>collision-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#pipefail"><code>pipefail</code></a></td><td>1.3.0</td></tr><tr><td><a href="#memory-guard"><code>memory-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#loop-breaker"><code>loop-breaker</code></a></td><td>1.3.0</td></tr><tr><td><a href="#usage-limit"><code>usage-limit</code></a></td><td>1.3.0</td></tr><tr><td><a href="#hud"><code>hud</code></a></td><td>1.3.0</td></tr><tr><td><a href="#spinner-status"><code>spinner-status</code></a></td><td>1.0.0</td></tr><tr><td><a href="#panel"><code>panel</code></a></td><td>1.6.0</td></tr><tr><td><a href="#skill-loader"><code>skill-loader</code></a></td><td>1.3.0</td></tr><tr><td><a href="#global-memory"><code>global-memory</code></a></td><td>1.3.0</td></tr><tr><td><a href="#todo"><code>todo</code></a></td><td>1.5.0</td></tr></table></div>
 <h2>O que mudou</h2>
 <ul>
+  <li><b>1.6.0</b>: o <code>panel</code> ganhou a vista Tasks, com as tarefas abertas da lista nativa agrupadas e filtradas por prioridade.</li>
   <li><b>1.5.0</b>: o <code>todo</code> lista as tarefas abertas num grupo por estado, cada um ordenado por prioridade, a partir do metadata da tarefa ou de um assunto como <code>[dono] P1 espera: o que foi pedido</code>.</li>
   <li><b>1.4.0</b>: mod novo <code>todo</code>, que mantém a lista de tarefas nativa na frente do agente.</li>
   <li><b>1.3.0</b>: todo mod ganhou a opção <code>enabled</code>, e os guardas ganharam uma chave por passo. O <code>/cockpit:setup</code> desliga mods.</li>
@@ -1377,7 +1378,7 @@ claude plugin prune</pre></div>
 </article>
 
 <nav class="pager" id="pager" aria-label="Página anterior e próxima"></nav>
-<div class="foot">Cockpit 1.5.0 · <a href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">github.com/joaosavi/cockpit</a> · Licença MIT · Sem vínculo com a Anthropic · <a href="llms.txt">llms.txt</a> · Revisado em 20 de outubro de 2026</div>
+<div class="foot">Cockpit 1.6.0 · <a href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">github.com/joaosavi/cockpit</a> · Licença MIT · Sem vínculo com a Anthropic · <a href="llms.txt">llms.txt</a> · Revisado em 20 de outubro de 2026</div>
 </main>
 
 <aside class="toc" id="toc" aria-label="Nesta página"><h5>Nesta página</h5><div id="tocList"></div></aside>

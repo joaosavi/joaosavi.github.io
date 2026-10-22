@@ -123,7 +123,7 @@ page('Começar', 'first-session', 'firstrun', 'O que muda na primeira sessão', 
 <h2>A página das sessões</h2>
 <p>O <code>panel</code> sobe uma página local com todas as sessões da máquina. Digite <code>/panel</code> para o endereço.</p>
 {term(PANEL_OUT)}
-<p>Abra o endereço no navegador. A sessão que espera você vem primeiro, com as opções que ela ofereceu em botões. A <a href="#panel">página do panel</a> mostra as cinco vistas.</p>
+<p>Abra o endereço no navegador. A sessão que espera você vem primeiro, com as opções que ela ofereceu em botões. A <a href="#panel">página do panel</a> mostra as seis vistas.</p>
 <h2>Comandos para testar</h2>
 {table(['Comando', 'O que mostra'], [
     ('<code>/limit</code>', 'As janelas do plano, quando cada uma reinicia e o que o mod segura perto do limite.'),
@@ -491,7 +491,7 @@ page('Instrumentos', 'panel', 'grid', '<code>panel</code>', 'panel', f'''
   <li>Cada sessão mostra o estado (<code>Working</code>, <code>Waiting for you</code>, <code>Blocked</code>, <code>Done</code>, <code>Idle</code>), um título, o projeto, a branch com arquivos mudados e commits à frente ou atrás, o modelo, a sua última mensagem, a ferramenta rodando agora, o resumo da tarefa, o próximo passo e o que terminou. Fecham o cartão o contexto usado até o ponto de compactar, os tokens das últimas 24 horas, a memória dos processos e há quanto tempo roda.</li>
   <li>A gaveta <b>Mods</b> mostra o computador completo, as últimas ações dos guardas, o que cada guarda fez hoje e quantos resumos a página fez hoje, com tokens e preço de API. No Linux mostra também a memória de cada cgroup com limite e o estado dos serviços do systemd.</li>
 </ul>
-<h2>As cinco vistas</h2>
+<h2>As seis vistas</h2>
 <p>O seletor embaixo do topo escolhe a vista, e a página lembra. O endereço também aceita a vista no hash, como <code>#board</code>, e <code>#mods</code> abre a gaveta.</p>
 {table(['Vista', 'O que mostra', 'Teclas'], [
     ('<b>Inbox</b>', 'O padrão. As sessões por urgência à esquerda e a escolhida inteira à direita.', '<code>j</code> e <code>k</code> ou setas movem, <code>1</code> a <code>4</code> escolhem opção, <code>r</code> vai para a resposta'),
@@ -499,6 +499,7 @@ page('Instrumentos', 'panel', 'grid', '<code>panel</code>', 'panel', f'''
     ('<b>Deck</b>', 'Uma grade de cartões completos, com filtros: todas, as que precisam de você, rodando, terminadas e encerradas.', ''),
     ('<b>Focus</b>', 'Um cartão grande para a sessão que mais precisa de você, e as outras embaixo.', '<code>n</code> e <code>p</code> ou setas movem'),
     ('<b>Timeline</b>', 'Uma linha por sessão com os tokens hora a hora nas últimas 24 horas, e uma linha com todas juntas.', ''),
+    ('<b>Tasks</b>', 'As tarefas abertas da lista nativa em grupos (In progress, Waiting, Queued), cada um de P0 para cima, com filtros por prioridade e grupo, e as 30 últimas que o mod <a href="#todo"><code>todo</code></a> arquivou. Uma linha abre a descrição. Não chama modelo.', ''),
 ], 'stack')}
 <p><b>Working</b> vem do próprio Claude Code assim que um turno começa. <b>Waiting for you</b>, <b>Blocked</b>, <b>Done</b> e <b>Idle</b> vêm do resumo, que o <code>claude -p</code> escreve a partir da conversa: 20 segundos depois de um turno terminar, a cada 5 minutos para sessão que mudou, e quando você aperta <b>Refresh</b>.</p>
 <h2>Responder uma sessão pela página</h2>
@@ -779,6 +780,7 @@ page('Consultar', 'versions', 'tag', 'Versões', 'Versões', f'''
 ''' + table(['Mod', 'Versão'], [('<code>cockpit</code> (pacote)', VERS['cockpit'])] + [(f'<a href="#{m}"><code>{m}</code></a>', VERS[m]) for m in ORDER]) + '''
 <h2>O que mudou</h2>
 <ul>
+  <li><b>1.6.0</b>: o <code>panel</code> ganhou a vista Tasks, com as tarefas abertas da lista nativa agrupadas e filtradas por prioridade.</li>
   <li><b>1.5.0</b>: o <code>todo</code> lista as tarefas abertas num grupo por estado, cada um ordenado por prioridade, a partir do metadata da tarefa ou de um assunto como <code>[dono] P1 espera: o que foi pedido</code>.</li>
   <li><b>1.4.0</b>: mod novo <code>todo</code>, que mantém a lista de tarefas nativa na frente do agente.</li>
   <li><b>1.3.0</b>: todo mod ganhou a opção <code>enabled</code>, e os guardas ganharam uma chave por passo. O <code>/cockpit:setup</code> desliga mods.</li>
