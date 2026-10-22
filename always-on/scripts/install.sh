@@ -151,6 +151,10 @@ for f in agent orchestrator-rc orchestrator-spawn orchestrator-context recover-r
     put "$BIN/$f" user 755 <"$HERE/bin/$f"
 done
 
+# O que o agent start --host leva ao seu computador: o instalador de lá e o que o CLAUDE.md ganha nele.
+put "$HOME/.config/always-on/pc/install.sh" user 755 <"$HERE/pc/install.sh"
+put "$HOME/.config/always-on/pc/CLAUDE.md" user 644 <"$HERE/pc/CLAUDE.md"
+
 step "Pastas do orquestrador e do recover"
 put "$HOME/.config/always-on/env" user 644 <<EOF
 AGENT_ORCHESTRATOR=$ORCHESTRATOR

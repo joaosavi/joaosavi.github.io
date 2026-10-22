@@ -1,0 +1,109 @@
+# Abra agentes no seu computador quando a VPS lota  
+Quando a memória da VPS acaba, o orquestrador abre o agente no seu computador com `agent start <projeto> --host mac "<tarefa>"`. O agente roda lá com as mesmas regras, mods e skills da VPS, aparece no app do Claude como os outros e fala com o orquestrador pelo SendMessage (https://code.claude.com/docs/en/cross-session-messaging). Funciona no macOS e, no Windows, dentro do WSL 2 (https://learn.microsoft.com/windows/wsl/). 
+
+- Você abre o túnel, no computador, um comando 
+- A VPS copia o harness, rsync para ~/.claude-vps 
+- Clona o repo, no mesmo caminho do home 
+- Abre o agente, tmux com Remote Control 
+- Agente trabalha, e avisa o orquestrador 
+- agent stop, apaga o .env copiado  
+
+## O desenho segue o VS Code Remote e o DevPod 
+O VS Code Remote SSH (https://code.visualstudio.com/docs/remote/ssh) e o DevPod (https://devpod.sh/docs/how-it-works/overview) instalam um agente próprio na máquina remota pelo SSH e conversam com ele. Aqui o agente remoto é o próprio comando `agent`, copiado para o computador. A VPS manda, e o computador nunca entra na VPS: a chave dele só abre o túnel. 
+
+- Harness é o conjunto que faz o agente trabalhar do seu jeito: o `CLAUDE.md` global, o `settings.json`, as skills e os mods do Cockpit (txt/mods.txt). 
+- O harness fica em `~/.claude-vps`, uma configuração separada pelo `CLAUDE_CONFIG_DIR`. A `~/.claude` que você usa no computador fica intocada. 
+- O computador roda um agente por vez e sem teto de memória: o macOS não tem o slice dos agentes.  
+
+## Abrir o túnel 
+O túnel é um SSH reverso: a VPS alcança a porta 22 do seu computador pela porta 2222 dela. Ele fica aberto enquanto o terminal estiver aberto, e você só abre quando precisa. 
+
+- No Mac, ligue Ajustes do Sistema > Geral > Compartilhamento > Início de Sessão Remoto. No WSL, instale e ligue o `openssh-server`. 
+- Na VPS, crie a chave dela, se ainda não existe, e veja a parte pública: 
+
+bash, na máquina
+```
+[ -f ~/.ssh/id_ed25519 ] || ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519
+cat ~/.ssh/id_ed25519.pub
+```
+
+- No computador, autorize essa chave só para quem chega pelo túnel. Troque `CHAVE_DA_VPS` pela linha que o `cat` mostrou: 
+
+bash, no seu computador
+```
+echo 'from="127.0.0.1,::1" CHAVE_DA_VPS' >> ~/.ssh/authorized_keys
+```
+
+- Na VPS, prenda a chave do seu computador ao túnel. No `~/.ssh/authorized_keys`, ponha na frente da linha dela: `restrict,port-forwarding,permitlisten="localhost:2222"`. 
+- No computador, abra o túnel: 
+
+bash, no seu computador
+```
+ssh -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -R 2222:localhost:22 <usuario>@<ip>
+```
+
+Na VPS, `ssh -p 2222 <usuario-pc>@localhost true` sai com 0 quando o túnel está de pé. 
+
+## Cadastrar o computador 
+O orquestrador lê os computadores de `~/<orquestrador>/hosts.json`, ao lado do `projects.json`. O campo `tunnel` é o comando que o `agent` mostra quando o túnel está fechado. 
+
+bash, na máquina
+```
+cat > ~/<orquestrador>/hosts.json <<'EOF'
+{
+  "mac": {
+    "ssh": "<usuario-pc>@localhost",
+    "port": 2222,
+    "max_agents": 1,
+    "tunnel": "ssh -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -R 2222:localhost:22 <usuario>@<ip>"
+  }
+}
+EOF
+```
+
+## Instalar o harness e fazer o login 
+Com o túnel aberto, na VPS: 
+
+bash, na máquina
+```
+agent host install mac
+agent host login mac
+```
+
+O instalador (txt/instalador.txt) do guia põe em `~/.config/always-on/pc/` os dois arquivos que o computador recebe. Se você montou à mão, baixe os dois: 
+
+bash, na máquina
+```
+mkdir -p ~/.config/always-on/pc
+for f in install.sh CLAUDE.md; do
+  curl -fsSL https://joaosavi.github.io/always-on/scripts/pc/$f -o ~/.config/always-on/pc/$f
+done
+```
+
+O `install` copia o harness e roda no computador o `pc/install.sh`, que instala o que falta (Homebrew (https://brew.sh/) no Mac, apt no WSL), os plugins e as skills. Ele pode rodar de novo. O `login` abre no computador uma tela de login num tmux. No terminal do computador, rode `tmux -L claude-vps-login attach`, abra o link e entre com a mesma conta do claude.ai (https://claude.ai) da VPS. 
+
+Faça o login por esse tmux
+No Mac, o Keychain fica trancado para processos que nascem do SSH. O tmux nasce do SSH, então o Claude Code grava o login em `~/.claude-vps/.credentials.json`, que o agente lê. Login feito num terminal comum do Mac vai para o Keychain, e o agente aberto pela VPS não enxerga. O token do `claude setup-token` não abre Remote Control (https://code.claude.com/docs/en/remote-control), então ele não serve. 
+`agent host status mac` mostra o túnel, a versão do harness, o login, o agente vivo e a memória livre do computador. 
+
+## Usar 
+
+| Comando, na VPS | O que faz |
+| --- | --- | 
+| `agent start <projeto> --host mac "<tarefa>"` | Copia o harness quando ele mudou, clona o repo e abre o agente. Só projeto com repo git | 
+| `agent start <projeto> --host mac --env "<tarefa>"` | Leva também os `.env` do projeto, com modo 600, pelo SSH | 
+| `agent list`, `agent result`, `agent stop` | Os mesmos da VPS. O `list` mostra a memória do agente com o nome do computador no lugar do teto |  
+
+## Credenciais e memória 
+
+- Use `--env` só quando a tarefa precisa da credencial. O conteúdo vai pelo SSH direto para o arquivo e nunca aparece na tela. O `agent stop` apaga o arquivo copiado. 
+- Com o secret-guard (https://github.com/joaosavi/cockpit) do Cockpit, o agente vê `<hidden:NOME>` no lugar de cada valor do `.env`. 
+- A memória do projeto vai para o computador no `start` e volta no `stop`, sem apagar nada nos dois lados.  
+
+## Limites 
+
+- A mensagem entre a VPS e o computador passa pelos servidores da Anthropic e chega com o computador ligado e online. 
+- O aviso de sessão ociosa só vale na mesma máquina. O agente do computador avisa o orquestrador por `SendMessage` quando acaba. 
+- Túnel fechado, o `agent` falha e mostra o comando para abrir. O `list` mostra o agente como inacessível e não apaga o estado, porque o agente pode seguir vivo. 
+- O memory-guard (txt/mods.txt) não acha cgroup no Mac e deixa passar tudo. Medido num Mac de 8 GB: o agente ocupou de 270 a 490 MB. 
+- No Windows, use o WSL 2: o Windows nativo não tem tmux nem rsync. O WSL desliga sem terminal aberto, então deixe aberto o terminal do túnel.

@@ -62,6 +62,7 @@ Você é o orquestrador dos agentes desta máquina. Eu converso com você pelo a
 | Comando | O que faz |
 | :--- | :--- |
 | `agent start <projeto> [--worktree BRANCH] [--name NOME] "<tarefa>"` | Abre o agente na pasta do projeto, em bypass, com o teto do projeto e já com a tarefa. Com `--worktree`, ele trabalha numa branch própria, num worktree do git. Devolve o nome e o link no app |
+| `agent start <projeto> --host <computador> [--env] "<tarefa>"` | Abre o agente no computador da pessoa, pelo túnel que ela abre, quando a VPS está sem memória. Mostra o comando do túnel quando ele está fechado. Ver o mini-guia "Abra agentes no seu computador quando a VPS lota" |
 | `agent list` | Agentes vivos, com projeto, RAM usada e teto |
 | `agent result <nome>` | A última resposta do agente, lida do transcript |
 | `agent stop <nome>` | Encerra o agente, devolve a RAM e conclui as tarefas com `[<nome>]` no assunto. Com `--keep-tasks`, encerra sem concluir |
@@ -93,7 +94,7 @@ EOF
 ```
 
 ## O comando agent 
-Este comando abre, lista e encerra os agentes. Cada agente roda num tmux próprio, um terminal que segue rodando sem o SSH, dentro de um scope do systemd, um grupo de processos criado na hora, no slice dos agentes e com o teto do projeto. O comando usa `sudo -n systemd-run`, então o usuário precisa do sudo sem senha configurado em Como fazer a config inicial da VPS (txt/preparar.txt). Ver o script do comando agent (302 linhas) 
+Este comando abre, lista e encerra os agentes. Cada agente roda num tmux próprio, um terminal que segue rodando sem o SSH, dentro de um scope do systemd, um grupo de processos criado na hora, no slice dos agentes e com o teto do projeto. O comando usa `sudo -n systemd-run`, então o usuário precisa do sudo sem senha configurado em Como fazer a config inicial da VPS (txt/preparar.txt). Ver o script do comando agent (688 linhas) 
 
 bash, na máquina
 ```
@@ -101,20 +102,25 @@ cat > ~/.local/bin/agent <<'EOF'
 #!/usr/bin/env python3
 """Abre, lista e encerra os agentes do orquestrador, cada um com teto de RAM próprio.
 
-  agent start <projeto> [--worktree BRANCH] [--role PAPEL] [--name NOME] [--resume SESSAO] [--chrome] "<tarefa>"
+  agent start <projeto> [--host HOST [--env]] [--worktree BRANCH] [--role PAPEL] [--name NOME] [--resume SESSAO] [--chrome] "<tarefa>"
   agent list
   agent result <nome>
   agent stop [--keep-tasks] <nome>
+  agent host install|login|status <host>
 
 A pasta e o teto de cada projeto vêm do projects.json do orquestrador. AGENT_ORCHESTRATOR é o nome
 do orquestrador no app, e AGENT_SLICE o slice dos agentes. Os dois vêm do ambiente ou, fora dele,
-de ~/.config/always-on/env, que vale também para o SSH.
+de ~/.config/always-on/env, que vale também para o SSH. Com --host, o agente roda no seu computador,
+pelo túnel SSH que você abre, e os computadores ficam no hosts.json do orquestrador.
 """
 
+import hashlib
 import json
 import os
 import pwd
 import re
+import shlex
+import socket
 import subprocess
 import sys
 import time
@@ -141,6 +147,19 @@ PROJECTS = Path(os.environ.get("AGENT_PROJECTS", HOME / ORCHESTRATOR / "projects
 SLICE = setting("AGENT_SLICE", "agents.slice")
 STATE = HOME / ".local" / "state" / "agents"
 RUNTIME_DIR = f"/run/user/{os.getuid()}"
+HOSTS = PROJECTS.parent / "hosts.json"
+# No computador, o harness do servidor mora numa configuração própria, e a ~/.claude pessoal fica de fora.
+PC_CONFIG = HOME / ".claude-vps"
+PC_STATE = PC_CONFIG / "agents"
+PC_PATH = ":".join([str(HOME / ".local/bin"), "/opt/homebrew/bin", "/usr/local/bin",
+                    "/usr/bin", "/bin", "/usr/sbin", "/sbin"])
+# O que o rsync leva para ~/.claude-vps/harness no computador: destino -> origem. Os marketplaces de
+# pasta do settings.json vão junto, em marketplaces/<nome>.
+HARNESS = {"CLAUDE.md": HOME / ".claude" / "CLAUDE.md",
+           "settings.json": HOME / ".claude" / "settings.json",
+           "skills/": HOME / ".claude" / "skills",
+           "bin/agent": Path(os.path.realpath(__file__)),
+           "pc/": HOME / ".config" / "always-on" / "pc"}
 # A lista de pedidos do orquestrador, o CLAUDE_CODE_TASK_LIST_ID do serviço dele. O agente usa a lista
 # da própria sessão, e o agent stop conclui aqui as tarefas com [<nome>] no assunto.
 TASKS = HOME / ".claude" / "tasks" / re.sub(r"[^a-zA-Z0-9_-]", "-", setting("CLAUDE_CODE_TASK_LIST_ID", ORCHESTRATOR))
@@ -150,6 +169,8 @@ DONE_PROMPT = ("Você é o agente {name}, aberto pelo {orch}. Quando concluir o 
                "nada pendente, mande SendMessage para {orch} com \"{name} terminou, pode encerrar\" e uma "
                "linha do que entregou. Se alguém estiver conversando direto com você, avise só quando a "
                "pessoa disser que acabou.")
+PC_PROMPT = ("Você roda no computador {host} da pessoa, e não no servidor. O que só existe no servidor, peça "
+             "ao {orch} por SendMessage. O que muda nesta máquina está no fim do seu CLAUDE.md global.")
 
 def die(msg):
     print(f"agent: {msg}", file=sys.stderr)
@@ -179,11 +200,10 @@ def mib(path):
     except OSError:
         return "?"
 
-def trust(path):
+def trust(path, cfg=HOME / ".claude.json"):
     # A pasta-mãe confiável não cobre um repo com .claude próprio, e a tela "trust this folder"
     # travaria o agente na subida.
-    cfg = HOME / ".claude.json"
-    data = json.loads(cfg.read_text())
+    data = json.loads(cfg.read_text()) if cfg.exists() else {}
     entry = data.setdefault("projects", {}).setdefault(str(path), {})
     if entry.get("hasTrustDialogAccepted"):
         return
@@ -198,18 +218,24 @@ def start(argv):
     for a in it:
         if a in ("--worktree", "--role", "--name", "--resume"):
             opts[a[2:]] = next(it, None) or die(f"{a} precisa de um valor")
-        elif a == "--chrome":
-            opts["chrome"] = True
+        elif a in ("--chrome", "--env"):
+            opts[a[2:]] = True
+        elif a == "--host":
+            opts["host"] = next(it, None) or die("--host precisa de um valor")
         else:
             rest.append(a)
     if len(rest) != 2:
-        die('uso: agent start <projeto> [--worktree BRANCH] [--role PAPEL] [--name NOME] [--resume SESSAO] '
-            '[--chrome] "<tarefa>"')
+        die('uso: agent start <projeto> [--host HOST [--env]] [--worktree BRANCH] [--role PAPEL] [--name NOME] '
+            '[--resume SESSAO] [--chrome] "<tarefa>"')
     project, task = rest
     try:
         cfg = json.loads(PROJECTS.read_text()).get(project) or die(f"projeto {project} fora de {PROJECTS}")
     except FileNotFoundError:
         die(f"{PROJECTS} não existe")
+    if opts.get("host"):
+        return host_start(project, cfg, task, opts)
+    if opts.get("env"):
+        die("--env só vale com --host")
     path = Path(os.path.expanduser(cfg["path"]))
     if not path.is_dir():
         die(f"{path} não existe")
@@ -242,13 +268,19 @@ def start(argv):
                     "tmux", "-L", name, "new-session", "-d", "-s", name, f"{shell} -lic '{inner}'"],
                    check=True)
 
+    link = wait_up(name, path, STATE, lambda: stop([name]))
+    pid = agent_pid(name)
+    print(f"{name}  pid {pid}  {cgroup(pid)}  teto {cfg['memory']}\n{link}")
+
+def wait_up(name, path, state, kill):
+    """Espera a tela do bypass e devolve o link do Remote Control. Sai com erro se o agente não subir."""
     for _ in range(60):
         if tmux(name, "has-session").returncode != 0:
-            (STATE / f"{name}.json").unlink(missing_ok=True)
+            (state / f"{name}.json").unlink(missing_ok=True)
             die(f"{name} saiu na subida; veja o erro com: agent _run {name}")
         screen = pane(name)
         if "trust this folder" in screen:
-            stop([name])
+            kill()
             die(f"{path} não está marcada como confiável; abra o claude nela uma vez e aceite")
         if "bypass permissions on" in screen:
             break
@@ -262,14 +294,17 @@ def start(argv):
         if link != "?":
             break
         time.sleep(1)
-    pid = agent_pid(name)
-    print(f"{name}  pid {pid}  {cgroup(pid)}  teto {cfg['memory']}\n{link}")
+    return link
 
 def run(name):
-    spec = json.loads((STATE / f"{name}.json").read_text())
+    host = os.environ.get("AGENT_HOST")
+    spec = json.loads(((PC_STATE if host else STATE) / f"{name}.json").read_text())
+    prompt = DONE_PROMPT.format(name=name, orch=spec["orchestrator"])
+    if host:
+        prompt += "\n\n" + PC_PROMPT.format(host=host, orch=spec["orchestrator"])
     cmd = ["claude", "--permission-mode", "bypassPermissions", "--remote-control", name, "--name", name,
            "--resume" if spec["resume"] else "--session-id", spec["session"],
-           "--append-system-prompt", DONE_PROMPT.format(name=name, orch=spec["orchestrator"])]
+           "--append-system-prompt", prompt]
     # O --worktree abre o agente num worktree do git, numa branch própria: dois agentes no mesmo repo
     # não mexem na mesma árvore.
     if spec.get("worktree"):
@@ -281,7 +316,9 @@ def run(name):
     cmd.append(spec["task"])
     # O sudo limpa o ambiente, então o nome do orquestrador vem do spec gravado no start.
     # Sem XDG_RUNTIME_DIR, o socket de mensagens cai em /tmp e o orquestrador não enxerga o agente.
-    os.environ["XDG_RUNTIME_DIR"] = RUNTIME_DIR
+    # O agente do computador é alcançado pelo Remote Control, e o macOS não tem /run/user.
+    if not host:
+        os.environ["XDG_RUNTIME_DIR"] = RUNTIME_DIR
     # As ferramentas de tarefa somem nos modelos novos sem a variável. A lista de pedidos é só do
     # orquestrador: o agente fica com a da própria sessão.
     os.environ["CLAUDE_CODE_ENABLE_TODO_TOOLS"] = "1"
@@ -289,9 +326,22 @@ def run(name):
     os.execvp("claude", cmd)
 
 def list_():
-    rows = []
+    rows, remote = [], {}
     for f in sorted(STATE.glob("*.json")):
         spec = json.loads(f.read_text())
+        if spec.get("host"):
+            h = spec["host"]
+            if h not in remote:
+                remote[h] = host_call(h, "list", check=False) if tunnel_open(host_cfg(h)) else None
+            if remote[h] is None:
+                mem = "inacessível"
+            elif spec["name"] in remote[h]:
+                mem = f"{remote[h][spec['name']]['rss']}M/{h}"
+            else:
+                f.unlink()
+                continue
+            rows.append((spec["name"], spec["project"], "-", mem, spec["started"]))
+            continue
         pid = agent_pid(spec["name"])
         if not pid:
             f.unlink()
@@ -314,16 +364,22 @@ def result(argv):
     if not f.exists():
         die(f"{argv[0]} não está rodando")
     spec = json.loads(f.read_text())
-    found = list((HOME / ".claude" / "projects").glob(f"*/{spec['session']}.jsonl"))
+    if spec.get("host"):
+        print(host_call(spec["host"], "result", spec["name"], raw=True), end="")
+        return
+    print(last_answer(HOME / ".claude" / "projects", spec))
+
+def last_answer(projects_dir, spec):
+    found = list(projects_dir.glob(f"*/{spec['session']}.jsonl"))
     if not found:
-        die(f"{argv[0]} ainda não tem transcript")
+        die(f"{spec['name']} ainda não tem transcript")
     last = None
     for line in found[0].read_text().splitlines():
         msg = json.loads(line).get("message") or {}
         if msg.get("role") == "assistant" and isinstance(msg.get("content"), list):
             text = "".join(b.get("text", "") for b in msg["content"] if b.get("type") == "text")
             last = text if text.strip() else last
-    print(last or f"{argv[0]} ainda não respondeu")
+    return last or f"{spec['name']} ainda não respondeu"
 
 def complete_tasks(name):
     """Conclui as tarefas abertas da lista do orquestrador com [<nome>] no assunto."""
@@ -348,23 +404,327 @@ def stop(argv):
     keep = "--keep-tasks" in argv
     argv = [a for a in argv if a != "--keep-tasks"]
     name = argv[0] if len(argv) == 1 else die("uso: agent stop [--keep-tasks] <nome>")
-    pid = agent_pid(name)
-    tmux(name, "kill-server")
+    spec_file = STATE / f"{name}.json"
+    remote = json.loads(spec_file.read_text()) if spec_file.exists() else {}
+    out, pid = "", None
+    if remote.get("host"):
+        out = host_call(remote["host"], "stop", name, raw=True)
+        memory_sync(remote, back=True)
+    else:
+        pid = agent_pid(name)
+        tmux(name, "kill-server")
     for _ in range(30):
         if not pid or not Path(f"/proc/{pid}").exists():
             break
         time.sleep(1)
     else:
         die(f"{name} (pid {pid}) segue vivo depois de 30 s")
-    spec_file = STATE / f"{name}.json"
     if spec_file.exists():
         spec = json.loads(spec_file.read_text())
         with open(STATE / "stopped.jsonl", "a") as f:
             f.write(json.dumps({"name": name, "project": spec["project"], "session": spec["session"],
-                                "path": spec["path"], "stopped": time.strftime("%Y-%m-%dT%H:%M:%S")}) + "\n")
+                                "path": spec["path"], "host": spec.get("host"), "stopped": time.strftime("%Y-%m-%dT%H:%M:%S")}) + "\n")
         spec_file.unlink()
     done = [] if keep else complete_tasks(name)
-    print(f"{name} encerrado" + (f"; tarefas concluídas: {' '.join(done)}" if done else ""))
+    print(out + f"{name} encerrado" + (f"; tarefas concluídas: {' '.join(done)}" if done else ""))
+
+# --- Agentes no computador (agent start --host). O guia explica em #pc. ------------------------------
+# O servidor fala com o computador pelo túnel SSH reverso que você abre, e roda lá este mesmo arquivo,
+# copiado em ~/.claude-vps/harness/bin/agent: o subcomando _pc faz no computador o start, o list e o stop.
+
+def host_cfg(name):
+    try:
+        hosts = json.loads(HOSTS.read_text())
+    except FileNotFoundError:
+        die(f"{HOSTS} não existe")
+    return hosts.get(name) or die(f"host {name} fora de {HOSTS}")
+
+def tunnel_open(h):
+    try:
+        socket.create_connection(("127.0.0.1", h["port"]), timeout=3).close()
+        return True
+    except OSError:
+        return False
+
+def ssh(h, *cmd, **kw):
+    return subprocess.run(["ssh", "-p", str(h["port"]), "-o", "BatchMode=yes", "-o", "ConnectTimeout=10",
+                           h["ssh"], *cmd], text=True, capture_output=True, **kw)
+
+def need_tunnel(name, h):
+    if not tunnel_open(h):
+        die(f"o túnel de {name} está fechado (nada em 127.0.0.1:{h['port']}). Em {name}, rode:\n  {h['tunnel']}")
+
+def host_call(name, *args, stdin=None, raw=False, check=True):
+    """Roda `agent _pc <args>` no computador. Devolve o JSON da saída, ou o texto com raw."""
+    h = host_cfg(name)
+    need_tunnel(name, h)
+    r = ssh(h, f"PATH={PC_PATH} python3 ~/.claude-vps/harness/bin/agent _pc " + " ".join(map(shlex.quote, args)),
+            input=stdin)
+    if r.returncode != 0:
+        if not check:
+            return None
+        die(f"{name}: {(r.stderr or r.stdout).strip().removeprefix('agent: ')}")
+    return r.stdout if raw else json.loads(r.stdout)
+
+def harness_sources():
+    src = dict(HARNESS)
+    try:
+        markets = json.loads(HARNESS["settings.json"].read_text()).get("extraKnownMarketplaces") or {}
+    except (OSError, ValueError):
+        markets = {}
+    for key, m in markets.items():
+        if (m.get("source") or {}).get("source") == "directory":
+            src[f"marketplaces/{key}/"] = Path(os.path.expanduser(m["source"]["path"]))
+    return src
+
+def harness_version(src):
+    # Muda quando muda qualquer arquivo do harness: o computador reinstala só nessa hora.
+    h = hashlib.sha256()
+    for p0 in src.values():
+        files = [p0] if p0.is_file() else sorted(p for p in p0.rglob("*") if p.is_file()
+                                                    and ".git" not in p.parts and "node_modules" not in p.parts)
+        for p in files:
+            h.update(str(p).encode())
+            h.update(p.read_bytes())
+    return h.hexdigest()[:12]
+
+def harness_sync(name, h, force=False):
+    """Leva o harness ao computador por rsync e reinstala quando a versão mudou. Devolve a versão."""
+    src = harness_sources()
+    ver = harness_version(src)
+    stage = Path(os.environ.get("TMPDIR", "/tmp")) / f"agent-harness-{os.getuid()}"
+    stage.mkdir(exist_ok=True)
+    (stage / "VERSION").write_text(ver + "\n")
+    ssh(h, "mkdir -p ~/.claude-vps/harness/bin ~/.claude-vps/harness/marketplaces")
+    for dest, p in list(src.items()) + [("VERSION", stage / "VERSION")]:
+        if not p.exists():
+            continue
+        # -L segue os links das skills; --delete só dentro de cada pasta do harness.
+        r = subprocess.run(["rsync", "-aL", "--delete", "--exclude=.git", "--exclude=node_modules",
+                            "-e", f"ssh -p {h['port']} -o BatchMode=yes", "--rsync-path=/usr/bin/rsync",
+                            f"{p}/" if dest.endswith("/") else str(p),
+                            f"{h['ssh']}:.claude-vps/harness/{dest}"], capture_output=True, text=True)
+        if r.returncode != 0:
+            die(f"o rsync de {dest} para {name} falhou: {r.stderr.strip()}")
+    have = ssh(h, "cat ~/.claude-vps/VERSION 2>/dev/null").stdout.strip()
+    if force or have != ver:
+        r = ssh(h, "bash ~/.claude-vps/harness/pc/install.sh", timeout=900)
+        if r.returncode != 0:
+            die(f"a instalação em {name} falhou:\n{r.stdout}{r.stderr}")
+        print(r.stdout.strip().splitlines()[-1] if r.stdout.strip() else f"harness {ver} instalado", file=sys.stderr)
+    return ver
+
+def slug(path):
+    return re.sub(r"[^a-zA-Z0-9]", "-", str(path))
+
+def memory_sync(spec, back=False):
+    """Leva a memória do projeto ao computador no start e traz de volta no stop, sem apagar nada."""
+    h = host_cfg(spec["host"])
+    if not tunnel_open(h):
+        print(f"a memória de {spec['name']} ficou em {spec['host']}: túnel fechado", file=sys.stderr)
+        return
+    local = Path(os.path.realpath(HOME / ".claude" / "projects" / slug(spec["path"]) / "memory"))
+    remote = f"{h['ssh']}:.claude-vps/projects/{slug(spec['pc_path'])}/memory/"
+    rsh = ["-e", f"ssh -p {h['port']} -o BatchMode=yes", "--rsync-path=/usr/bin/rsync"]
+    if back:
+        local.mkdir(parents=True, exist_ok=True)
+        pairs = [(remote, f"{local}/")]
+    else:
+        ssh(h, f"mkdir -p .claude-vps/projects/{slug(spec['pc_path'])}/memory")
+        pairs = [(f"{local}/", remote)] if local.is_dir() else []
+    for a, b in pairs:
+        subprocess.run(["rsync", "-a", "--update", *rsh, a, b], capture_output=True)
+
+def env_files(path):
+    # Os .env do projeto, menos os de exemplo, até três níveis abaixo da raiz.
+    out = []
+    for p in sorted(Path(path).rglob(".env")):
+        rel = p.relative_to(path)
+        if p.is_file() and len(rel.parts) <= 3 and not {"node_modules", ".git"} & set(rel.parts):
+            out.append(str(rel))
+    return out
+
+def host_start(project, cfg, task, opts):
+    hn = opts["host"]
+    h = host_cfg(hn)
+    need_tunnel(hn, h)
+    path = Path(os.path.expanduser(cfg["path"]))
+    origin = subprocess.run(["git", "-C", str(path), "remote", "get-url", "origin"],
+                            capture_output=True, text=True).stdout.strip()
+    if not origin:
+        die(f"{project} não tem origin no git; só repo roda num host")
+    for o in ("chrome", "worktree"):
+        if opts.get(o):
+            die(f"--{o} não vale com --host")
+    name = opts.get("name") or f"{project}-{opts.get('role') or uuid.uuid4().hex[:4]}"
+    if (STATE / f"{name}.json").exists() or agent_pid(name):
+        die(f"{name} já está rodando")
+    ver = harness_sync(hn, h)
+    # O repo fica no mesmo caminho relativo ao home, para os caminhos com ~ do repo valerem lá.
+    spec = {"name": name, "project": project, "host": hn, "path": str(path), "pc_rel": str(path.relative_to(HOME)),
+            "origin": origin, "task": task, "role": opts.get("role"), "worktree": None,
+            "session": opts.get("resume") or str(uuid.uuid4()), "resume": bool(opts.get("resume")),
+            "orchestrator": ORCHESTRATOR, "max_agents": h.get("max_agents", 1), "harness": ver,
+            "env": env_files(path) if opts.get("env") else [],
+            "started": time.strftime("%Y-%m-%dT%H:%M:%S")}
+    out = host_call(hn, "prepare", stdin=json.dumps(spec))
+    spec["pc_path"] = out["path"]
+    for rel in spec["env"]:
+        # O conteúdo vai pelo stdin do ssh, direto para o arquivo com modo 600: nunca passa por tela.
+        with open(path / rel, "rb") as f:
+            r = subprocess.run(["ssh", "-p", str(h["port"]), "-o", "BatchMode=yes", h["ssh"],
+                                f"umask 077; cat > {shlex.quote(out['path'] + '/' + rel)}"], stdin=f,
+                               capture_output=True)
+        if r.returncode != 0:
+            host_call(hn, "stop", name, raw=True, check=False)
+            die(f"a cópia de {rel} para {hn} falhou")
+    memory_sync(spec)
+    STATE.mkdir(parents=True, exist_ok=True)
+    (STATE / f"{name}.json").write_text(json.dumps(spec, indent=2))
+    try:
+        out = host_call(hn, "start", name)
+    except SystemExit:
+        (STATE / f"{name}.json").unlink(missing_ok=True)
+        raise
+    env = f"  env {len(spec['env'])} arquivos" if spec["env"] else ""
+    print(f"{name}  pid {out['pid']}  host {hn}  {out['path']}{env}\n{out['link']}")
+
+def host(argv):
+    if len(argv) != 2 or argv[0] not in ("install", "login", "status"):
+        die("uso: agent host install|login|status <host>")
+    sub, name = argv
+    h = host_cfg(name)
+    need_tunnel(name, h)
+    if sub == "install":
+        print(f"harness {harness_sync(name, h, force=True)} em {name}")
+    elif sub == "login":
+        harness_sync(name, h)
+        print(host_call(name, "login", raw=True), end="")
+    else:
+        st = host_call(name, "status")
+        ver = harness_version(harness_sources())
+        print(f"túnel    aberto (127.0.0.1:{h['port']})\n"
+              f"harness  {st['version'] or 'não instalado'}" + ("" if st["version"] == ver else f" (o servidor tem {ver})") +
+              f"\nlogin    {'ok' if st['logged_in'] else 'falta: agent host login ' + name}\n"
+              f"agentes  {', '.join(st['agents']) or 'nenhum'} (máximo {h.get('max_agents', 1)})\n"
+              f"memória  {st['mem_free']}M livres de {st['mem_total']}M")
+
+# --- O lado do computador: roda lá, chamado pelo servidor por SSH. ---------------------------------
+
+def pc_env():
+    return {**os.environ, "CLAUDE_CONFIG_DIR": str(PC_CONFIG), "PATH": PC_PATH}
+
+def pc_specs():
+    PC_STATE.mkdir(parents=True, exist_ok=True)
+    return [json.loads(f.read_text()) for f in sorted(PC_STATE.glob("*.json"))]
+
+def pc_tree_rss(pid):
+    """RSS em MiB do processo e dos filhos, que o macOS não agrupa em cgroup."""
+    rows = subprocess.run(["ps", "-A", "-o", "pid=,ppid=,rss="], capture_output=True, text=True).stdout.split("\n")
+    kids, rss = {}, {}
+    for r in rows:
+        f = r.split()
+        if len(f) == 3:
+            kids.setdefault(int(f[1]), []).append(int(f[0]))
+            rss[int(f[0])] = int(f[2])
+    total, todo = 0, [pid]
+    while todo:
+        p = todo.pop()
+        total += rss.get(p, 0)
+        todo += kids.get(p, [])
+    return total // 1024
+
+def pc_logged_in():
+    r = subprocess.run(["claude", "auth", "status"], capture_output=True, text=True, env=pc_env())
+    try:
+        return bool(json.loads(r.stdout).get("loggedIn"))
+    except ValueError:
+        return False
+
+def pc_mem():
+    if sys.platform == "darwin":
+        total = int(subprocess.run(["sysctl", "-n", "hw.memsize"], capture_output=True, text=True).stdout) // 2**20
+        vm = subprocess.run(["vm_stat"], capture_output=True, text=True).stdout
+        page = int(re.search(r"page size of (\d+)", vm).group(1))
+        pages = sum(int(re.search(rf"{k}:\s+(\d+)", vm).group(1)) for k in ("Pages free", "Pages inactive", "Pages speculative"))
+        return pages * page // 2**20, total
+    info = dict(l.split(":", 1) for l in Path("/proc/meminfo").read_text().splitlines())
+    return int(info["MemAvailable"].split()[0]) // 1024, int(info["MemTotal"].split()[0]) // 1024
+
+def pc(argv):
+    sub, args = argv[0], argv[1:]
+    alive = [s for s in pc_specs() if agent_pid(s["name"])]
+    if sub == "status":
+        ver = PC_CONFIG / "VERSION"
+        free, total = pc_mem()
+        print(json.dumps({"version": ver.read_text().strip() if ver.exists() else None, "logged_in": pc_logged_in(),
+                          "agents": [s["name"] for s in alive], "mem_free": free, "mem_total": total}))
+    elif sub == "login":
+        # O Keychain do macOS fica trancado para processo nascido de SSH. Com o login feito num tmux
+        # aberto daqui, o Claude Code grava em ~/.claude-vps/.credentials.json, que o agente lê depois.
+        if pc_logged_in():
+            print("o login já está feito")
+            return
+        tmux("claude-vps-login", "kill-server")
+        subprocess.run(["tmux", "-L", "claude-vps-login", "new-session", "-d", "-s", "login", "-x", "200", "-y", "50",
+                        "-e", f"CLAUDE_CONFIG_DIR={PC_CONFIG}", "-e", f"PATH={PC_PATH}",
+                        "claude auth login; echo; echo 'pronto: feche com Enter'; read"], check=True, env=pc_env())
+        print("No terminal do computador, rode:\n  tmux -L claude-vps-login attach\n"
+              "Abra o link, entre com a mesma conta do claude.ai do servidor e cole o código de volta.\n"
+              "Confira com: agent host status <host>")
+    elif sub == "prepare":
+        spec = json.loads(sys.stdin.read())
+        if len(alive) >= spec["max_agents"]:
+            die(f"já roda {', '.join(s['name'] for s in alive)}; este host aceita "
+                f"{spec['max_agents']} agente por vez")
+        if not pc_logged_in():
+            die("falta o login do Claude em ~/.claude-vps; rode: agent host login <host>")
+        path = HOME / spec["pc_rel"]
+        if not (path / ".git").exists():
+            path.parent.mkdir(parents=True, exist_ok=True)
+            r = subprocess.run(["git", "clone", "-q", spec["origin"], str(path)], capture_output=True, text=True)
+            if r.returncode != 0:
+                die(f"o git clone de {spec['origin']} falhou: {r.stderr.strip()}")
+        trust(path, PC_CONFIG / ".claude.json")
+        spec["path"] = str(path)
+        PC_STATE.mkdir(parents=True, exist_ok=True)
+        (PC_STATE / f"{spec['name']}.json").write_text(json.dumps(spec, indent=2))
+        print(json.dumps({"path": str(path)}))
+    elif sub == "start":
+        name = args[0]
+        spec = json.loads((PC_STATE / f"{name}.json").read_text())
+        subprocess.run(["tmux", "-L", name, "new-session", "-d", "-s", name, "-c", spec["path"],
+                        "-e", f"CLAUDE_CONFIG_DIR={PC_CONFIG}", "-e", f"PATH={PC_PATH}", "-e", "AGENT_HOST=" + spec["host"],
+                        f"exec python3 {shlex.quote(os.path.realpath(__file__))} _run {name}"], check=True, env=pc_env())
+        link = wait_up(name, spec["path"], PC_STATE, lambda: pc(["stop", name]))
+        print(json.dumps({"pid": agent_pid(name), "path": spec["path"], "link": link}))
+    elif sub == "list":
+        print(json.dumps({s["name"]: {"rss": pc_tree_rss(agent_pid(s["name"]))} for s in alive}))
+    elif sub == "result":
+        f = PC_STATE / f"{args[0]}.json"
+        if not f.exists():
+            die(f"{args[0]} não está rodando")
+        print(last_answer(PC_CONFIG / "projects", json.loads(f.read_text())))
+    elif sub == "stop":
+        name = args[0]
+        pid = agent_pid(name)
+        tmux(name, "kill-server")
+        for _ in range(30):
+            if not pid or subprocess.run(["kill", "-0", str(pid)], capture_output=True).returncode != 0:
+                break
+            time.sleep(1)
+        else:
+            die(f"{name} (pid {pid}) segue vivo depois de 30 s")
+        f = PC_STATE / f"{name}.json"
+        if f.exists():
+            spec = json.loads(f.read_text())
+            for rel in spec.get("env", []):
+                (Path(spec["path"]) / rel).unlink(missing_ok=True)
+            if spec.get("env"):
+                print(f"{len(spec['env'])} arquivos .env apagados; ", end="")
+            f.unlink()
+    else:
+        die(f"comando _pc desconhecido: {sub}")
 
 def main():
     if len(sys.argv) < 2:
@@ -380,6 +740,10 @@ def main():
         stop(argv)
     elif cmd == "_run":
         run(argv[0])
+    elif cmd == "host":
+        host(argv)
+    elif cmd == "_pc":
+        pc(argv)
     else:
         die(f"comando desconhecido: {cmd}")
 

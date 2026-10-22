@@ -28,6 +28,7 @@ Cada linha é um mini-guia. Baixe com: curl -s https://joaosavi.github.io/always
 - personalizar: Faça o agente trabalhar do seu jeito
 - servicos: Suba seus sites na VPS e saiba na hora quando caem
 - baixar: Pegue qualquer arquivo da VPS, até pelo celular
+- pc: Abra agentes no seu computador quando a VPS lota
 - dia: Os comandos que você vai usar todo dia
 - problemas: Algo quebrou? A saída está aqui
 - seguranca: Quanto custa e o que pode dar errado

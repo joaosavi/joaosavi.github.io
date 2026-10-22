@@ -83,6 +83,7 @@ Para conferir se a conta pode usar o Remote Control, rode `claude remote-control
 - Faça o agente trabalhar do seu jeito (txt/personalizar.txt)
 - Suba seus sites na VPS e saiba na hora quando caem (txt/servicos.txt)
 - Pegue qualquer arquivo da VPS, até pelo celular (txt/baixar.txt)
+- Abra agentes no seu computador quando a VPS lota (txt/pc.txt)
 - Os comandos que você vai usar todo dia (txt/dia.txt)
 - Algo quebrou? A saída está aqui (txt/problemas.txt)
 - Quanto custa e o que pode dar errado (txt/seguranca.txt)

@@ -23,6 +23,7 @@ O `install.sh` pode rodar de novo: grava só o arquivo que falta ou mudou. O `CL
 | `bin/memstat` | Mostra o uso e os limites de cada slice e a pressão de memória |
 | `bin/sessions-restart` | Depois da atualização do sistema, reinicia o serviço com biblioteca apagada e retoma as sessões |
 | `bin/sessions-idle` | Encerra o agente parado há mais de 48 horas |
+| `pc/` | O instalador do harness no seu computador e o que o `CLAUDE.md` ganha lá, para o `agent start --host` |
 | `templates/` | O `CLAUDE.md` do orquestrador e do recover, e um `projects.json` de exemplo |
 
 O nome do orquestrador e o slice ficam em `~/.config/always-on/env`, que o `agent`, o `orchestrator-rc`, o `orchestrator-spawn` e os timers leem.
