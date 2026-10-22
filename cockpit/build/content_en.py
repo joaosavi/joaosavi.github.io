@@ -623,6 +623,14 @@ page('Memory', 'todo', 'tag', '<code>todo</code>', 'todo', f'''
   <li>With a named list (<code>CLAUDE_CODE_TASK_LIST_ID</code>), the same prompt also carries the rule: a new request becomes a <code>TaskCreate</code> before any other work, with its owner in the subject, such as <code>[owner] what was asked</code>.</li>
   <li>Moves a completed task to <code>~/.local/state/mods/todo/&lt;list&gt;.jsonl</code> and deletes its file, so the list holds only open work. This covers a task completed by <code>TaskUpdate</code> and a task file a script rewrote.</li>
 </ul>
+<h2>Order of the list</h2>
+<p>The open tasks go in one group per state, with a count, such as <code>waiting (2):</code>.</p>
+<ul>
+  <li>A task's priority and state come from <code>metadata.priority</code> and <code>metadata.state</code> in its file. Without metadata, they come from a subject such as <code>[owner] P1 waiting: what was asked</code>: the <code>P</code> number after the owner, then the word before the colon.</li>
+  <li>A task with no state goes in the group of its native status, <code>in_progress</code> or <code>pending</code>.</li>
+  <li>In each group, tasks go from P0 up, then the ones with no priority, then by id.</li>
+  <li>The group that holds the most urgent task comes first. On a tie, the group with a task in progress comes first.</li>
+</ul>
 <h2>Turn on the task tools</h2>
 <p>Claude Code offers the task tools by default only on Opus 4.7, Sonnet 4.6, Haiku 4.5 and earlier models. On a newer model, start Claude Code with the variable set. To share one list between sessions, name the list too:</p>
 {code('CLAUDE_CODE_ENABLE_TODO_TOOLS=1 CLAUDE_CODE_TASK_LIST_ID=requests claude')}
@@ -770,6 +778,7 @@ page('Reference', 'versions', 'tag', 'Versions', 'Versions', f'''
 ''' + table(['Mod', 'Version'], [('<code>cockpit</code> (bundle)', VERS['cockpit'])] + [(f'<a href="#{m}"><code>{m}</code></a>', VERS[m]) for m in ORDER]) + '''
 <h2>What changed</h2>
 <ul>
+  <li><b>1.5.0</b>: <code>todo</code> lists the open tasks in one group per state, each sorted by priority, from the task metadata or from a subject such as <code>[owner] P1 waiting: what was asked</code>.</li>
   <li><b>1.4.0</b>: new mod <code>todo</code>, which keeps the native task list in front of the agent.</li>
   <li><b>1.3.0</b>: every mod has an <code>enabled</code> option, and the guards have one switch per step. <code>/cockpit:setup</code> can turn mods off.</li>
   <li><b>1.2.0</b>: <code>usage-limit</code> limits each window on its own, with a separate throttle, commit and pause for the 5-hour and 7-day windows, each with its own switch and percentage.</li>

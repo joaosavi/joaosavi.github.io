@@ -13,6 +13,15 @@ The task tools (`TaskCreate`, `TaskList`, `TaskUpdate`, `TaskGet`) write one JSO
 - With a named list (`CLAUDE_CODE_TASK_LIST_ID`), the same prompt also carries the rule: a new request becomes a `TaskCreate` before any other work, with its owner in the subject, such as `[owner] what was asked`.
 - Moves a completed task to `~/.local/state/mods/todo/<list>.jsonl` and deletes its file, so the list holds only open work. This covers a task completed by `TaskUpdate` and a task file a script rewrote.
 
+## Order of the list
+
+The open tasks go in one group per state, with a count, such as `waiting (2):`.
+
+- A task's priority and state come from `metadata.priority` and `metadata.state` in its file. Without metadata, they come from a subject such as `[owner] P1 waiting: what was asked`: the `P` number after the owner, then the word before the colon.
+- A task with no state goes in the group of its native status, `in_progress` or `pending`.
+- In each group, tasks go from P0 up, then the ones with no priority, then by id.
+- The group that holds the most urgent task comes first. On a tie, the group with a task in progress comes first.
+
 ## Turn on the task tools
 
 Claude Code offers the task tools by default only on Opus 4.7, Sonnet 4.6, Haiku 4.5 and earlier models. On a newer model, start Claude Code with the variable set. To share one list between sessions, name the list too:

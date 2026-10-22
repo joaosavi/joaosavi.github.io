@@ -614,7 +614,7 @@ a.mod:hover { border-color: var(--led); }
     <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14l4-4M3.34 19a10 10 0 1 1 17.32 0"/></svg></span>
     <span class="wordmark">Cockpit</span>
   </a>
-  <div class="top-right"><nav class="lang-sw" aria-label="Language"><a href="./" data-lang-link aria-current="true">EN</a><a href="pt/" data-lang-link>PT</a></nav><a class="gh" href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">v1.4.0 on GitHub</a></div>
+  <div class="top-right"><nav class="lang-sw" aria-label="Language"><a href="./" data-lang-link aria-current="true">EN</a><a href="pt/" data-lang-link>PT</a></nav><a class="gh" href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">v1.5.0 on GitHub</a></div>
 </header>
 
 <div class="shell">
@@ -1204,7 +1204,7 @@ claude plugin install global-memory@cockpit</pre></div>
   <div class="crumb">Memory</div>
   <h1><code style="font-size:.82em;background:none;border:0;padding:0">todo</code></h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="todo">Copy for your agent</button><a href="md/todo.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
-<div class="meta"><span class="pill mute">v1.4.0</span></div>
+<div class="meta"><span class="pill mute">v1.5.0</span></div>
 <p class="lead">Keeps Claude Code's native task list in front of the agent: the open tasks at session start and on each prompt from you, a reminder that a new request becomes a task first, and completed tasks moved to an archive log.</p>
 <h2>Why</h2>
 <p>The task tools (<code>TaskCreate</code>, <code>TaskList</code>, <code>TaskUpdate</code>, <code>TaskGet</code>) write one JSON file per task in <code>~/.claude/tasks/&lt;list&gt;/</code>, so the list outlives a compaction, <code>--resume</code> and <code>--continue</code>. The model forgets that the list is there. After a compaction it works from the summary, and a request that lived only in the conversation is lost. A session that takes many requests, such as a manager that hands work to other agents, needs the list read back to it from disk.</p>
@@ -1214,6 +1214,14 @@ claude plugin install global-memory@cockpit</pre></div>
   <li>On each prompt from you, attaches the open tasks and the tasks completed since the last prompt. Messages from other sessions, notifications and schedules get nothing.</li>
   <li>With a named list (<code>CLAUDE_CODE_TASK_LIST_ID</code>), the same prompt also carries the rule: a new request becomes a <code>TaskCreate</code> before any other work, with its owner in the subject, such as <code>[owner] what was asked</code>.</li>
   <li>Moves a completed task to <code>~/.local/state/mods/todo/&lt;list&gt;.jsonl</code> and deletes its file, so the list holds only open work. This covers a task completed by <code>TaskUpdate</code> and a task file a script rewrote.</li>
+</ul>
+<h2>Order of the list</h2>
+<p>The open tasks go in one group per state, with a count, such as <code>waiting (2):</code>.</p>
+<ul>
+  <li>A task's priority and state come from <code>metadata.priority</code> and <code>metadata.state</code> in its file. Without metadata, they come from a subject such as <code>[owner] P1 waiting: what was asked</code>: the <code>P</code> number after the owner, then the word before the colon.</li>
+  <li>A task with no state goes in the group of its native status, <code>in_progress</code> or <code>pending</code>.</li>
+  <li>In each group, tasks go from P0 up, then the ones with no priority, then by id.</li>
+  <li>The group that holds the most urgent task comes first. On a tie, the group with a task in progress comes first.</li>
 </ul>
 <h2>Turn on the task tools</h2>
 <p>Claude Code offers the task tools by default only on Opus 4.7, Sonnet 4.6, Haiku 4.5 and earlier models. On a newer model, start Claude Code with the variable set. To share one list between sessions, name the list too:</p>
@@ -1355,11 +1363,12 @@ claude plugin prune</pre></div>
   <div class="crumb">Reference</div>
   <h1>Versions</h1>
   <div class="page-actions"><button type="button" class="pa-copy" data-agent="versions">Copy for your agent</button><a href="md/versions.md">Markdown</a><a href="llms.txt">llms.txt</a></div>
-<p class="lead">Cockpit 1.4.0. The bundle carries the version of the release, and each mod carries the version of the release where it last changed.</p>
+<p class="lead">Cockpit 1.5.0. The bundle carries the version of the release, and each mod carries the version of the release where it last changed.</p>
 <p>A mod that did not change in a release keeps its version, so Claude Code does not update it.</p>
-<div class="table-wrap"><table><tr><th>Mod</th><th>Version</th></tr><tr><td><code>cockpit</code> (bundle)</td><td>1.4.0</td></tr><tr><td><a href="#secret-guard"><code>secret-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#collision-guard"><code>collision-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#pipefail"><code>pipefail</code></a></td><td>1.3.0</td></tr><tr><td><a href="#memory-guard"><code>memory-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#loop-breaker"><code>loop-breaker</code></a></td><td>1.3.0</td></tr><tr><td><a href="#usage-limit"><code>usage-limit</code></a></td><td>1.3.0</td></tr><tr><td><a href="#hud"><code>hud</code></a></td><td>1.3.0</td></tr><tr><td><a href="#spinner-status"><code>spinner-status</code></a></td><td>1.0.0</td></tr><tr><td><a href="#panel"><code>panel</code></a></td><td>1.3.0</td></tr><tr><td><a href="#skill-loader"><code>skill-loader</code></a></td><td>1.3.0</td></tr><tr><td><a href="#global-memory"><code>global-memory</code></a></td><td>1.3.0</td></tr><tr><td><a href="#todo"><code>todo</code></a></td><td>1.4.0</td></tr></table></div>
+<div class="table-wrap"><table><tr><th>Mod</th><th>Version</th></tr><tr><td><code>cockpit</code> (bundle)</td><td>1.5.0</td></tr><tr><td><a href="#secret-guard"><code>secret-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#collision-guard"><code>collision-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#pipefail"><code>pipefail</code></a></td><td>1.3.0</td></tr><tr><td><a href="#memory-guard"><code>memory-guard</code></a></td><td>1.3.0</td></tr><tr><td><a href="#loop-breaker"><code>loop-breaker</code></a></td><td>1.3.0</td></tr><tr><td><a href="#usage-limit"><code>usage-limit</code></a></td><td>1.3.0</td></tr><tr><td><a href="#hud"><code>hud</code></a></td><td>1.3.0</td></tr><tr><td><a href="#spinner-status"><code>spinner-status</code></a></td><td>1.0.0</td></tr><tr><td><a href="#panel"><code>panel</code></a></td><td>1.3.0</td></tr><tr><td><a href="#skill-loader"><code>skill-loader</code></a></td><td>1.3.0</td></tr><tr><td><a href="#global-memory"><code>global-memory</code></a></td><td>1.3.0</td></tr><tr><td><a href="#todo"><code>todo</code></a></td><td>1.5.0</td></tr></table></div>
 <h2>What changed</h2>
 <ul>
+  <li><b>1.5.0</b>: <code>todo</code> lists the open tasks in one group per state, each sorted by priority, from the task metadata or from a subject such as <code>[owner] P1 waiting: what was asked</code>.</li>
   <li><b>1.4.0</b>: new mod <code>todo</code>, which keeps the native task list in front of the agent.</li>
   <li><b>1.3.0</b>: every mod has an <code>enabled</code> option, and the guards have one switch per step. <code>/cockpit:setup</code> can turn mods off.</li>
   <li><b>1.2.0</b>: <code>usage-limit</code> limits each window on its own, with a separate throttle, commit and pause for the 5-hour and 7-day windows, each with its own switch and percentage.</li>
@@ -1368,7 +1377,7 @@ claude plugin prune</pre></div>
 </article>
 
 <nav class="pager" id="pager" aria-label="Previous and next page"></nav>
-<div class="foot">Cockpit 1.4.0 · <a href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">github.com/joaosavi/cockpit</a> · MIT license · Not affiliated with Anthropic · <a href="llms.txt">llms.txt</a> · Reviewed on October 20, 2026</div>
+<div class="foot">Cockpit 1.5.0 · <a href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">github.com/joaosavi/cockpit</a> · MIT license · Not affiliated with Anthropic · <a href="llms.txt">llms.txt</a> · Reviewed on October 20, 2026</div>
 </main>
 
 <aside class="toc" id="toc" aria-label="On this page"><h5>On this page</h5><div id="tocList"></div></aside>

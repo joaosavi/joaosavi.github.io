@@ -1,4 +1,4 @@
-# Cockpit 1.4.0
+# Cockpit 1.5.0
 
 # Início rápido
 
@@ -1052,6 +1052,15 @@ As ferramentas de tarefa (`TaskCreate`, `TaskList`, `TaskUpdate`, `TaskGet`) gra
 - Com lista nomeada (`CLAUDE_CODE_TASK_LIST_ID`), o mesmo prompt leva a regra: pedido novo vira `TaskCreate` antes de qualquer trabalho, com o dono no assunto, como `[dono] o que foi pedido`.
 - Move a tarefa concluída para `~/.local/state/mods/todo/<lista>.jsonl` e apaga o arquivo dela, para a lista guardar só o que está aberto. Vale para tarefa concluída pelo `TaskUpdate` e para arquivo que um script reescreveu.
 
+## Ordem da lista
+
+As tarefas abertas entram num grupo por estado, com a contagem, como `espera (2):`.
+
+- Prioridade e estado vêm de `metadata.priority` e `metadata.state` no arquivo da tarefa. Sem metadata, saem de um assunto como `[dono] P1 espera: o que foi pedido`: o número depois do `P`, logo após o dono, e a palavra antes dos dois-pontos.
+- Tarefa sem estado entra no grupo do status nativo, `in_progress` ou `pending`.
+- Dentro do grupo, as tarefas vão de P0 para cima, depois as sem prioridade, e então pelo id.
+- O grupo da tarefa mais urgente abre. No empate, abre o grupo que tem tarefa em andamento.
+
 ## Ligue as ferramentas de tarefa
 
 O Claude Code oferece as ferramentas de tarefa por padrão só no Opus 4.7, no Sonnet 4.6, no Haiku 4.5 e nos modelos anteriores. Num modelo mais novo, abra o Claude Code com a variável. Para dividir uma lista entre sessões, dê nome a ela também:
@@ -1342,13 +1351,13 @@ Os mods deixam os diários em `~/.local/state/mods/`. Apague essa pasta para rem
 
 # Versões
 
-Cockpit 1.4.0. O pacote leva a versão do lançamento, e cada mod leva a versão do lançamento em que mudou pela última vez.
+Cockpit 1.5.0. O pacote leva a versão do lançamento, e cada mod leva a versão do lançamento em que mudou pela última vez.
 
 Um mod que não mudou num lançamento mantém a versão, então o Claude Code não atualiza ele à toa.
 
 | Mod | Versão |
 | --- | --- |
-| `cockpit` (pacote) | 1.4.0 |
+| `cockpit` (pacote) | 1.5.0 |
 | [`secret-guard`](https://joaosavi.github.io/cockpit/pt/md/secret-guard.md) | 1.3.0 |
 | [`collision-guard`](https://joaosavi.github.io/cockpit/pt/md/collision-guard.md) | 1.3.0 |
 | [`pipefail`](https://joaosavi.github.io/cockpit/pt/md/pipefail.md) | 1.3.0 |
@@ -1360,10 +1369,11 @@ Um mod que não mudou num lançamento mantém a versão, então o Claude Code n�
 | [`panel`](https://joaosavi.github.io/cockpit/pt/md/panel.md) | 1.3.0 |
 | [`skill-loader`](https://joaosavi.github.io/cockpit/pt/md/skill-loader.md) | 1.3.0 |
 | [`global-memory`](https://joaosavi.github.io/cockpit/pt/md/global-memory.md) | 1.3.0 |
-| [`todo`](https://joaosavi.github.io/cockpit/pt/md/todo.md) | 1.4.0 |
+| [`todo`](https://joaosavi.github.io/cockpit/pt/md/todo.md) | 1.5.0 |
 
 ## O que mudou
 
+- **1.5.0**: o `todo` lista as tarefas abertas num grupo por estado, cada um ordenado por prioridade, a partir do metadata da tarefa ou de um assunto como `[dono] P1 espera: o que foi pedido`.
 - **1.4.0**: mod novo `todo`, que mantém a lista de tarefas nativa na frente do agente.
 - **1.3.0**: todo mod ganhou a opção `enabled`, e os guardas ganharam uma chave por passo. O `/cockpit:setup` desliga mods.
 - **1.2.0**: o `usage-limit` passou a cuidar de cada janela por conta própria, com freio, commit e pausa separados para 5 horas e 7 dias, cada um com chave e porcentagem.

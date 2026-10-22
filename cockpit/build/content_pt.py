@@ -624,6 +624,14 @@ page('Memória', 'todo', 'tag', '<code>todo</code>', 'todo', f'''
   <li>Com lista nomeada (<code>CLAUDE_CODE_TASK_LIST_ID</code>), o mesmo prompt leva a regra: pedido novo vira <code>TaskCreate</code> antes de qualquer trabalho, com o dono no assunto, como <code>[dono] o que foi pedido</code>.</li>
   <li>Move a tarefa concluída para <code>~/.local/state/mods/todo/&lt;lista&gt;.jsonl</code> e apaga o arquivo dela, para a lista guardar só o que está aberto. Vale para tarefa concluída pelo <code>TaskUpdate</code> e para arquivo que um script reescreveu.</li>
 </ul>
+<h2>Ordem da lista</h2>
+<p>As tarefas abertas entram num grupo por estado, com a contagem, como <code>espera (2):</code>.</p>
+<ul>
+  <li>Prioridade e estado vêm de <code>metadata.priority</code> e <code>metadata.state</code> no arquivo da tarefa. Sem metadata, saem de um assunto como <code>[dono] P1 espera: o que foi pedido</code>: o número depois do <code>P</code>, logo após o dono, e a palavra antes dos dois-pontos.</li>
+  <li>Tarefa sem estado entra no grupo do status nativo, <code>in_progress</code> ou <code>pending</code>.</li>
+  <li>Dentro do grupo, as tarefas vão de P0 para cima, depois as sem prioridade, e então pelo id.</li>
+  <li>O grupo da tarefa mais urgente abre. No empate, abre o grupo que tem tarefa em andamento.</li>
+</ul>
 <h2>Ligue as ferramentas de tarefa</h2>
 <p>O Claude Code oferece as ferramentas de tarefa por padrão só no Opus 4.7, no Sonnet 4.6, no Haiku 4.5 e nos modelos anteriores. Num modelo mais novo, abra o Claude Code com a variável. Para dividir uma lista entre sessões, dê nome a ela também:</p>
 {code('CLAUDE_CODE_ENABLE_TODO_TOOLS=1 CLAUDE_CODE_TASK_LIST_ID=pedidos claude')}
@@ -771,6 +779,7 @@ page('Consultar', 'versions', 'tag', 'Versões', 'Versões', f'''
 ''' + table(['Mod', 'Versão'], [('<code>cockpit</code> (pacote)', VERS['cockpit'])] + [(f'<a href="#{m}"><code>{m}</code></a>', VERS[m]) for m in ORDER]) + '''
 <h2>O que mudou</h2>
 <ul>
+  <li><b>1.5.0</b>: o <code>todo</code> lista as tarefas abertas num grupo por estado, cada um ordenado por prioridade, a partir do metadata da tarefa ou de um assunto como <code>[dono] P1 espera: o que foi pedido</code>.</li>
   <li><b>1.4.0</b>: mod novo <code>todo</code>, que mantém a lista de tarefas nativa na frente do agente.</li>
   <li><b>1.3.0</b>: todo mod ganhou a opção <code>enabled</code>, e os guardas ganharam uma chave por passo. O <code>/cockpit:setup</code> desliga mods.</li>
   <li><b>1.2.0</b>: o <code>usage-limit</code> passou a cuidar de cada janela por conta própria, com freio, commit e pausa separados para 5 horas e 7 dias, cada um com chave e porcentagem.</li>

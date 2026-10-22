@@ -1,4 +1,4 @@
-# Cockpit 1.4.0
+# Cockpit 1.5.0
 
 > Os 12 mods do Cockpit para o Claude Code: guardas que barram os erros de um agente e instrumentos que mostram em que ponto cada sessão está.
 

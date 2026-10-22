@@ -13,6 +13,15 @@ As ferramentas de tarefa (`TaskCreate`, `TaskList`, `TaskUpdate`, `TaskGet`) gra
 - Com lista nomeada (`CLAUDE_CODE_TASK_LIST_ID`), o mesmo prompt leva a regra: pedido novo vira `TaskCreate` antes de qualquer trabalho, com o dono no assunto, como `[dono] o que foi pedido`.
 - Move a tarefa concluída para `~/.local/state/mods/todo/<lista>.jsonl` e apaga o arquivo dela, para a lista guardar só o que está aberto. Vale para tarefa concluída pelo `TaskUpdate` e para arquivo que um script reescreveu.
 
+## Ordem da lista
+
+As tarefas abertas entram num grupo por estado, com a contagem, como `espera (2):`.
+
+- Prioridade e estado vêm de `metadata.priority` e `metadata.state` no arquivo da tarefa. Sem metadata, saem de um assunto como `[dono] P1 espera: o que foi pedido`: o número depois do `P`, logo após o dono, e a palavra antes dos dois-pontos.
+- Tarefa sem estado entra no grupo do status nativo, `in_progress` ou `pending`.
+- Dentro do grupo, as tarefas vão de P0 para cima, depois as sem prioridade, e então pelo id.
+- O grupo da tarefa mais urgente abre. No empate, abre o grupo que tem tarefa em andamento.
+
 ## Ligue as ferramentas de tarefa
 
 O Claude Code oferece as ferramentas de tarefa por padrão só no Opus 4.7, no Sonnet 4.6, no Haiku 4.5 e nos modelos anteriores. Num modelo mais novo, abra o Claude Code com a variável. Para dividir uma lista entre sessões, dê nome a ela também:
