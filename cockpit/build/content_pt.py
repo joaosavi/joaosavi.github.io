@@ -757,6 +757,7 @@ page('Consultar', 'update', 'upload', 'Como atualizar e desinstalar', 'Como atua
 <p>Atualizar o pacote não atualiza os mods, porque cada mod é um plugin. Para atualizar todos agora:</p>
 {code(UPDATE_ALL)}
 <p>Para um mod só, nomeie: <code>claude plugin update hud@cockpit</code>.</p>
+<p>Mod novo numa versão não chega com a atualização: o pacote passa a listá-lo como dependência faltando. Instale pelo nome, como <code>claude plugin install todo@cockpit</code> na 1.4.0.</p>
 <h2>Desinstalar</h2>
 {code('claude plugin uninstall cockpit@cockpit' + chr(10) + 'claude plugin prune')}
 <p>Desinstalar o pacote deixa os mods instalados; o <code>claude plugin prune</code> remove. O setup gravou <code>statusLine</code>, <code>spinnerTipsEnabled</code> e <code>autoCompactWindow</code> nas suas configurações e guardou um backup ao lado. Tire essas chaves à mão, ou volte o backup.</p>

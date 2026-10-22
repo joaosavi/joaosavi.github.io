@@ -19,6 +19,8 @@ for m in $(claude plugin list | grep -o '[a-z-]*@cockpit'); do claude plugin upd
 
 To update one mod, name it: `claude plugin update hud@cockpit`.
 
+A mod that is new in a release does not arrive with the update: the bundle then lists it as a missing dependency. Install it by name, such as `claude plugin install todo@cockpit` for 1.4.0.
+
 ## Uninstall
 
 terminal:

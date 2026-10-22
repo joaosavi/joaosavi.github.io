@@ -1342,6 +1342,7 @@ Restart=always</pre></div>
 <div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin marketplace update cockpit
 for m in $(claude plugin list | grep -o &#x27;[a-z-]*@cockpit&#x27;); do claude plugin update &quot;$m&quot;; done</pre></div>
 <p>To update one mod, name it: <code>claude plugin update hud@cockpit</code>.</p>
+<p>A mod that is new in a release does not arrive with the update: the bundle then lists it as a missing dependency. Install it by name, such as <code>claude plugin install todo@cockpit</code> for 1.4.0.</p>
 <h2>Uninstall</h2>
 <div class="code"><div class="code-head"><span>terminal</span><button class="copy">Copy</button></div><pre>claude plugin uninstall cockpit@cockpit
 claude plugin prune</pre></div>

@@ -756,6 +756,7 @@ page('Reference', 'update', 'upload', 'Update and uninstall', 'Update and uninst
 <p>Updating the bundle does not update the mods: each mod is its own plugin. To update them all now:</p>
 {code(UPDATE_ALL)}
 <p>To update one mod, name it: <code>claude plugin update hud@cockpit</code>.</p>
+<p>A mod that is new in a release does not arrive with the update: the bundle then lists it as a missing dependency. Install it by name, such as <code>claude plugin install todo@cockpit</code> for 1.4.0.</p>
 <h2>Uninstall</h2>
 {code('claude plugin uninstall cockpit@cockpit' + chr(10) + 'claude plugin prune')}
 <p>Uninstalling the bundle leaves the mods installed; <code>claude plugin prune</code> removes them. The setup wrote <code>statusLine</code>, <code>spinnerTipsEnabled</code> and <code>autoCompactWindow</code> to your settings file and kept a backup next to it. Remove those keys by hand, or restore the backup.</p>
