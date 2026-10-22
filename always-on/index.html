@@ -808,7 +808,7 @@ Tudo aqui é instalado. O que precisa de uma conta minha fica instalado e espera
 
 ETAPA 6 DE 6: ENTREGAR
 1. Peça que eu abra o app do Claude, escolha o orquestrador e mande uma tarefa de teste num repo meu. Acompanhe até ele abrir o agente, o agente responder, o aviso chegar no Telegram e o agente ser encerrado.
-2. Feche com um resumo curto: como pedir uma tarefa, como ver os agentes (agent list), como abrir o recover quando a máquina travar, como baixar um arquivo da VPS, como renovar o login quando ele vencer, e o que ficou pendente, como uma conta que eu disse que entrego depois.
+2. Feche com um resumo curto: como pedir uma tarefa, como ver os agentes (agent list), como abrir o recover quando a máquina travar, como abrir um orquestrador novo pela entrada de reserva quando a sessão dele cair, como baixar um arquivo da VPS, como renovar o login quando ele vencer, e o que ficou pendente, como uma conta que eu disse que entrego depois.
 
 Comece pela etapa 1.</pre><button type="button" class="unfold" id="unfold">Ver o pedido inteiro</button></div>
 
@@ -835,7 +835,7 @@ sed -i 's/^ORCHESTRATOR=.*/ORCHESTRATOR=&lt;orquestrador&gt;/' ~/always-on/confi
     <tr><td data-label="Peça">Swap</td><td data-label="Como fica">8 GB em <code>/swapfile</code>, só se a máquina não tiver swap. Num container, o swap vem do host</td></tr>
     <tr><td data-label="Peça">Slice dos agentes</td><td data-label="Como fica">Teto da memória total menos 512 MB do recover e 1 GB do sistema, e metade do swap. Ver <a href="#memoria">Como pôr teto de memória</a></td></tr>
     <tr><td data-label="Peça">Recover</td><td data-label="Como fica">O <code>recover.slice</code>, com 256 MB reservados e teto de 512 MB, e o serviço <code>recover-rc</code></td></tr>
-    <tr><td data-label="Peça">Orquestrador</td><td data-label="Como fica">A pasta <code>~/&lt;orquestrador&gt;</code> com o <code>CLAUDE.md</code> e o <code>projects.json</code>, o comando <code>agent</code> e o serviço. Ver <a href="#orquestrador">Como montar o orquestrador</a></td></tr>
+    <tr><td data-label="Peça">Orquestrador</td><td data-label="Como fica">A pasta <code>~/&lt;orquestrador&gt;</code> com o <code>CLAUDE.md</code> e o <code>projects.json</code>, o comando <code>agent</code>, o serviço e a entrada de reserva no app. Ver <a href="#orquestrador">Como montar o orquestrador</a></td></tr>
     <tr><td data-label="Peça">Cockpit</td><td data-label="Como fica">O pacote inteiro de mods. Ver <a href="#mods">Como instalar o Cockpit</a></td></tr>
     <tr><td data-label="Peça">Manutenção</td><td data-label="Como fica">Os timers <code>sessions-restart</code> e <code>sessions-idle</code>, e o needrestart sem reiniciar as sessões. Ver <a href="#manter">Como deixar a máquina se cuidar sozinha</a></td></tr>
   </table></div>
@@ -907,8 +907,8 @@ sed -i 's/^ORCHESTRATOR=.*/ORCHESTRATOR=&lt;orquestrador&gt;/' ~/always-on/confi
       <div class="code"><div class="code-head"><span>Claude Code, na máquina</span><button class="copy">Copiar</button></div><pre># na máquina, numa sessão do Claude Code
 /plugin install telegram@claude-plugins-official
 /telegram:configure &lt;token-do-BotFather&gt;</pre></div></li>
-    <li><b>Ligar só no orquestrador</b>Toda sessão que sobe com o plugin ligado derruba o leitor do bot que já estava rodando, e o bot passaria para a última sessão aberta. Por isso, desligue o plugin nas configurações do usuário, com <code>"telegram@claude-plugins-official": false</code> em <code>enabledPlugins</code> do <code>~/.claude/settings.json</code>, e ligue só no <code>.claude/settings.json</code> da pasta do orquestrador.</li>
-    <li><b>Subir com o canal</b>No <code>orchestrator-rc</code>, o serviço que mantém o orquestrador rodando, ponha <code>$HOME/.bun/bin</code> no <code>PATH</code> e acrescente <code>--channels plugin:telegram@claude-plugins-official</code> às flags. Reinicie o serviço.</li>
+    <li><b>Ligar só no orquestrador</b>Toda sessão que sobe com o plugin ligado derruba o leitor do bot que já estava rodando, e o bot passaria para a última sessão aberta. Por isso, desligue o plugin nas configurações do usuário, com <code>"telegram@claude-plugins-official": false</code> em <code>enabledPlugins</code> do <code>~/.claude/settings.json</code>, e ligue só na linha de comando do orquestrador, como no passo seguinte. Ligado no <code>.claude/settings.json</code> da pasta, cada sessão aberta pela <a href="#orquestrador">entrada de reserva</a> roubaria o bot do orquestrador.</li>
+    <li><b>Subir com o canal</b>No <code>orchestrator-rc</code>, o serviço que mantém o orquestrador rodando, ponha <code>$HOME/.bun/bin</code> no <code>PATH</code> e acrescente <code>--settings '{"enabledPlugins":{"telegram@claude-plugins-official":true}}' --channels plugin:telegram@claude-plugins-official</code> às flags. Reinicie o serviço.</li>
     <li><b>Parear</b>Mande qualquer mensagem ao bot. Ele responde com um código. Peça ao orquestrador para rodar <code>/telegram:access pair &lt;código&gt;</code>, uma vez para cada conta da lista.</li>
     <li><b>Fechar o bot</b>Rode <code>/telegram:access policy allowlist</code>. A partir daí, o bot ignora sem responder quem não está na lista. No modo padrão, <code>pairing</code>, ele responde com um código a qualquer desconhecido.</li>
     <li><b>Dizer ao orquestrador para que serve</b>Escreva no <code>CLAUDE.md</code> dele, o arquivo de instruções que a sessão lê ao começar, que o Telegram leva aviso e arquivo, que um pedido de ação vindo por ali se confirma pelo app, e que conta nova só entra na lista quando você pedir pelo app.</li>
@@ -1567,7 +1567,7 @@ sudo systemctl restart docker</pre></div>
   <h2>Claude</h2>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>tmux new -s login 'claude auth login'</pre></div>
   <p>Abra o link em qualquer aparelho e entre na conta. Se a página mostrar um código, cole no terminal, em "Paste code here if prompted". O tmux fecha quando o login termina.</p>
-  <p>O login vence. Três dias antes, uma sessão aberta no terminal avisa, mas as sessões do app não mostram o aviso. Uma sessão que dura mais que o login para de andar. Para renovar, rode o mesmo comando e reinicie o orquestrador e o recover com <code>sudo systemctl restart &lt;orquestrador&gt; recover-rc</code>. O orquestrador é a sessão que distribui as tarefas, e o recover é a sessão de socorro, que responde quando a máquina trava.</p>
+  <p>O login vence. Três dias antes, uma sessão aberta no terminal avisa, mas as sessões do app não mostram o aviso. Uma sessão que dura mais que o login para de andar. Para renovar, rode o mesmo comando e reinicie o orquestrador e o recover com <code>sudo systemctl restart &lt;orquestrador&gt; &lt;orquestrador&gt;-spawn recover-rc</code>. O orquestrador é a sessão que distribui as tarefas, e o recover é a sessão de socorro, que responde quando a máquina trava.</p>
 
   <h2>GitHub</h2>
   <p>A máquina ganha uma chave SSH própria, que você revoga sem afetar a sua.</p>
@@ -1837,7 +1837,7 @@ EOF</pre></div>
   <h2>Duas formas de pôr uma sessão no app</h2>
   <div class="table-wrap stack"><table>
     <tr><th>Forma</th><th>Como</th><th>Quem usa</th></tr>
-    <tr><td data-label="Forma">Modo servidor</td><td data-label="Como"><code>claude remote-control</code> espera, e abre uma sessão nova cada vez que você pede pelo app</td><td data-label="Quem usa">O recover, a sessão de socorro</td></tr>
+    <tr><td data-label="Forma">Modo servidor</td><td data-label="Como"><code>claude remote-control</code> espera, e abre uma sessão nova cada vez que você pede pelo app</td><td data-label="Quem usa">O recover, a sessão de socorro, e a entrada de reserva do orquestrador</td></tr>
     <tr><td data-label="Forma">Sessão de terminal ligada ao app</td><td data-label="Como"><code>claude --remote-control &lt;nome&gt;</code> num <a href="https://github.com/tmux/tmux" target="_blank" rel="noopener">tmux</a>. A sessão aparece pronta no app, com a pasta, o teto e a tarefa com que nasceu</td><td data-label="Quem usa">O orquestrador e os agentes</td></tr>
   </table></div>
   <p>Se o app não conseguir abrir uma sessão, use a segunda forma: entre pelo SSH, abra um tmux e rode <code>claude --remote-control &lt;nome&gt;</code> na pasta.</p>
@@ -2189,9 +2189,12 @@ export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 export PATH="$HOME/.local/bin:$PATH"
 set -- --permission-mode bypassPermissions --remote-control "$AGENT_ORCHESTRATOR" --name "$AGENT_ORCHESTRATOR"
 # Com o bot do Telegram configurado, o orquestrador abre o canal dele. O canal roda em Bun.
+# O plugin liga só nesta sessão, pelo --settings: sessão nova com ele ligado derruba o leitor do bot
+# que estiver rodando, e a entrada de reserva (orchestrator-spawn) abre sessões nesta mesma pasta.
 if [ -f "$HOME/.claude/channels/telegram/.env" ]; then
     export PATH="$HOME/.bun/bin:$PATH"
-    set -- "$@" --channels plugin:telegram@claude-plugins-official
+    set -- "$@" --settings '{"enabledPlugins":{"telegram@claude-plugins-official":true}}' \
+        --channels plugin:telegram@claude-plugins-official
 fi
 while true; do
     t=$(date +%s)
@@ -2226,6 +2229,59 @@ EOF
 sudo loginctl enable-linger $USER
 sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now &lt;orquestrador&gt;</pre></div>
 
+  <h2>A entrada de reserva</h2>
+  <p>Quando a sessão do orquestrador cai, você abre outra pelo app, sem SSH e sem passar pelo recover. Um segundo serviço roda o Remote Control no modo servidor na pasta do orquestrador. No app, ele aparece como mais um lugar para abrir sessão nova, ao lado do recover, e a sessão aberta ali lê o <code>CLAUDE.md</code> da pasta e já nasce orquestrador.</p>
+  <ul>
+    <li>Sobe sem sessão pré-criada, com <code>--no-create-session-in-dir</code>. Parado, o serviço ocupa uns 70 MB. Uma sessão ociosa ali gastaria de 200 a 500 MB do slice.</li>
+    <li>Plugin que só pode rodar numa sessão, como o do Telegram, liga pela linha de comando do <code>orchestrator-rc</code>, e não pelo <code>.claude/settings.json</code> da pasta. Configuração da pasta vale para toda sessão aberta pela reserva.</li>
+    <li>O papel do orquestrador que vem de <code>--agent</code> também precisa ir para a pasta, porque o modo servidor não aceita a flag. Ponha <code>"agent": "&lt;papel&gt;"</code> no <code>.claude/settings.json</code> da pasta.</li>
+  </ul>
+  <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>cat &gt; ~/.local/bin/orchestrator-spawn &lt;&lt;'EOF'
+#!/bin/sh
+# A entrada de reserva do orquestrador no app: o Remote Control no modo servidor, na pasta dele, abre
+# uma sessão nova cada vez que você pede pelo app. A sessão lê o CLAUDE.md da pasta e já nasce
+# orquestrador. Serve para quando a sessão principal cai e você está longe do SSH.
+# Sem sessão pré-criada: ela gastaria memória do slice à toa enquanto o principal está de pé.
+# O modo servidor sai depois de uns 10 minutos sem rede, e o laço o devolve.
+. "$HOME/.config/always-on/env" || exit 1
+export AGENT_ORCHESTRATOR AGENT_SLICE
+cd "$HOME/$AGENT_ORCHESTRATOR" || exit 1
+# Sem XDG_RUNTIME_DIR, o socket de mensagens cai em /tmp e a sessão não alcança os agentes.
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export PATH="$HOME/.local/bin:$PATH"
+while true; do
+    claude remote-control --name "$AGENT_ORCHESTRATOR" --remote-control-session-name-prefix "$AGENT_ORCHESTRATOR" \
+        --spawn same-dir --capacity 2 --no-create-session-in-dir --permission-mode bypassPermissions
+    sleep 10
+done
+EOF
+chmod 755 ~/.local/bin/orchestrator-spawn</pre></div>
+  <p>O serviço tem o teto próprio de 1 GiB, dentro do slice dos agentes. Troque <code>voce</code>, <code>&lt;uid&gt;</code>, <code>&lt;orquestrador&gt;</code> e <code>&lt;slice&gt;</code> como no serviço do orquestrador:</p>
+  <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>sudo tee /etc/systemd/system/&lt;orquestrador&gt;-spawn.service &gt; /dev/null &lt;&lt;'EOF'
+[Unit]
+Description=Entrada de reserva do orquestrador no app: abre sessão nova já como orquestrador
+After=network-online.target user-runtime-dir@&lt;uid&gt;.service
+Wants=network-online.target user-runtime-dir@&lt;uid&gt;.service
+
+[Service]
+Type=forking
+User=voce
+Slice=&lt;slice&gt;.slice
+MemoryHigh=768M
+MemoryMax=1G
+OOMPolicy=continue
+ExecStart=/usr/bin/tmux -L &lt;orquestrador&gt;-spawn new-session -d -s &lt;orquestrador&gt;-spawn "bash -lic orchestrator-spawn"
+ExecStop=/usr/bin/tmux -L &lt;orquestrador&gt;-spawn kill-server
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now &lt;orquestrador&gt;-spawn</pre></div>
+  <div class="callout note"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div><strong class="label">Sessão da reserva em modo auto</strong><p>Hoje o app troca o bypass por auto nas sessões abertas pelo modo servidor (<a href="https://github.com/anthropics/claude-code/issues/87826" target="_blank" rel="noopener">issue #87826</a>). O classificador do modo auto pode barrar o <code>agent start</code>, e a sessão da reserva pede aprovação. Quando o issue fechar, ela passa a rodar em bypass sem mudança no serviço. O orquestrador principal e os agentes sobem pelo terminal e mantêm o bypass.</p></div></div>
+  <p>Confira com <code>tmux -L &lt;orquestrador&gt;-spawn capture-pane -p | tail -8</code>: a tela mostra <code>Ready</code> e <code>Capacity: 0/2</code>. No app, em sessão nova, o ambiente aparece como <code>&lt;máquina&gt;:&lt;orquestrador&gt;:&lt;sufixo&gt;</code>. O sufixo muda a cada reinício do serviço, e o ambiente antigo sai da lista.</p>
+
   <h2>Falar com os agentes</h2>
   <ul>
     <li>O nome do agente no <code>agent start</code> é o nome dele no <code>ListAgents</code> e no app. O orquestrador manda continuação com <code>SendMessage</code> e pede <code>notify_when_idle</code> para saber quando ele termina.</li>
@@ -2253,7 +2309,7 @@ agent stop teste</pre></div>
   <h2>Instalar</h2>
   <div class="code"><div class="code-head"><span>bash, na máquina</span><button class="copy">Copiar</button></div><pre>claude plugin marketplace add joaosavi/cockpit
 claude plugin install cockpit@cockpit</pre></div>
-  <p>Reinicie o Claude Code e rode <code>/cockpit:setup</code> numa sessão de terminal. Ele faz quatro perguntas, com prévia, e grava a status line, a linha do spinner e o momento de compactar a conversa. As sessões que já rodam pegam os mods com <code>/reload-plugins</code>. O orquestrador, a sessão que distribui as tarefas, e o recover, a sessão de socorro, pegam com <code>sudo systemctl restart &lt;orquestrador&gt; recover-rc</code>.</p>
+  <p>Reinicie o Claude Code e rode <code>/cockpit:setup</code> numa sessão de terminal. Ele faz quatro perguntas, com prévia, e grava a status line, a linha do spinner e o momento de compactar a conversa. As sessões que já rodam pegam os mods com <code>/reload-plugins</code>. O orquestrador, a sessão que distribui as tarefas, e o recover, a sessão de socorro, pegam com <code>sudo systemctl restart &lt;orquestrador&gt; &lt;orquestrador&gt;-spawn recover-rc</code>.</p>
 
   <h2>Guardas</h2>
   <p>Barram o erro antes de ele acontecer.</p>
@@ -2297,7 +2353,7 @@ claude plugin install cockpit@cockpit</pre></div>
   <p>O <a href="#instalador">instalador</a> faz esta página com um comando. Ela fica para quem monta à mão ou quer entender cada peça.</p>
 
   <h2>Voltar depois da atualização do sistema</h2>
-  <p>O <code>unattended-upgrades</code> atualiza bibliotecas do sistema de madrugada, e um serviço que segue rodando com a biblioteca antiga apagada pode quebrar dias depois. Um timer diário, rodando logo depois do upgrade, confere com <code>needrestart</code> ou pelos arquivos apagados em <code>/proc/&lt;pid&gt;/maps</code> se o orquestrador, a sessão que distribui as tarefas, ou o recover, a sessão de socorro, estão nessa situação, e reinicia os dois. O orquestrador volta na mesma conversa pelo <code>--continue</code>, e cada sessão aberta do recover volta pelo id com <code>--resume</code>. A que estava no meio de um turno recebe uma mensagem para seguir. Para o <code>needrestart</code> não derrubar as sessões no meio de um turno, os dois serviços saem do reinício automático dele. O script é o <code>sessions-restart</code>, e o timer roda às 7h40.</p>
+  <p>O <code>unattended-upgrades</code> atualiza bibliotecas do sistema de madrugada, e um serviço que segue rodando com a biblioteca antiga apagada pode quebrar dias depois. Um timer diário, rodando logo depois do upgrade, confere com <code>needrestart</code> ou pelos arquivos apagados em <code>/proc/&lt;pid&gt;/maps</code> se o orquestrador, a sessão que distribui as tarefas, ou o recover, a sessão de socorro, estão nessa situação, e reinicia os dois, junto com a entrada de reserva do orquestrador. O orquestrador volta na mesma conversa pelo <code>--continue</code>, e cada sessão aberta do recover volta pelo id com <code>--resume</code>. A que estava no meio de um turno recebe uma mensagem para seguir. Para o <code>needrestart</code> não derrubar as sessões no meio de um turno, os três serviços saem do reinício automático dele. O script é o <code>sessions-restart</code>, e o timer roda às 7h40.</p>
 
 
   <h2>Encerrar o que ficou esquecido</h2>
@@ -2324,10 +2380,11 @@ claude plugin install cockpit@cockpit</pre></div>
     <li>A suíte de testes do projeto passa na máquina. Em 2 núcleos, um teste que sobe banco em container estourou o limite padrão de 5s, e três testes de tela reprovaram por lentidão, mas passaram rodando sozinhos.</li>
     <li><code>claude mcp list</code> mostra os mesmos servidores conectados no seu computador e na máquina.</li>
     <li>As sessões do app nascem em bypass, o modo que roda comandos sem pedir permissão. Abra uma pelo app e rode na máquina <code>ps -eo args | grep -- '[-]-print' | grep -c '[b]ypassPermissions'</code>, que conta as sessões com a flag. Os colchetes tiram da conta o próprio comando. O seletor do app não mostra o bypass.</li>
-    <li>O orquestrador, a sessão que distribui as tarefas, e o recover, a sessão de socorro, voltam sozinhos depois de reiniciar a máquina, ou o container com <code>sudo lxc restart agente</code>, e aparecem no app.</li>
+    <li>O orquestrador, a sessão que distribui as tarefas, a entrada de reserva dele e o recover, a sessão de socorro, voltam sozinhos depois de reiniciar a máquina, ou o container com <code>sudo lxc restart agente</code>, e aparecem no app.</li>
     <li>Pelo app, o orquestrador abre um agente, uma sessão só para a tarefa, num projeto, espera, relata o resultado e encerra o agente. O <code>agent list</code> fica vazio no fim.</li>
     <li>As sessões rodam dentro do teto. O <code>memstat</code> mostra o teto que você calculou na linha do slice dos agentes, o grupo do <a href="https://systemd.io/" target="_blank" rel="noopener">systemd</a> que soma a memória deles, e o teste do <code>systemd-run</code> de <a href="#memoria">Como pôr teto de memória e o agente de recover</a> termina em <code>oom-kill</code>.</li>
     <li>A sessão <code>recover</code> aparece no app e responde.</li>
+    <li>A entrada de reserva do orquestrador aparece no app em sessão nova, e a sessão aberta por ela responde como orquestrador. Enquanto o <a href="https://github.com/anthropics/claude-code/issues/87826" target="_blank" rel="noopener">issue #87826</a> estiver aberto, ela roda em modo auto, e não em bypass.</li>
     <li>O <code>/ram</code> do <code>memory-guard</code>, mod do <a href="https://github.com/joaosavi/cockpit" target="_blank" rel="noopener">Cockpit</a>, o pacote de travas do <a href="https://claude.com/product/claude-code" target="_blank" rel="noopener">Claude Code</a>, mostra o slice e o teto numa sessão nova.</li>
     <li>No host compartilhado, os outros serviços respondem igual ao início.</li>
   </ul>
@@ -2421,8 +2478,8 @@ claude plugin install cockpit@cockpit</pre></div>
     <tr><td>Ver a tela do orquestrador</td><td><code>tmux -L &lt;orquestrador&gt; attach</code>, e saio com Ctrl+b e depois d</td></tr>
     <tr><td>Ver quanto as sessões usam de memória</td><td><code>memstat</code></td></tr>
     <tr><td>Abrir uma sessão com os agentes no teto</td><td>Abro no app a sessão <code>recover</code>, a sessão de socorro, que roda com 256 MB reservados fora do teto</td></tr>
-    <tr><td>Atualizar o Claude Code</td><td>Ele baixa a versão nova sozinho, mas cada sessão roda a versão em que nasceu. <code>sudo systemctl restart &lt;orquestrador&gt; recover-rc</code> aplica, e o orquestrador volta na mesma conversa</td></tr>
-    <tr><td>Renovar o login do Claude</td><td>Quando o app parar de abrir sessão, entro com <code>ssh agente</code>, rodo <code>tmux new -s login 'claude auth login'</code> e depois <code>sudo systemctl restart &lt;orquestrador&gt; recover-rc</code>. Três dias antes de vencer, uma sessão aberta no terminal avisa</td></tr>
+    <tr><td>Atualizar o Claude Code</td><td>Ele baixa a versão nova sozinho, mas cada sessão roda a versão em que nasceu. <code>sudo systemctl restart &lt;orquestrador&gt; &lt;orquestrador&gt;-spawn recover-rc</code> aplica, e o orquestrador volta na mesma conversa</td></tr>
+    <tr><td>Renovar o login do Claude</td><td>Quando o app parar de abrir sessão, entro com <code>ssh agente</code>, rodo <code>tmux new -s login 'claude auth login'</code> e depois <code>sudo systemctl restart &lt;orquestrador&gt; &lt;orquestrador&gt;-spawn recover-rc</code>. Três dias antes de vencer, uma sessão aberta no terminal avisa</td></tr>
     <tr><td>Mudar um servidor MCP</td><td>Abro uma sessão nova, que lê a configuração ao começar. Numa sessão antiga, <code>/mcp</code> reconecta</td></tr>
     <tr><td>Abrir o app no navegador</td><td><code>ssh -L 3000:localhost:3000 agente</code> e <code>http://localhost:3000</code></td></tr>
   </table></div>
@@ -2438,6 +2495,7 @@ claude plugin install cockpit@cockpit</pre></div>
     <tr><th>Sintoma</th><th>Causa</th><th>Conserto</th></tr>
     <tr><td>A sessão aberta pelo app pede permissão para tudo</td><td>O Claude Code ignora <code>defaultMode: "bypassPermissions"</code> vindo das configurações do projeto</td><td><code>--permission-mode bypassPermissions</code> na linha do <code>claude</code>, depois de <code>remote-control</code> no modo servidor</td></tr>
     <tr><td>Serviço ativo e nenhuma sessão no app</td><td>A sessão está parada numa pergunta de primeira vez</td><td><code>tmux -L &lt;nome&gt; attach</code> mostra qual. Rode o comando à mão uma vez</td></tr>
+    <tr><td>A sessão aberta pela entrada de reserva pede aprovação</td><td>O app troca o bypass por auto nas sessões do modo servidor (<a href="https://github.com/anthropics/claude-code/issues/87826" target="_blank" rel="noopener">issue #87826</a>)</td><td>Aprove pelo app, ou abra pelo SSH num tmux <code>claude --dangerously-skip-permissions --remote-control &lt;orquestrador&gt;2</code> na pasta</td></tr>
     <tr><td>O app não abre sessão nova</td><td>A ponte do modo servidor caiu, ou o app recusou a sessão</td><td>Pelo SSH, num <a href="https://github.com/tmux/tmux" target="_blank" rel="noopener">tmux</a>: <code>claude --remote-control &lt;nome&gt;</code> na pasta. A sessão aparece pronta no app</td></tr>
     <tr><td>Um tmux aberto pelo SSH some quando o serviço reinicia</td><td>O serviço usa o socket padrão do tmux</td><td>Socket próprio, com <code>tmux -L &lt;nome&gt;</code>, no serviço</td></tr>
     <tr><td>O segundo agente herda o teto do primeiro</td><td>Os dois nasceram no mesmo servidor tmux</td><td>Um servidor tmux por agente, como no comando <code>agent</code></td></tr>
@@ -2446,7 +2504,7 @@ claude plugin install cockpit@cockpit</pre></div>
     <tr><td>A RAM continua ocupada depois de arquivar a sessão no app</td><td>Arquivar não encerra o processo</td><td><code>agent stop &lt;nome&gt;</code></td></tr>
     <tr><td>A sessão nova está em outro branch e sem os <code>.env</code></td><td><code>--spawn worktree</code> abre a sessão num worktree, uma cópia de trabalho separada do repo, que nasce do branch padrão do remoto, só com arquivos versionados</td><td><code>--spawn same-dir</code>, ou <code>.worktreeinclude</code> mais <code>worktree.baseRef: "head"</code></td></tr>
     <tr><td>O servidor sumiu e não voltou</td><td>Ele sai depois de uns 10 minutos sem rede</td><td>O laço do script do serviço</td></tr>
-    <tr><td>O app parou de abrir sessão, e o painel mostra <code>Login expired</code></td><td>O login do Claude na máquina venceu. Sessão que dura mais que o login para de andar até um login novo</td><td><code>claude auth login</code> num tmux, e depois <code>sudo systemctl restart &lt;orquestrador&gt; recover-rc</code></td></tr>
+    <tr><td>O app parou de abrir sessão, e o painel mostra <code>Login expired</code></td><td>O login do Claude na máquina venceu. Sessão que dura mais que o login para de andar até um login novo</td><td><code>claude auth login</code> num tmux, e depois <code>sudo systemctl restart &lt;orquestrador&gt; &lt;orquestrador&gt;-spawn recover-rc</code></td></tr>
     <tr><td>A sessão de uma máquina cai quando a outra renova o login</td><td>As duas dividem o mesmo <code>.credentials.json</code></td><td>Login próprio em cada máquina</td></tr>
     <tr><td>Um MCP de banco não conecta</td><td>O banco de desenvolvimento ficou parado depois do reboot</td><td><code>docker update --restart unless-stopped</code> no container do banco</td></tr>
     <tr><td>Um teste que sobe banco estoura 5s</td><td>Máquina de 2 núcleos com a suíte inteira em paralelo</td><td>Limite de 30s nos testes que sobem container</td></tr>

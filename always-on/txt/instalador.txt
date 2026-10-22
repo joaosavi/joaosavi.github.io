@@ -19,7 +19,7 @@ O `get.sh` baixa os scripts para `~/always-on`. O `config.env` guarda o nome do 
 | Swap | 8 GB em `/swapfile`, só se a máquina não tiver swap. Num container, o swap vem do host | 
 | Slice dos agentes | Teto da memória total menos 512 MB do recover e 1 GB do sistema, e metade do swap. Ver Como pôr teto de memória (txt/memoria.txt) | 
 | Recover | O `recover.slice`, com 256 MB reservados e teto de 512 MB, e o serviço `recover-rc` | 
-| Orquestrador | A pasta `~/<orquestrador>` com o `CLAUDE.md` e o `projects.json`, o comando `agent` e o serviço. Ver Como montar o orquestrador (txt/orquestrador.txt) | 
+| Orquestrador | A pasta `~/<orquestrador>` com o `CLAUDE.md` e o `projects.json`, o comando `agent`, o serviço e a entrada de reserva no app. Ver Como montar o orquestrador (txt/orquestrador.txt) | 
 | Cockpit | O pacote inteiro de mods. Ver Como instalar o Cockpit (txt/mods.txt) | 
 | Manutenção | Os timers `sessions-restart` e `sessions-idle`, e o needrestart sem reiniciar as sessões. Ver Como deixar a máquina se cuidar sozinha (txt/manter.txt) |  
 Ele também marca as pastas do orquestrador e do recover como confiáveis e aceita os avisos do Remote Control (https://code.claude.com/docs/en/remote-control) e do bypass. Sem isso, o serviço travaria na subida, esperando uma tecla. 

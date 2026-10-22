@@ -12,7 +12,7 @@ tmux new -s login 'claude auth login'
 ```
 
 Abra o link em qualquer aparelho e entre na conta. Se a página mostrar um código, cole no terminal, em "Paste code here if prompted". O tmux fecha quando o login termina. 
-O login vence. Três dias antes, uma sessão aberta no terminal avisa, mas as sessões do app não mostram o aviso. Uma sessão que dura mais que o login para de andar. Para renovar, rode o mesmo comando e reinicie o orquestrador e o recover com `sudo systemctl restart <orquestrador> recover-rc`. O orquestrador é a sessão que distribui as tarefas, e o recover é a sessão de socorro, que responde quando a máquina trava. 
+O login vence. Três dias antes, uma sessão aberta no terminal avisa, mas as sessões do app não mostram o aviso. Uma sessão que dura mais que o login para de andar. Para renovar, rode o mesmo comando e reinicie o orquestrador e o recover com `sudo systemctl restart <orquestrador> <orquestrador>-spawn recover-rc`. O orquestrador é a sessão que distribui as tarefas, e o recover é a sessão de socorro, que responde quando a máquina trava. 
 
 ## GitHub 
 A máquina ganha uma chave SSH própria, que você revoga sem afetar a sua. 

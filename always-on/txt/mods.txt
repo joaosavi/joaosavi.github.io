@@ -9,7 +9,7 @@ claude plugin marketplace add joaosavi/cockpit
 claude plugin install cockpit@cockpit
 ```
 
-Reinicie o Claude Code e rode `/cockpit:setup` numa sessão de terminal. Ele faz quatro perguntas, com prévia, e grava a status line, a linha do spinner e o momento de compactar a conversa. As sessões que já rodam pegam os mods com `/reload-plugins`. O orquestrador, a sessão que distribui as tarefas, e o recover, a sessão de socorro, pegam com `sudo systemctl restart <orquestrador> recover-rc`. 
+Reinicie o Claude Code e rode `/cockpit:setup` numa sessão de terminal. Ele faz quatro perguntas, com prévia, e grava a status line, a linha do spinner e o momento de compactar a conversa. As sessões que já rodam pegam os mods com `/reload-plugins`. O orquestrador, a sessão que distribui as tarefas, e o recover, a sessão de socorro, pegam com `sudo systemctl restart <orquestrador> <orquestrador>-spawn recover-rc`. 
 
 ## Guardas 
 Barram o erro antes de ele acontecer. 

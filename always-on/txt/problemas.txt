@@ -5,6 +5,7 @@ Procure pelo sintoma na primeira coluna. Quase todos estes problemas aconteceram
 | --- | --- | --- | 
 | A sessão aberta pelo app pede permissão para tudo | O Claude Code ignora `defaultMode: "bypassPermissions"` vindo das configurações do projeto | `--permission-mode bypassPermissions` na linha do `claude`, depois de `remote-control` no modo servidor | 
 | Serviço ativo e nenhuma sessão no app | A sessão está parada numa pergunta de primeira vez | `tmux -L <nome> attach` mostra qual. Rode o comando à mão uma vez | 
+| A sessão aberta pela entrada de reserva pede aprovação | O app troca o bypass por auto nas sessões do modo servidor (issue #87826 (https://github.com/anthropics/claude-code/issues/87826)) | Aprove pelo app, ou abra pelo SSH num tmux `claude --dangerously-skip-permissions --remote-control <orquestrador>2` na pasta | 
 | O app não abre sessão nova | A ponte do modo servidor caiu, ou o app recusou a sessão | Pelo SSH, num tmux (https://github.com/tmux/tmux): `claude --remote-control <nome>` na pasta. A sessão aparece pronta no app | 
 | Um tmux aberto pelo SSH some quando o serviço reinicia | O serviço usa o socket padrão do tmux | Socket próprio, com `tmux -L <nome>`, no serviço | 
 | O segundo agente herda o teto do primeiro | Os dois nasceram no mesmo servidor tmux | Um servidor tmux por agente, como no comando `agent` | 
@@ -13,7 +14,7 @@ Procure pelo sintoma na primeira coluna. Quase todos estes problemas aconteceram
 | A RAM continua ocupada depois de arquivar a sessão no app | Arquivar não encerra o processo | `agent stop <nome>` | 
 | A sessão nova está em outro branch e sem os `.env` | `--spawn worktree` abre a sessão num worktree, uma cópia de trabalho separada do repo, que nasce do branch padrão do remoto, só com arquivos versionados | `--spawn same-dir`, ou `.worktreeinclude` mais `worktree.baseRef: "head"` | 
 | O servidor sumiu e não voltou | Ele sai depois de uns 10 minutos sem rede | O laço do script do serviço | 
-| O app parou de abrir sessão, e o painel mostra `Login expired` | O login do Claude na máquina venceu. Sessão que dura mais que o login para de andar até um login novo | `claude auth login` num tmux, e depois `sudo systemctl restart <orquestrador> recover-rc` | 
+| O app parou de abrir sessão, e o painel mostra `Login expired` | O login do Claude na máquina venceu. Sessão que dura mais que o login para de andar até um login novo | `claude auth login` num tmux, e depois `sudo systemctl restart <orquestrador> <orquestrador>-spawn recover-rc` | 
 | A sessão de uma máquina cai quando a outra renova o login | As duas dividem o mesmo `.credentials.json` | Login próprio em cada máquina | 
 | Um MCP de banco não conecta | O banco de desenvolvimento ficou parado depois do reboot | `docker update --restart unless-stopped` no container do banco | 
 | Um teste que sobe banco estoura 5s | Máquina de 2 núcleos com a suíte inteira em paralelo | Limite de 30s nos testes que sobem container | 

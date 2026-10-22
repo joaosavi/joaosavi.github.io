@@ -37,7 +37,7 @@ def setting(key):
 
 
 ORCHESTRATOR = setting("AGENT_ORCHESTRATOR")
-SERVICES = [s for s in (ORCHESTRATOR, "recover-rc") if s]
+SERVICES = [s for s in (ORCHESTRATOR, f"{ORCHESTRATOR}-spawn" if ORCHESTRATOR else "", "recover-rc") if s]
 # O orquestrador volta sozinho na mesma conversa pelo orchestrator-rc; retomar aqui abriria uma segunda.
 RETURNS_ALONE = {ORCHESTRATOR}
 READY_TIMEOUT = 120
@@ -190,6 +190,7 @@ def restart(service, dry_run):
     if dry_run:
         return
     # O tmux de cada serviço tem o nome dele sem o -rc: o do orquestrador é o nome dele, o do recover é recover.
+    # O da entrada de reserva é <orquestrador>-spawn.
     socket = service.removesuffix("-rc")
     subprocess.run(["sudo", "-n", "systemctl", "restart", f"{service}.service"], check=True)
     if not wait(lambda: tmux(socket, "has-session").returncode == 0, 60):

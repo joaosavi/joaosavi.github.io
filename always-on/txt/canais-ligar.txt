@@ -22,8 +22,8 @@ Claude Code, na máquina
 /telegram:configure <token-do-BotFather>
 ```
 
-- Ligar só no orquestrador. Toda sessão que sobe com o plugin ligado derruba o leitor do bot que já estava rodando, e o bot passaria para a última sessão aberta. Por isso, desligue o plugin nas configurações do usuário, com `"telegram@claude-plugins-official": false` em `enabledPlugins` do `~/.claude/settings.json`, e ligue só no `.claude/settings.json` da pasta do orquestrador. 
-- Subir com o canal. No `orchestrator-rc`, o serviço que mantém o orquestrador rodando, ponha `$HOME/.bun/bin` no `PATH` e acrescente `--channels plugin:telegram@claude-plugins-official` às flags. Reinicie o serviço. 
+- Ligar só no orquestrador. Toda sessão que sobe com o plugin ligado derruba o leitor do bot que já estava rodando, e o bot passaria para a última sessão aberta. Por isso, desligue o plugin nas configurações do usuário, com `"telegram@claude-plugins-official": false` em `enabledPlugins` do `~/.claude/settings.json`, e ligue só na linha de comando do orquestrador, como no passo seguinte. Ligado no `.claude/settings.json` da pasta, cada sessão aberta pela entrada de reserva (txt/orquestrador.txt) roubaria o bot do orquestrador. 
+- Subir com o canal. No `orchestrator-rc`, o serviço que mantém o orquestrador rodando, ponha `$HOME/.bun/bin` no `PATH` e acrescente `--settings '{"enabledPlugins":{"telegram@claude-plugins-official":true}}' --channels plugin:telegram@claude-plugins-official` às flags. Reinicie o serviço. 
 - Parear. Mande qualquer mensagem ao bot. Ele responde com um código. Peça ao orquestrador para rodar `/telegram:access pair <código>`, uma vez para cada conta da lista. 
 - Fechar o bot. Rode `/telegram:access policy allowlist`. A partir daí, o bot ignora sem responder quem não está na lista. No modo padrão, `pairing`, ele responde com um código a qualquer desconhecido. 
 - Dizer ao orquestrador para que serve. Escreva no `CLAUDE.md` dele, o arquivo de instruções que a sessão lê ao começar, que o Telegram leva aviso e arquivo, que um pedido de ação vindo por ali se confirma pelo app, e que conta nova só entra na lista quando você pedir pelo app.  

@@ -10,9 +10,12 @@ export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 export PATH="$HOME/.local/bin:$PATH"
 set -- --permission-mode bypassPermissions --remote-control "$AGENT_ORCHESTRATOR" --name "$AGENT_ORCHESTRATOR"
 # Com o bot do Telegram configurado, o orquestrador abre o canal dele. O canal roda em Bun.
+# O plugin liga só nesta sessão, pelo --settings: sessão nova com ele ligado derruba o leitor do bot
+# que estiver rodando, e a entrada de reserva (orchestrator-spawn) abre sessões nesta mesma pasta.
 if [ -f "$HOME/.claude/channels/telegram/.env" ]; then
     export PATH="$HOME/.bun/bin:$PATH"
-    set -- "$@" --channels plugin:telegram@claude-plugins-official
+    set -- "$@" --settings '{"enabledPlugins":{"telegram@claude-plugins-official":true}}' \
+        --channels plugin:telegram@claude-plugins-official
 fi
 while true; do
     t=$(date +%s)

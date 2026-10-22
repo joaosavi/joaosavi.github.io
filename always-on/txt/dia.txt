@@ -12,8 +12,8 @@ Os comandos de uso diário, com a máquina já montada. O orquestrador é a sess
 | Ver a tela do orquestrador | `tmux -L <orquestrador> attach`, e saio com Ctrl+b e depois d | 
 | Ver quanto as sessões usam de memória | `memstat` | 
 | Abrir uma sessão com os agentes no teto | Abro no app a sessão `recover`, a sessão de socorro, que roda com 256 MB reservados fora do teto | 
-| Atualizar o Claude Code | Ele baixa a versão nova sozinho, mas cada sessão roda a versão em que nasceu. `sudo systemctl restart <orquestrador> recover-rc` aplica, e o orquestrador volta na mesma conversa | 
-| Renovar o login do Claude | Quando o app parar de abrir sessão, entro com `ssh agente`, rodo `tmux new -s login 'claude auth login'` e depois `sudo systemctl restart <orquestrador> recover-rc`. Três dias antes de vencer, uma sessão aberta no terminal avisa | 
+| Atualizar o Claude Code | Ele baixa a versão nova sozinho, mas cada sessão roda a versão em que nasceu. `sudo systemctl restart <orquestrador> <orquestrador>-spawn recover-rc` aplica, e o orquestrador volta na mesma conversa | 
+| Renovar o login do Claude | Quando o app parar de abrir sessão, entro com `ssh agente`, rodo `tmux new -s login 'claude auth login'` e depois `sudo systemctl restart <orquestrador> <orquestrador>-spawn recover-rc`. Três dias antes de vencer, uma sessão aberta no terminal avisa | 
 | Mudar um servidor MCP | Abro uma sessão nova, que lê a configuração ao começar. Numa sessão antiga, `/mcp` reconecta | 
 | Abrir o app no navegador | `ssh -L 3000:localhost:3000 agente` e `http://localhost:3000` |  
 Todas as sessões dividem as portas da máquina. Duas sessões subindo o servidor de desenvolvimento ao mesmo tempo disputam a mesma porta.

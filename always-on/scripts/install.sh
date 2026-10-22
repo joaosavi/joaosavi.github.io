@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Monta a infraestrutura do Claude Code Always-On numa VPS Ubuntu: swap, o slice dos agentes, o
-# recover, o orquestrador, o comando agent e os timers que mantêm a máquina sozinha.
+# recover, o orquestrador e a entrada de reserva dele, o comando agent e os timers que mantêm a
+# máquina sozinha.
 #
 #   ./install.sh          instala. Pode rodar de novo: o que já está certo fica como está
 #   ./install.sh --check  só confere, e sai com 1 quando falta alguma coisa
@@ -144,7 +145,7 @@ CPUWeight=1000
 EOF
 
 step "Comandos em $BIN"
-for f in agent orchestrator-rc recover-rc memstat sessions-restart sessions-idle cockpit-panel; do
+for f in agent orchestrator-rc orchestrator-spawn recover-rc memstat sessions-restart sessions-idle cockpit-panel; do
     put "$BIN/$f" user 755 <"$HERE/bin/$f"
 done
 
@@ -237,6 +238,27 @@ RestartSec=10
 [Install]
 WantedBy=multi-user.target
 EOF
+put "$UNITS/$ORCHESTRATOR-spawn.service" root 644 <<EOF
+[Unit]
+Description=Entrada de reserva do orquestrador no app: abre sessão nova já como orquestrador
+After=network-online.target user-runtime-dir@$(id -u).service
+Wants=network-online.target user-runtime-dir@$(id -u).service
+
+[Service]
+Type=forking
+User=$USER
+Slice=$SLICE.slice
+MemoryHigh=768M
+MemoryMax=1G
+OOMPolicy=continue
+ExecStart=/usr/bin/tmux -L $ORCHESTRATOR-spawn new-session -d -s $ORCHESTRATOR-spawn "$LOGIN_SHELL -lic $BIN/orchestrator-spawn"
+ExecStop=/usr/bin/tmux -L $ORCHESTRATOR-spawn kill-server
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
 put "$UNITS/recover-rc.service" root 644 <<EOF
 [Unit]
 Description=Remote Control do Claude Code para o agente de recover
@@ -259,7 +281,7 @@ WantedBy=multi-user.target
 EOF
 put "$UNITS/sessions-restart.service" root 644 <<EOF
 [Unit]
-Description=Reinicia o orquestrador e o recover com biblioteca apagada, e retoma as sessões
+Description=Reinicia o orquestrador, a entrada de reserva e o recover com biblioteca apagada, e retoma as sessões
 
 [Service]
 Type=oneshot
@@ -306,9 +328,9 @@ WantedBy=timers.target
 EOF
 if [ -d /etc/needrestart/conf.d ]; then
     # O needrestart reinicia todo serviço com biblioteca trocada e derrubaria a sessão no meio do
-    # turno. Quem reinicia os dois é o sessions-restart, que retoma as sessões depois.
+    # turno. Quem reinicia os três é o sessions-restart, que retoma as sessões depois.
     put /etc/needrestart/conf.d/always-on.conf root 644 <<EOF
-\$nrconf{override_rc}{qr(^($ORCHESTRATOR|recover-rc)\\.service\$)} = 0;
+\$nrconf{override_rc}{qr(^($ORCHESTRATOR|$ORCHESTRATOR-spawn|recover-rc)\\.service\$)} = 0;
 EOF
 fi
 
@@ -323,7 +345,7 @@ for t in sessions-restart.timer sessions-idle.timer; do
 done
 logged_in=0
 [ -f "$HOME/.claude/.credentials.json" ] && logged_in=1
-for s in "$ORCHESTRATOR" recover-rc; do
+for s in "$ORCHESTRATOR" "$ORCHESTRATOR-spawn" recover-rc; do
     if systemctl is-active -q "$s"; then
         ok "$s rodando"
     elif [ "$CHECK" = 1 ]; then
@@ -415,4 +437,4 @@ if [ "$MISSING" -gt 0 ]; then
     echo "Faltam $MISSING itens."
     exit 1
 fi
-echo "Tudo certo. No app do Claude, a sessão $ORCHESTRATOR aparece pronta, e o recover abre pelo botão de nova sessão."
+echo "Tudo certo. No app do Claude, a sessão $ORCHESTRATOR aparece pronta. O recover e uma sessão nova de $ORCHESTRATOR abrem pelo botão de nova sessão."

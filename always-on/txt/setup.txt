@@ -98,7 +98,7 @@ Tudo aqui é instalado. O que precisa de uma conta minha fica instalado e espera
 
 ETAPA 6 DE 6: ENTREGAR
 1. Peça que eu abra o app do Claude, escolha o orquestrador e mande uma tarefa de teste num repo meu. Acompanhe até ele abrir o agente, o agente responder, o aviso chegar no Telegram e o agente ser encerrado.
-2. Feche com um resumo curto: como pedir uma tarefa, como ver os agentes (agent list), como abrir o recover quando a máquina travar, como baixar um arquivo da VPS, como renovar o login quando ele vencer, e o que ficou pendente, como uma conta que eu disse que entrego depois.
+2. Feche com um resumo curto: como pedir uma tarefa, como ver os agentes (agent list), como abrir o recover quando a máquina travar, como abrir um orquestrador novo pela entrada de reserva quando a sessão dele cair, como baixar um arquivo da VPS, como renovar o login quando ele vencer, e o que ficou pendente, como uma conta que eu disse que entrego depois.
 
 Comece pela etapa 1.
 ```

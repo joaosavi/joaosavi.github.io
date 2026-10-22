@@ -19,7 +19,7 @@ O instalador (txt/instalador.txt) faz esta página com um comando. Ela fica para
 
 | Forma | Como | Quem usa |
 | --- | --- | --- | 
-| Modo servidor | `claude remote-control` espera, e abre uma sessão nova cada vez que você pede pelo app | O recover, a sessão de socorro | 
+| Modo servidor | `claude remote-control` espera, e abre uma sessão nova cada vez que você pede pelo app | O recover, a sessão de socorro, e a entrada de reserva do orquestrador | 
 | Sessão de terminal ligada ao app | `claude --remote-control <nome>` num tmux (https://github.com/tmux/tmux). A sessão aparece pronta no app, com a pasta, o teto e a tarefa com que nasceu | O orquestrador e os agentes |  
 Se o app não conseguir abrir uma sessão, use a segunda forma: entre pelo SSH, abra um tmux e rode `claude --remote-control <nome>` na pasta. 
 
@@ -374,9 +374,12 @@ export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 export PATH="$HOME/.local/bin:$PATH"
 set -- --permission-mode bypassPermissions --remote-control "$AGENT_ORCHESTRATOR" --name "$AGENT_ORCHESTRATOR"
 # Com o bot do Telegram configurado, o orquestrador abre o canal dele. O canal roda em Bun.
+# O plugin liga só nesta sessão, pelo --settings: sessão nova com ele ligado derruba o leitor do bot
+# que estiver rodando, e a entrada de reserva (orchestrator-spawn) abre sessões nesta mesma pasta.
 if [ -f "$HOME/.claude/channels/telegram/.env" ]; then
     export PATH="$HOME/.bun/bin:$PATH"
-    set -- "$@" --channels plugin:telegram@claude-plugins-official
+    set -- "$@" --settings '{"enabledPlugins":{"telegram@claude-plugins-official":true}}' \
+        --channels plugin:telegram@claude-plugins-official
 fi
 while true; do
     t=$(date +%s)
@@ -416,6 +419,69 @@ EOF
 sudo loginctl enable-linger $USER
 sudo systemctl daemon-reload && sudo systemctl enable --now <orquestrador>
 ```
+
+## A entrada de reserva 
+Quando a sessão do orquestrador cai, você abre outra pelo app, sem SSH e sem passar pelo recover. Um segundo serviço roda o Remote Control no modo servidor na pasta do orquestrador. No app, ele aparece como mais um lugar para abrir sessão nova, ao lado do recover, e a sessão aberta ali lê o `CLAUDE.md` da pasta e já nasce orquestrador. 
+
+- Sobe sem sessão pré-criada, com `--no-create-session-in-dir`. Parado, o serviço ocupa uns 70 MB. Uma sessão ociosa ali gastaria de 200 a 500 MB do slice. 
+- Plugin que só pode rodar numa sessão, como o do Telegram, liga pela linha de comando do `orchestrator-rc`, e não pelo `.claude/settings.json` da pasta. Configuração da pasta vale para toda sessão aberta pela reserva. 
+- O papel do orquestrador que vem de `--agent` também precisa ir para a pasta, porque o modo servidor não aceita a flag. Ponha `"agent": "<papel>"` no `.claude/settings.json` da pasta.  
+
+bash, na máquina
+```
+cat > ~/.local/bin/orchestrator-spawn <<'EOF'
+#!/bin/sh
+# A entrada de reserva do orquestrador no app: o Remote Control no modo servidor, na pasta dele, abre
+# uma sessão nova cada vez que você pede pelo app. A sessão lê o CLAUDE.md da pasta e já nasce
+# orquestrador. Serve para quando a sessão principal cai e você está longe do SSH.
+# Sem sessão pré-criada: ela gastaria memória do slice à toa enquanto o principal está de pé.
+# O modo servidor sai depois de uns 10 minutos sem rede, e o laço o devolve.
+. "$HOME/.config/always-on/env" || exit 1
+export AGENT_ORCHESTRATOR AGENT_SLICE
+cd "$HOME/$AGENT_ORCHESTRATOR" || exit 1
+# Sem XDG_RUNTIME_DIR, o socket de mensagens cai em /tmp e a sessão não alcança os agentes.
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export PATH="$HOME/.local/bin:$PATH"
+while true; do
+    claude remote-control --name "$AGENT_ORCHESTRATOR" --remote-control-session-name-prefix "$AGENT_ORCHESTRATOR" \
+        --spawn same-dir --capacity 2 --no-create-session-in-dir --permission-mode bypassPermissions
+    sleep 10
+done
+EOF
+chmod 755 ~/.local/bin/orchestrator-spawn
+```
+
+O serviço tem o teto próprio de 1 GiB, dentro do slice dos agentes. Troque `voce`, `<uid>`, `<orquestrador>` e `<slice>` como no serviço do orquestrador: 
+
+bash, na máquina
+```
+sudo tee /etc/systemd/system/<orquestrador>-spawn.service > /dev/null <<'EOF'
+[Unit]
+Description=Entrada de reserva do orquestrador no app: abre sessão nova já como orquestrador
+After=network-online.target user-runtime-dir@<uid>.service
+Wants=network-online.target user-runtime-dir@<uid>.service
+
+[Service]
+Type=forking
+User=voce
+Slice=<slice>.slice
+MemoryHigh=768M
+MemoryMax=1G
+OOMPolicy=continue
+ExecStart=/usr/bin/tmux -L <orquestrador>-spawn new-session -d -s <orquestrador>-spawn "bash -lic orchestrator-spawn"
+ExecStop=/usr/bin/tmux -L <orquestrador>-spawn kill-server
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload && sudo systemctl enable --now <orquestrador>-spawn
+```
+
+Sessão da reserva em modo auto
+Hoje o app troca o bypass por auto nas sessões abertas pelo modo servidor (issue #87826 (https://github.com/anthropics/claude-code/issues/87826)). O classificador do modo auto pode barrar o `agent start`, e a sessão da reserva pede aprovação. Quando o issue fechar, ela passa a rodar em bypass sem mudança no serviço. O orquestrador principal e os agentes sobem pelo terminal e mantêm o bypass. 
+Confira com `tmux -L <orquestrador>-spawn capture-pane -p | tail -8`: a tela mostra `Ready` e `Capacity: 0/2`. No app, em sessão nova, o ambiente aparece como `<máquina>:<orquestrador>:<sufixo>`. O sufixo muda a cada reinício do serviço, e o ambiente antigo sai da lista. 
 
 ## Falar com os agentes 
 

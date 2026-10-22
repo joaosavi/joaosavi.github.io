@@ -1,0 +1,17 @@
+#!/bin/sh
+# A entrada de reserva do orquestrador no app: o Remote Control no modo servidor, na pasta dele, abre
+# uma sessão nova cada vez que você pede pelo app. A sessão lê o CLAUDE.md da pasta e já nasce
+# orquestrador. Serve para quando a sessão principal cai e você está longe do SSH.
+# Sem sessão pré-criada: ela gastaria memória do slice à toa enquanto o principal está de pé.
+# O modo servidor sai depois de uns 10 minutos sem rede, e o laço o devolve.
+. "$HOME/.config/always-on/env" || exit 1
+export AGENT_ORCHESTRATOR AGENT_SLICE
+cd "$HOME/$AGENT_ORCHESTRATOR" || exit 1
+# Sem XDG_RUNTIME_DIR, o socket de mensagens cai em /tmp e a sessão não alcança os agentes.
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+export PATH="$HOME/.local/bin:$PATH"
+while true; do
+    claude remote-control --name "$AGENT_ORCHESTRATOR" --remote-control-session-name-prefix "$AGENT_ORCHESTRATOR" \
+        --spawn same-dir --capacity 2 --no-create-session-in-dir --permission-mode bypassPermissions
+    sleep 10
+done
