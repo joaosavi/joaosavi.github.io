@@ -75,6 +75,9 @@ def deleted_libs(maps):
 def service_pids(service):
     group = subprocess.run(["systemctl", "show", "-P", "ControlGroup", f"{service}.service"],
                            capture_output=True, text=True).stdout.strip()
+    # Serviço que não existe ou está parado volta sem grupo, e /sys/fs/cgroup/cgroup.procs seria a raiz.
+    if not group:
+        return []
     try:
         return [int(p) for p in Path(f"/sys/fs/cgroup{group}/cgroup.procs").read_text().split()]
     except (OSError, ValueError):

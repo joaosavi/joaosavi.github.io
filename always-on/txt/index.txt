@@ -11,6 +11,7 @@ Cada linha é um mini-guia. Baixe com: curl -s https://joaosavi.github.io/always
 - navegador: Como deixar o agente usar um navegador
 - ferramentas: Como dar ao agente e-mail, conectores e ferramentas
 - google: Como deixar a conta Google do agente logada na VPS
+- google-apis: Como ligar as APIs do Google por OAuth
 - oracle: Como conseguir a VPS grátis na Oracle
 - caminhos: Quando usar outra máquina
 - vps: Como contratar uma VPS paga

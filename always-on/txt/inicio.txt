@@ -56,7 +56,8 @@ Para conferir se a conta pode usar o Remote Control, rode `claude remote-control
 - Como dar senhas ao agente sem ele ver o valor (txt/cofre.txt)
 - Como deixar o agente usar um navegador (txt/navegador.txt)
 - Como dar ao agente e-mail, conectores e ferramentas (txt/ferramentas.txt)
-- Como deixar a conta Google do agente logada na VPS (txt/google.txt) 
+- Como deixar a conta Google do agente logada na VPS (txt/google.txt)
+- Como ligar as APIs do Google por OAuth (txt/google-apis.txt) 
 
 ### Conseguir a máquina 
 

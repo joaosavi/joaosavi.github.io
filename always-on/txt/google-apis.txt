@@ -1,0 +1,108 @@
+# Como ligar as APIs do Google por OAuth  
+O agente, a sessão do Claude Code (https://claude.com/product/claude-code) que trabalha na máquina, usa o Calendar (https://developers.google.com/workspace/calendar/api/guides/overview), o Tasks (https://developers.google.com/workspace/tasks), o Drive (https://developers.google.com/workspace/drive/api/guides/about-sdk), o Sheets (https://developers.google.com/workspace/sheets/api/guides/concepts) e o Docs (https://developers.google.com/workspace/docs/api/how-tos/overview) do Google por um app OAuth seu. OAuth é o login em que você autoriza um app a agir na sua conta, com uma lista de permissões, os escopos, sem entregar a senha. O mesmo caminho vale para o Gmail (https://developers.google.com/workspace/gmail/api). 
+
+## Qual caminho usar primeiro 
+
+| Caminho | Quando usar | O que custa |
+| --- | --- | --- | 
+| Conector do claude.ai (https://claude.ai/settings/connectors) | Primeiro, sempre que existe um conector para o serviço e ele faz o que o agente precisa | Nada para montar. Age com a sua conta, em toda sessão, e só faz o que as ferramentas dele oferecem | 
+| API própria por OAuth | Quando o conector falta, não tem a operação, ou o agente precisa de outra conta, como uma conta só dele | Um projeto no Google Cloud, um login por conta e um token no cofre |  
+Para um agente que não deve ver a sua conta, bloqueie o conector na sessão dele com `--disallowedTools`, como em Como dar ao agente e-mail, conectores e ferramentas (txt/ferramentas.txt). 
+
+- Projeto, no Google Cloud 
+- Consentimento, publicado 
+- Cliente OAuth, Desktop app 
+- Login, uma vez por conta 
+- Refresh token, no cofre 
+- Access token, uma hora, a cada chamada  
+
+## O projeto e as APIs 
+Faça no navegador do seu computador, logado na conta dona do app. Um app atende várias contas, cada uma com o próprio token. 
+
+- Projeto. No Google Cloud console (https://console.cloud.google.com/), abra o seletor de projeto, clique em New project, dê um nome e clique em Create. 
+- APIs. Em APIs & Services, Library, procure e ligue com Enable só as APIs que o agente vai usar: Google Calendar API, Google Tasks API, Google Drive API, Google Sheets API, Google Docs API. 
+- Tela de consentimento. Abra Google Auth Platform (https://console.cloud.google.com/auth/overview) e clique em Get started. Preencha o nome do app, o e-mail de suporte, Audience External e o e-mail de contato, e clique em Create. 
+- Publicar. Em Audience, clique em Publish app. No status Testing, o refresh token vence em 7 dias. Publicado e sem verificação, ele não vence por prazo, e o login mostra o aviso de app não verificado. Um app assim aceita até 100 contas, o bastante para uso próprio. 
+- Cliente. Em Clients, clique em Create client, escolha Application type Desktop app, dê um nome e clique em Create. Guarde o Client ID e o Client secret no cofre (txt/cofre.txt), como `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET`.  
+
+## Os escopos 
+Peça o menor escopo que faz o trabalho. A lista completa está nos escopos do OAuth 2.0 (https://developers.google.com/identity/protocols/oauth2/scopes). Todos começam com `https://www.googleapis.com/auth/`. 
+
+| API | Só ler | Ler e escrever, o mínimo |
+| --- | --- | --- | 
+| Calendar | `calendar.events.readonly` | `calendar.events`: eventos de todas as agendas, sem mexer nas agendas | 
+| Tasks | `tasks.readonly` | `tasks` | 
+| Drive | `drive.readonly`: o Drive inteiro | `drive.file`: só os arquivos que o app criou ou que você abriu com ele | 
+| Sheets | `spreadsheets.readonly` | `drive.file` para planilhas que o agente cria, ou `spreadsheets` para todas | 
+| Docs | `documents.readonly` | `drive.file` para documentos que o agente cria, ou `documents` para todos | 
+| Gmail | `gmail.readonly` | `gmail.send` só para mandar |  
+Some `openid email` quando o login tiver de conferir de qual conta é o token: o escopo do Tasks, por exemplo, não diz de quem é a conta. 
+
+## O login 
+O login roda uma vez por conta. Ele usa PKCE, um código de uso único que só quem começou o login consegue trocar, e devolve o endereço para `127.0.0.1`, como manda o OAuth para apps instalados (https://developers.google.com/identity/protocols/oauth2/native-app). Na VPS, gere o link: 
+
+bash, na máquina
+```
+python3 - <<'EOF'
+import base64, hashlib, secrets, urllib.parse
+v = secrets.token_urlsafe(64)
+open("/tmp/google-pkce", "w").write(v)
+print("https://accounts.google.com/o/oauth2/v2/auth?" + urllib.parse.urlencode({
+    "client_id": "<client-id>", "redirect_uri": "http://127.0.0.1:8765", "response_type": "code",
+    "scope": "<escopos separados por espaço>", "access_type": "offline", "prompt": "consent",
+    "code_challenge": base64.urlsafe_b64encode(hashlib.sha256(v.encode()).digest()).rstrip(b"=").decode(),
+    "code_challenge_method": "S256"}))
+EOF
+```
+
+Abra o link no seu navegador, entre na conta e aceite. Com o app não verificado, clique em Advanced e depois em Go to. O navegador cai num endereço `http://127.0.0.1:8765/?code=...` que não abre. Copie esse endereço inteiro e troque o código pelo refresh token: 
+
+bash, na máquina
+```
+read -r -p "endereço do navegador: " URL
+CODE=$(python3 -c 'import sys,urllib.parse as u; print(u.parse_qs(u.urlparse(sys.argv[1]).query)["code"][0])' "$URL")
+vault exec GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET -- sh -c 'curl -fsS https://oauth2.googleapis.com/token \
+  --data-urlencode "client_id=$GOOGLE_CLIENT_ID" --data-urlencode "client_secret=$GOOGLE_CLIENT_SECRET" \
+  --data-urlencode "code=$0" --data-urlencode "code_verifier=$(cat /tmp/google-pkce)" \
+  -d redirect_uri=http://127.0.0.1:8765 -d grant_type=authorization_code' "$CODE" |
+  python3 -c 'import json,sys; d=json.load(sys.stdin); print("escopos:", d["scope"]); print(d["refresh_token"])'
+rm -f /tmp/google-pkce
+```
+
+Confira que a linha `escopos` traz todos os que você pediu: a tela de consentimento deixa desmarcar um. Guarde o refresh token no cofre, como `GOOGLE_REFRESH_TOKEN`, ou com um nome por conta quando houver mais de uma. Ele nunca vai para um repo, um `.env` ou a memória do agente. 
+
+## Chamar a API 
+O gws (https://github.com/googleworkspace/cli) é um CLI que fala com todas essas APIs e aceita o access token por variável de ambiente. Baixe o binário da página de releases dele para `~/.local/bin`. Um script pequeno troca o refresh token por um access token de uma hora a cada chamada e sai: 
+
+bash, na máquina
+```
+cat > ~/.local/bin/google-api <<'EOF'
+#!/bin/sh
+# Troca o refresh token por um access token de uma hora e roda o gws só com ele. Nada fica em disco.
+#   vault exec GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_REFRESH_TOKEN -- google-api calendar events list ...
+set -eu
+: "${GOOGLE_CLIENT_ID:?}" "${GOOGLE_CLIENT_SECRET:?}" "${GOOGLE_REFRESH_TOKEN:?}"
+resp=$(curl -fsS https://oauth2.googleapis.com/token \
+  --data-urlencode "client_id=$GOOGLE_CLIENT_ID" --data-urlencode "client_secret=$GOOGLE_CLIENT_SECRET" \
+  --data-urlencode "refresh_token=$GOOGLE_REFRESH_TOKEN" -d grant_type=refresh_token) ||
+  { echo "google-api: o Google recusou o refresh token; faça o login de novo" >&2; exit 1; }
+GOOGLE_WORKSPACE_CLI_TOKEN=$(printf '%s' "$resp" | python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])')
+export GOOGLE_WORKSPACE_CLI_TOKEN
+exec gws "$@"
+EOF
+chmod 755 ~/.local/bin/google-api
+```
+
+bash, na máquina
+```
+vault exec GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_REFRESH_TOKEN -- \
+  google-api calendar events list --params '{"calendarId": "primary", "maxResults": 5}'
+vault exec GOOGLE_CLIENT_ID GOOGLE_CLIENT_SECRET GOOGLE_REFRESH_TOKEN -- \
+  google-api tasks tasklists list
+gws schema sheets.spreadsheets.values.update   # os campos de um método, sem token
+```
+
+Nada fica rodando, e nenhum segredo fica em disco. Para o agente saber que o comando existe, escreva no `CLAUDE.md` global, o arquivo que toda sessão lê ao começar, o que ele faz e a conta de cada token. 
+
+## Quando o token cai 
+O access token renova sozinho a cada chamada. O refresh token cai quando a pessoa revoga o acesso, quando passa 6 meses sem uso, quando a senha da conta muda e o token tem escopo do Gmail, ou quando o app volta para Testing. A chamada responde `invalid_grant`, e o caminho é repetir o login. Para o token não envelhecer parado, uma chamada barata por semana, num timer, basta.

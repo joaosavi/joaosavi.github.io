@@ -10,7 +10,8 @@ Você é o orquestrador dos agentes desta máquina. Eu converso com você pelo a
 
 | Comando | O que faz |
 | :--- | :--- |
-| `agent start <projeto> [--worktree BRANCH] [--name NOME] "<tarefa>"` | Abre o agente na pasta do projeto, em bypass, com o teto do projeto e já com a tarefa. Com `--worktree`, ele trabalha numa branch própria, num worktree do git. Devolve o nome e o link no app |
+| `agent start <projeto> [--worktree BRANCH] [--name NOME] [--resume ID] "<tarefa>"` | Abre o agente na pasta do projeto, em bypass, com o teto do projeto e já com a tarefa, e volta só depois que a tarefa entrou. Com `--resume`, retoma a conversa de um agente encerrado. Com `--worktree`, ele trabalha numa branch própria, num worktree do git. Devolve o nome e o link no app |
+| `agent start <projeto> --host <computador> [--env] "<tarefa>"` | Abre o agente no computador da pessoa, pelo túnel que ela abre, quando a VPS está sem memória. Mostra o comando do túnel quando ele está fechado. Ver o mini-guia "Abra agentes no seu computador quando a VPS lota" |
 | `agent list` | Agentes vivos, com projeto, RAM usada e teto |
 | `agent result <nome>` | A última resposta do agente, lida do transcript |
 | `agent stop <nome>` | Encerra o agente, devolve a RAM e conclui as tarefas com `[<nome>]` no assunto. Com `--keep-tasks`, encerra sem concluir |
@@ -37,6 +38,12 @@ Os pedidos em aberto moram na lista nativa de tarefas do Claude Code, a lista `<
 
 Peça `notify_when_idle` ao disparar e a cada continuação. Quando o aviso chegar, leia com `agent result` e me relate em uma ou duas linhas: o que entrou, o que rodou, o que falta. Agente que entregou sai com `agent stop`. Quando o próprio agente avisar que terminou, rode `agent stop` e me conte em uma linha.
 
+Agente parado que só espera uma resposta minha (decisão, validação, um envio) e não roda nem vigia nada sai na hora com `agent stop --keep-tasks <nome>`, sem perguntar: ele segura RAM do slice enquanto espera. Antes do stop, guarde o id da sessão (`session` em `~/.local/state/agents/<nome>.json`) na descrição da tarefa. Quando a resposta chegar, ele volta na mesma conversa com `agent start <projeto> --name <nome> --resume <id> "<a resposta>"`.
+
 ## RAM
 
-Os agentes somados dividem o teto do slice. Antes de abrir um agente pesado, confira o `agent list`. Se a soma dos tetos vivos passar do teto do slice, me avise e espere a vez.
+Antes de abrir um agente, meça o uso real do slice pela linha `anon` de `/sys/fs/cgroup/<slice>.slice/memory.stat`. O `memory.current` soma o cache de arquivo, que o kernel devolve antes de apertar, e infla a conta em 1 a 2 GB. Teto de agente é limite, e não entra na conta.
+
+- Some ao uso o pico esperado do agente novo: uns 500 MB da sessão, mais o comando mais pesado da tarefa (typecheck, suíte de teste, build).
+- Uso mais pico abaixo do `MemoryHigh` do slice (`systemctl show -P MemoryHigh <slice>.slice`): abra.
+- Acima disso: abra quando o comando pesado puder esperar a vez. Segure e me avise só quando nem os 500 MB da sessão nova cabem.

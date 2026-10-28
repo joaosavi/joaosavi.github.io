@@ -1,34 +1,70 @@
 # Como montar a infra com um comando  
-O instalador faz numa VPS Ubuntu (https://ubuntu.com/) os passos 6, 7, 8 e 9 de Montar a máquina: o swap, o teto de memória dos agentes, o recover, o orquestrador, o comando `agent`, o Cockpit (https://github.com/joaosavi/cockpit) e a manutenção automática. Rode na VPS depois dos passos 1 a 5, com o login do Claude Code (https://claude.com/product/claude-code) já feito. 
+O instalador faz numa VPS Ubuntu (https://ubuntu.com/) o essencial dos passos 6, 7 e 9 de Montar a máquina: o swap, o teto de memória dos agentes, o recover, o orquestrador, o comando `agent` e a manutenção automática. O resto são passos opcionais, que você escolhe. Rode na VPS depois dos passos 1 a 5, com o login do Claude Code (https://claude.com/product/claude-code) já feito. 
+
+- Baixar, get.sh 
+- Ler, install.sh 
+- Conferir, --check, sem escrever 
+- Instalar, install.sh 
+- Conferir de novo, nada falta  
+
+## Ler antes de rodar 
+O `get.sh` só baixa os arquivos para `~/always-on`, sem instalar nada. Leia ele antes, e depois leia o `install.sh`, que abre com a lista exata do que escreve na máquina: 
+
+bash, na máquina
+```
+curl -fsSL https://joaosavi.github.io/always-on/scripts/get.sh | less
+curl -fsSL https://joaosavi.github.io/always-on/scripts/get.sh | sh
+less ~/always-on/install.sh
+```
+
+O `--check` mostra o que o instalador faria, item por item, sem escrever nada. Cada linha sai como `ok` ou `falta`: 
+
+bash, na máquina
+```
+sed -i 's/^ORCHESTRATOR=.*/ORCHESTRATOR=<orquestrador>/' ~/always-on/config.env
+~/always-on/install.sh --check
+```
 
 ## Rodar 
 
 bash, na máquina
 ```
-curl -fsSL https://joaosavi.github.io/always-on/scripts/get.sh | sh
-sed -i 's/^ORCHESTRATOR=.*/ORCHESTRATOR=<orquestrador>/' ~/always-on/config.env
 ~/always-on/install.sh
+~/always-on/install.sh --check
 ```
 
-O `get.sh` baixa os scripts para `~/always-on`. O `config.env` guarda o nome do orquestrador, que vira o nome da sessão no app, e mais quatro valores com padrão: o nome do slice, o tamanho do swap, a memória reservada ao sistema e se o Cockpit entra. Cada linha mostra `ok`, `feito` ou `falta`. 
+O `config.env` guarda o nome do orquestrador, que vira o nome da sessão no app, e mais três valores com padrão: o nome do slice, o tamanho do swap e a memória reservada ao sistema. Cada linha da instalação mostra `ok`, `feito` ou `falta`. O segundo `--check` sai com 0 quando nada falta. 
 
-## O que ele monta 
+## O que ele escreve 
+Esta é a lista inteira. Fora dela, o instalador não cria nem muda nada. `<orquestrador>` e `<slice>` são os valores do `config.env`. 
 
-| Peça | Como fica |
-| --- | --- | 
-| Swap | 8 GB em `/swapfile`, só se a máquina não tiver swap. Num container, o swap vem do host | 
-| Slice dos agentes | Teto da memória total menos 512 MB do recover e 1 GB do sistema, e metade do swap. Ver Como pôr teto de memória (txt/memoria.txt) | 
-| Recover | O `recover.slice`, com 256 MB reservados e teto de 512 MB, e o serviço `recover-rc` | 
-| Orquestrador | A pasta `~/<orquestrador>` com o `CLAUDE.md`, o `projects.json` e o hook que mostra as tarefas abertas, o comando `agent`, o serviço com a lista de pedidos ligada e a entrada de reserva no app. Ver Como montar o orquestrador (txt/orquestrador.txt) | 
-| Cockpit | O pacote inteiro de mods. Ver Como instalar o Cockpit (txt/mods.txt) | 
-| ai-memory | Só com `AI_MEMORY=1`: o serviço, o espelho da memória e o MCP em toda sessão. Ver Memória buscável (txt/orquestrador.txt) | 
-| Manutenção | Os timers `sessions-restart` e `sessions-idle`, e o needrestart sem reiniciar as sessões. Ver Como deixar a máquina se cuidar sozinha (txt/manter.txt) |  
-Ele também marca as pastas do orquestrador e do recover como confiáveis e aceita os avisos do Remote Control (https://code.claude.com/docs/en/remote-control) e do bypass. Sem isso, o serviço travaria na subida, esperando uma tecla. 
+| Onde | O que | Com sudo |
+| --- | --- | --- | 
+| `/etc/systemd/system` | `<slice>.slice` e `recover.slice`, os tetos de memória. `<orquestrador>.service` e `recover-rc.service`, ligados no boot. `sessions-restart` e `sessions-idle`, cada um com `.service` e `.timer` | Sim | 
+| Swap | `/swapfile` e uma linha no `/etc/fstab`, só se a máquina não tem swap e `SWAP_GB` passa de 0. Num container, nunca | Sim | 
+| Sistema | `/etc/needrestart/conf.d/always-on.conf`, só se o needrestart (https://github.com/liske/needrestart) existe. O linger do seu usuário, pelo `loginctl enable-linger`. O `apt install` de `tmux`, `python3`, `git`, `curl` e `util-linux`, só dos que faltam, e o que cada pacote grava, como o grupo `_ssh` em `/etc/group`. O `systemctl daemon-reload`, `enable` e `start` das units acima | Sim | 
+| `~/.local/bin` | `agent`, `orchestrator-rc`, `orchestrator-context`, `recover-rc`, `memstat`, `sessions-restart` e `sessions-idle`. O `claude`, pelo instalador oficial, só se ele falta, com a pasta `~/.local/share/claude` | Não | 
+| `~/.config/always-on` | `env`, com o nome do orquestrador e o slice, e a pasta `pc/`, que o `agent start --host` leva ao seu computador | Não | 
+| Pastas das sessões | `~/<orquestrador>/CLAUDE.md`, `projects.json` e `.claude/settings.json`, e `~/recover/CLAUDE.md`. Criados uma vez: depois, quem edita é você | Não | 
+| Configuração do Claude Code | Em `~/.claude.json` e `~/.claude/settings.json`, só as chaves das telas de primeira vez e a confiança nas pastas do orquestrador e do recover. Sem isso, o serviço travaria na subida, esperando uma tecla. O Claude Code guarda uma cópia do `~/.claude.json` em `~/.claude/backups` | Não |  
+Rede: o `apt` e o instalador oficial do Claude Code, em `https://claude.ai/install.sh`, quando o `claude` falta. O instalador não abre porta, e nada do que ele monta escuta na rede. 
+Ele não mexe em firewall, SSH, usuários nem Docker, e não instala o que está em Passos opcionais. 
+
+## Passos opcionais 
+Cada um tem o próprio mini-guia, com os comandos. Os scripts que eles usam já vêm em `~/always-on/bin`. 
+
+| Passo | O que dá | Quando vale |
+| --- | --- | --- | 
+| Cockpit (txt/mods.txt) | Mods que barram erros comuns do agente e mostram em que ponto cada sessão está, e o painel no navegador | Recomendado. Instale logo depois do instalador | 
+| Entrada de reserva (txt/orquestrador.txt) | Uma sessão nova do orquestrador pelo app, quando a principal cai, sem SSH | Quando você não quer depender do SSH para voltar | 
+| Memória buscável (txt/orquestrador.txt) | O ai-memory, busca na memória de todos os projetos por MCP | Com vários projetos que repetem assunto. Gasta uns 340 MB | 
+| Telegram e WhatsApp (txt/canais-ligar.txt) | Aviso e arquivo entre você e a máquina | Quando quer receber o resultado fora do app | 
+| Cofre (txt/cofre.txt) | Senha entregue ao comando sem o agente ver o valor | Antes de dar ao agente qualquer senha ou token | 
+| APIs do Google (txt/google-apis.txt) | Calendar, Tasks, Drive, Sheets e Docs por OAuth | Quando o conector do claude.ai não cobre o que o agente precisa |  
 
 ## Depois de rodar 
 
-- Ponha os seus projetos em `~/<orquestrador>/projects.json`, cada um com a pasta e o teto. O teto é o comando mais pesado do projeto mais uns 500 MB. 
-- Rode `/cockpit:setup` numa sessão de terminal para escolher a status line. 
-- Confira com `~/always-on/install.sh --check`. Ele só olha, e sai com erro quando falta alguma coisa. 
-- Siga para Como provar que tudo funciona (txt/provar.txt).  
+- Projetos. Ponha os seus projetos em `~/<orquestrador>/projects.json`, cada um com a pasta e o teto. O teto é o comando mais pesado do projeto mais uns 500 MB. 
+- Cockpit. Instale os mods do Cockpit (txt/mods.txt), o passo opcional recomendado. 
+- Provar. Siga para Como provar que tudo funciona (txt/provar.txt).  
 O instalador pode rodar de novo. Ele grava só o arquivo que falta ou mudou, e o `CLAUDE.md` e o `projects.json` ficam como você deixou. Os scripts estão no GitHub (https://github.com/joaosavi/joaosavi.github.io/tree/main/always-on/scripts).

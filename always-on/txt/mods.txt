@@ -1,5 +1,5 @@
 # Como instalar o Cockpit e o que ele faz  
-O Cockpit é um pacote de 12 mods, extensões que mudam o comportamento do Claude Code (https://claude.com/product/claude-code). Os guardas barram os erros comuns de um agente, a sessão que trabalha sozinha numa tarefa. Os instrumentos mostram em que ponto cada sessão está. Instale o pacote inteiro. 
+O Cockpit (https://github.com/joaosavi/cockpit) é um pacote de 12 mods, extensões que mudam o comportamento do Claude Code (https://claude.com/product/claude-code). Os guardas barram os erros comuns de um agente, a sessão que trabalha sozinha numa tarefa. Os instrumentos mostram em que ponto cada sessão está. O instalador não o instala: é um passo opcional, e o recomendado. Instale o pacote inteiro. 
 
 ## Instalar 
 
@@ -9,7 +9,7 @@ claude plugin marketplace add joaosavi/cockpit
 claude plugin install cockpit@cockpit
 ```
 
-Reinicie o Claude Code e rode `/cockpit:setup` numa sessão de terminal. Ele faz quatro perguntas, com prévia, e grava a status line, a linha do spinner e o momento de compactar a conversa. As sessões que já rodam pegam os mods com `/reload-plugins`. O orquestrador, a sessão que distribui as tarefas, e o recover, a sessão de socorro, pegam com `sudo systemctl restart <orquestrador> <orquestrador>-spawn recover-rc`. 
+Reinicie o Claude Code e rode `/cockpit:setup` numa sessão de terminal. Ele faz quatro perguntas, com prévia, e grava a status line, a linha do spinner e o momento de compactar a conversa. As sessões que já rodam pegam os mods com `/reload-plugins`. O orquestrador, a sessão que distribui as tarefas, e o recover, a sessão de socorro, pegam com `sudo systemctl restart <orquestrador> recover-rc`, mais `<orquestrador>-spawn` se você montou a entrada de reserva. 
 
 ## Guardas 
 Barram o erro antes de ele acontecer. 
@@ -55,6 +55,50 @@ Cria uma pasta de memória da máquina, ao lado da memória de cada projeto. O q
 `todo`
 Mostra as tarefas abertas da lista nativa do Claude Code no início da sessão e em cada prompt seu, lembra que pedido novo vira tarefa antes de qualquer ação e arquiva a tarefa concluída. Agrupa as tarefas por estado e ordena cada grupo por prioridade, do P0 ao P2. Nos modelos novos, precisa de `CLAUDE_CODE_ENABLE_TODO_TOOLS=1`, que o serviço do orquestrador já liga.  
 Todo comando do Cockpit também responde em texto, então funciona pelo Remote Control (https://code.claude.com/docs/en/remote-control), no app do celular. 
+
+## O painel como serviço 
+Aberto por uma sessão, o painel fica preso ao grupo de memória dela e cai junto. Rode ele como serviço, no slice dos agentes, e desligue a subida pela sessão. O mod `todo` entra à parte, porque mod novo numa versão do Cockpit não chega com a atualização do pacote: 
+
+bash, na máquina
+```
+claude plugin install todo@cockpit
+python3 - <<'EOF'
+import json; from pathlib import Path
+p = Path.home() / ".claude" / "settings.json"
+d = json.loads(p.read_text()) if p.exists() else {}
+d.setdefault("pluginConfigs", {}).setdefault("panel@cockpit", {}).setdefault("options", {})["autostart"] = False
+p.write_text(json.dumps(d, indent=2))
+EOF
+install -m 755 ~/always-on/bin/cockpit-panel ~/.local/bin/
+sudo tee /etc/systemd/system/cockpit-panel.service > /dev/null <<EOF
+[Unit]
+Description=Painel do Cockpit em 127.0.0.1:7777
+After=network-online.target user-runtime-dir@$(id -u).service
+Wants=network-online.target user-runtime-dir@$(id -u).service
+
+[Service]
+Type=simple
+User=$USER
+Slice=<slice>.slice
+MemoryHigh=1G
+MemoryMax=1536M
+Environment=PANEL_PORT=7777
+Environment=PANEL_GROUPS=<slice>.slice,recover.slice
+Environment=PANEL_TASK_LIST=<orquestrador>
+Environment=PANEL_TASK_OWNER=eu
+Environment=PANEL_CLAUDE=$HOME/.local/bin/claude
+Environment=PATH=$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=$HOME/.local/bin/cockpit-panel
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload && sudo systemctl enable --now cockpit-panel
+```
+
+O `PANEL_TASK_OWNER` é o dono das tarefas que esperam você, como `[eu]` no assunto. Elas aparecem em Waiting na aba Tasks. 
 
 ## Abrir o painel no seu computador 
 O `panel` escuta só no `127.0.0.1` da VPS. Para abrir no navegador do seu computador, ligue um túnel SSH e acesse `http://localhost:7777`: 

@@ -1,13 +1,46 @@
 #!/usr/bin/env bash
-# Monta a infraestrutura do Claude Code Always-On numa VPS Ubuntu: swap, o slice dos agentes, o
-# recover, o orquestrador e a entrada de reserva dele, o comando agent e os timers que mantêm a
-# máquina sozinha.
+# Monta o essencial do Claude Code Always-On numa VPS Ubuntu: swap, o slice dos agentes, o recover,
+# o orquestrador, o comando agent e os timers que mantêm a máquina sozinha. O guia:
+# https://joaosavi.github.io/always-on/
 #
 #   ./install.sh          instala. Pode rodar de novo: o que já está certo fica como está
-#   ./install.sh --check  só confere, e sai com 1 quando falta alguma coisa
+#   ./install.sh --check  só confere, sem escrever nada, e sai com 1 quando falta alguma coisa
 #
-# Rode como o usuário que roda as sessões, com sudo sem senha. Os valores vêm do config.env ao
-# lado deste script (veja o config.env.example). O guia: https://joaosavi.github.io/always-on/
+# Rode como o usuário que roda as sessões, com sudo sem senha. Os valores vêm do config.env ao lado
+# deste script. Leia antes de rodar: less ~/always-on/install.sh
+#
+# O que ele escreve, e nada além disto. <orq> é o ORCHESTRATOR e <slice> o SLICE do config.env.
+#
+#   Com sudo, em /etc/systemd/system:
+#     <slice>.slice              teto de memória dos agentes somados
+#     recover.slice              256 MB reservados e teto de 512 MB para o recover
+#     <orq>.service              o orquestrador, num tmux, ligado no boot
+#     recover-rc.service         o recover, num tmux, ligado no boot
+#     sessions-restart.service e .timer   todo dia às 7h40
+#     sessions-idle.service e .timer      de hora em hora
+#   Com sudo, fora do systemd:
+#     /swapfile e uma linha no /etc/fstab, só se a máquina não tem swap e SWAP_GB > 0 (nunca num container)
+#     /etc/needrestart/conf.d/always-on.conf, só se o needrestart existe
+#     /var/lib/systemd/linger/<usuário>, pelo loginctl enable-linger
+#     apt install de tmux, python3, git, curl e util-linux, só dos que faltam. O apt grava o que
+#     cada pacote pede, como o grupo _ssh em /etc/group, o /etc/shells e o estado do dpkg
+#     systemctl daemon-reload, enable e start das units acima
+#   Como o seu usuário:
+#     ~/.local/bin: agent, orchestrator-rc, orchestrator-context, recover-rc, memstat,
+#                   sessions-restart, sessions-idle
+#     ~/.local/bin/claude e ~/.local/share/claude, pelo instalador oficial, só se o claude falta
+#     ~/.claude/backups, a cópia que o próprio Claude Code faz do ~/.claude.json
+#     ~/.config/always-on/env               o nome do orquestrador e o slice, que os comandos leem
+#     ~/.config/always-on/pc/               o que o agent start --host leva ao seu computador
+#     ~/<orq>/CLAUDE.md, projects.json e .claude/settings.json   criados uma vez, depois são seus
+#     ~/recover/CLAUDE.md                                         criado uma vez
+#     ~/.claude.json e ~/.claude/settings.json   só as chaves das telas de primeira vez e da
+#                                                confiança nas pastas ~/<orq> e ~/recover
+#
+# Rede: o apt, e o curl do instalador oficial do Claude Code (https://claude.ai/install.sh) quando o
+# claude falta. Nenhuma porta é aberta, e nada escuta na rede.
+# Não faz: firewall, SSH, usuário, Docker, Cockpit, ai-memory, Telegram, WhatsApp, cofre, a entrada
+# de reserva do orquestrador. Esses são passos opcionais do guia.
 set -euo pipefail
 
 HERE=$(cd "$(dirname "$0")" && pwd)
@@ -17,13 +50,11 @@ ORCHESTRATOR=${ORCHESTRATOR:-$USER}
 SLICE=${SLICE:-agents}
 SWAP_GB=${SWAP_GB:-8}
 SYSTEM_MB=${SYSTEM_MB:-1024}
-COCKPIT=${COCKPIT:-1}
-AI_MEMORY=${AI_MEMORY:-0}
 CHECK=0
 case "${1:-}" in
     --check) CHECK=1 ;;
     "") ;;
-    *) sed -n '5,6p' "$0" | sed 's/^# *//' >&2; exit 2 ;;
+    *) sed -n '6,7p' "$0" | sed 's/^# *//' >&2; exit 2 ;;
 esac
 
 BIN="$HOME/.local/bin"
@@ -146,8 +177,7 @@ CPUWeight=1000
 EOF
 
 step "Comandos em $BIN"
-for f in agent orchestrator-rc orchestrator-spawn orchestrator-context recover-rc memstat sessions-restart \
-    sessions-idle cockpit-panel ai-memory-sync; do
+for f in agent orchestrator-rc orchestrator-context recover-rc memstat sessions-restart sessions-idle; do
     put "$BIN/$f" user 755 <"$HERE/bin/$f"
 done
 
@@ -260,30 +290,6 @@ RestartSec=10
 [Install]
 WantedBy=multi-user.target
 EOF
-put "$UNITS/$ORCHESTRATOR-spawn.service" root 644 <<EOF
-[Unit]
-Description=Entrada de reserva do orquestrador no app: abre sessão nova já como orquestrador
-After=network-online.target user-runtime-dir@$(id -u).service
-Wants=network-online.target user-runtime-dir@$(id -u).service
-
-[Service]
-# A lista de pedidos: sem a primeira variável, os modelos novos não têm as ferramentas de tarefa.
-Environment=CLAUDE_CODE_ENABLE_TODO_TOOLS=1
-Environment=CLAUDE_CODE_TASK_LIST_ID=$ORCHESTRATOR
-Type=forking
-User=$USER
-Slice=$SLICE.slice
-MemoryHigh=768M
-MemoryMax=1G
-OOMPolicy=continue
-ExecStart=/usr/bin/tmux -L $ORCHESTRATOR-spawn new-session -d -s $ORCHESTRATOR-spawn "$LOGIN_SHELL -lic $BIN/orchestrator-spawn"
-ExecStop=/usr/bin/tmux -L $ORCHESTRATOR-spawn kill-server
-Restart=on-failure
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-EOF
 put "$UNITS/recover-rc.service" root 644 <<EOF
 [Unit]
 Description=Remote Control do Claude Code para o agente de recover
@@ -306,7 +312,7 @@ WantedBy=multi-user.target
 EOF
 put "$UNITS/sessions-restart.service" root 644 <<EOF
 [Unit]
-Description=Reinicia o orquestrador, a entrada de reserva e o recover com biblioteca apagada, e retoma as sessões
+Description=Reinicia o orquestrador e o recover com biblioteca apagada, e retoma as sessões
 
 [Service]
 Type=oneshot
@@ -353,7 +359,8 @@ WantedBy=timers.target
 EOF
 if [ -d /etc/needrestart/conf.d ]; then
     # O needrestart reinicia todo serviço com biblioteca trocada e derrubaria a sessão no meio do
-    # turno. Quem reinicia os três é o sessions-restart, que retoma as sessões depois.
+    # turno. Quem reinicia é o sessions-restart, que retoma as sessões depois. A entrada de reserva,
+    # passo opcional do guia, já entra na regra.
     put /etc/needrestart/conf.d/always-on.conf root 644 <<EOF
 \$nrconf{override_rc}{qr(^($ORCHESTRATOR|$ORCHESTRATOR-spawn|recover-rc)\\.service\$)} = 0;
 EOF
@@ -370,7 +377,7 @@ for t in sessions-restart.timer sessions-idle.timer; do
 done
 logged_in=0
 [ -f "$HOME/.claude/.credentials.json" ] && logged_in=1
-for s in "$ORCHESTRATOR" "$ORCHESTRATOR-spawn" recover-rc; do
+for s in "$ORCHESTRATOR" recover-rc; do
     if systemctl is-active -q "$s"; then
         ok "$s rodando"
     elif [ "$CHECK" = 1 ]; then
@@ -383,175 +390,9 @@ for s in "$ORCHESTRATOR" "$ORCHESTRATOR-spawn" recover-rc; do
     fi
 done
 
-if [ "$COCKPIT" = 1 ]; then
-    step "Cockpit"
-    if claude plugin list 2>/dev/null | grep -q 'cockpit@cockpit'; then
-        ok "cockpit instalado"
-    elif [ "$CHECK" = 1 ]; then
-        missing "o Cockpit não está instalado"
-    elif claude plugin marketplace add joaosavi/cockpit >/dev/null 2>&1 &&
-         claude plugin install cockpit@cockpit >/dev/null 2>&1; then
-        done_ "cockpit instalado: rode /cockpit:setup numa sessão de terminal"
-    else
-        missing "o Cockpit não instalou: rode claude plugin install cockpit@cockpit depois do login"
-    fi
-    # Mod novo numa versão do Cockpit não chega com a atualização do pacote.
-    if claude plugin list 2>/dev/null | grep -q 'cockpit@cockpit'; then
-        if claude plugin list 2>/dev/null | grep -q 'todo@cockpit'; then
-            ok "mod todo instalado"
-        elif [ "$CHECK" = 1 ]; then
-            missing "o mod todo não está instalado"
-        else
-            claude plugin marketplace update cockpit >/dev/null 2>&1
-            claude plugin install todo@cockpit >/dev/null 2>&1 && done_ "mod todo instalado"
-        fi
-    fi
-    # O painel roda como serviço. Aberto por uma sessão, ele ficaria preso no grupo de memória dela.
-    if python3 - "$CHECK" <<'EOF'
-import json, os, sys
-from pathlib import Path
-p = Path.home() / ".claude" / "settings.json"
-try:
-    d = json.loads(p.read_text())
-except (OSError, ValueError):
-    d = {}
-opts = d.setdefault("pluginConfigs", {}).setdefault("panel@cockpit", {}).setdefault("options", {})
-if opts.get("autostart") is False:
-    sys.exit(0)
-if sys.argv[1] == "1":
-    sys.exit(2)
-opts["autostart"] = False
-p.parent.mkdir(parents=True, exist_ok=True)
-tmp = p.with_suffix(".json.install")
-tmp.write_text(json.dumps(d, indent=2))
-os.replace(tmp, p)
-sys.exit(1)
-EOF
-    then ok "painel sem subida automática pela sessão"
-    else
-        case $? in
-            2) missing "o painel ainda sobe pela sessão" ;;
-            *) done_ "painel sem subida automática pela sessão" ;;
-        esac
-    fi
-    before=$(cat "$UNITS/cockpit-panel.service" 2>/dev/null || true)
-    put "$UNITS/cockpit-panel.service" root 644 <<EOF
-[Unit]
-Description=Painel do Cockpit, um cartão por sessão do Claude Code, em 127.0.0.1:7777
-After=network-online.target user-runtime-dir@$(id -u).service
-Wants=network-online.target user-runtime-dir@$(id -u).service
-
-[Service]
-Type=simple
-User=$USER
-Slice=$SLICE.slice
-MemoryHigh=1G
-MemoryMax=1536M
-Environment=PANEL_PORT=7777
-Environment=PANEL_GROUPS=$SLICE.slice,recover.slice
-# A aba Tasks abre na lista de pedidos do orquestrador, e a tarefa [eu] vai para Waiting.
-Environment=PANEL_TASK_LIST=$ORCHESTRATOR
-Environment=PANEL_TASK_OWNER=eu
-Environment=PANEL_CLAUDE=$BIN/claude
-Environment=PATH=$BIN:/usr/local/bin:/usr/bin:/bin
-ExecStart=$BIN/cockpit-panel
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-EOF
-    [ "$CHECK" = 0 ] && sudo systemctl daemon-reload
-    # O painel não guarda conversa, então reinicia na hora para pegar a unit nova.
-    if [ "$CHECK" = 0 ] && systemctl is-active -q cockpit-panel &&
-        [ "$before" != "$(cat "$UNITS/cockpit-panel.service")" ]; then
-        sudo systemctl restart cockpit-panel && done_ "cockpit-panel reiniciado com a unit nova"
-    elif systemctl is-active -q cockpit-panel; then ok "cockpit-panel rodando"
-    elif [ "$CHECK" = 1 ]; then missing "cockpit-panel parado"
-    elif [ -f "$HOME/.claude/plugins/installed_plugins.json" ]; then
-        sudo systemctl enable -q --now cockpit-panel && done_ "cockpit-panel rodando"
-    else
-        sudo systemctl enable -q cockpit-panel
-        missing "cockpit-panel ligado no boot, mas parado até o Cockpit instalar"
-    fi
-fi
-
-if [ "$AI_MEMORY" = 1 ]; then
-    step "ai-memory"
-    # A memória buscável por MCP: um servidor fora do slice dos agentes, sempre ligado, com espelho da
-    # memória nativa do Claude Code. Os hooks de captura do ai-memory ficam de fora: eles gravariam no
-    # banco a senha digitada num prompt.
-    if [ -x "$HOME/.local/opt/ai-memory/3.2.0/ai-memory" ] && grep -q 'senhas?' "$HOME/.local/share/ai-memory/config.toml" 2>/dev/null; then
-        ok "ai-memory 3.2.0 com o padrão de senha"
-    elif [ "$CHECK" = 1 ]; then
-        missing "o ai-memory não está instalado"
-    else
-        python3 "$BIN/ai-memory-sync" install >/dev/null && done_ "ai-memory 3.2.0 com o padrão de senha"
-    fi
-    put "$UNITS/ai-memory.service" root 644 <<EOF
-[Unit]
-Description=Servidor do ai-memory, MCP e API em 127.0.0.1:49374
-After=network-online.target
-Wants=network-online.target
-
-[Service]
-Type=simple
-User=$USER
-MemoryHigh=768M
-MemoryMax=1G
-Environment=HOME=$HOME
-Environment=RUST_LOG=warn
-ExecStart=$BIN/ai-memory serve --transport http
-Restart=always
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-EOF
-    put "$UNITS/ai-memory-sync.service" root 644 <<EOF
-[Unit]
-Description=Espelha a memória do Claude Code no ai-memory
-After=ai-memory.service
-Requires=ai-memory.service
-
-[Service]
-Type=oneshot
-User=$USER
-Environment=HOME=$HOME
-Environment=RUST_LOG=warn
-ExecStart=/usr/bin/python3 -I $BIN/ai-memory-sync
-EOF
-    put "$UNITS/ai-memory-sync.timer" root 644 <<'EOF'
-[Unit]
-Description=Espelha a memória no ai-memory a cada 10 minutos
-
-[Timer]
-OnBootSec=2min
-OnUnitActiveSec=10min
-
-[Install]
-WantedBy=timers.target
-EOF
-    [ "$CHECK" = 0 ] && sudo systemctl daemon-reload
-    for u in ai-memory.service ai-memory-sync.timer; do
-        if systemctl is-active -q "$u"; then ok "$u rodando"
-        elif [ "$CHECK" = 1 ]; then missing "$u parado"
-        else sudo systemctl enable -q --now "$u" && done_ "$u rodando"
-        fi
-    done
-    if claude mcp get ai-memory >/dev/null 2>&1; then
-        ok "MCP ai-memory registrado"
-    elif [ "$CHECK" = 1 ]; then
-        missing "MCP ai-memory não registrado"
-    else
-        claude mcp add -s user ai-memory -e RUST_LOG=warn -- "$BIN/ai-memory" mcp-bridge \
-            --server-url http://127.0.0.1:49374/mcp >/dev/null && done_ "MCP ai-memory registrado"
-    fi
-fi
-
 echo
 if [ "$MISSING" -gt 0 ]; then
     echo "Faltam $MISSING itens."
     exit 1
 fi
-echo "Tudo certo. No app do Claude, a sessão $ORCHESTRATOR aparece pronta. O recover e uma sessão nova de $ORCHESTRATOR abrem pelo botão de nova sessão."
+echo "Tudo certo. No app do Claude, a sessão $ORCHESTRATOR aparece pronta, e o recover abre pelo botão de nova sessão."

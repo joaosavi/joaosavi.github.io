@@ -61,7 +61,7 @@ Você é o orquestrador dos agentes desta máquina. Eu converso com você pelo a
 
 | Comando | O que faz |
 | :--- | :--- |
-| `agent start <projeto> [--worktree BRANCH] [--name NOME] "<tarefa>"` | Abre o agente na pasta do projeto, em bypass, com o teto do projeto e já com a tarefa. Com `--worktree`, ele trabalha numa branch própria, num worktree do git. Devolve o nome e o link no app |
+| `agent start <projeto> [--worktree BRANCH] [--name NOME] [--resume ID] "<tarefa>"` | Abre o agente na pasta do projeto, em bypass, com o teto do projeto e já com a tarefa, e volta só depois que a tarefa entrou. Com `--resume`, retoma a conversa de um agente encerrado. Com `--worktree`, ele trabalha numa branch própria, num worktree do git. Devolve o nome e o link no app |
 | `agent start <projeto> --host <computador> [--env] "<tarefa>"` | Abre o agente no computador da pessoa, pelo túnel que ela abre, quando a VPS está sem memória. Mostra o comando do túnel quando ele está fechado. Ver o mini-guia "Abra agentes no seu computador quando a VPS lota" |
 | `agent list` | Agentes vivos, com projeto, RAM usada e teto |
 | `agent result <nome>` | A última resposta do agente, lida do transcript |
@@ -89,9 +89,15 @@ Os pedidos em aberto moram na lista nativa de tarefas do Claude Code, a lista `<
 
 Peça `notify_when_idle` ao disparar e a cada continuação. Quando o aviso chegar, leia com `agent result` e me relate em uma ou duas linhas: o que entrou, o que rodou, o que falta. Agente que entregou sai com `agent stop`. Quando o próprio agente avisar que terminou, rode `agent stop` e me conte em uma linha.
 
+Agente parado que só espera uma resposta minha (decisão, validação, um envio) e não roda nem vigia nada sai na hora com `agent stop --keep-tasks <nome>`, sem perguntar: ele segura RAM do slice enquanto espera. Antes do stop, guarde o id da sessão (`session` em `~/.local/state/agents/<nome>.json`) na descrição da tarefa. Quando a resposta chegar, ele volta na mesma conversa com `agent start <projeto> --name <nome> --resume <id> "<a resposta>"`.
+
 ## RAM
 
-Os agentes somados dividem o teto do slice. Antes de abrir um agente pesado, confira o `agent list`. Se a soma dos tetos vivos passar do teto do slice, me avise e espere a vez.
+Antes de abrir um agente, meça o uso real do slice pela linha `anon` de `/sys/fs/cgroup/<slice>.slice/memory.stat`. O `memory.current` soma o cache de arquivo, que o kernel devolve antes de apertar, e infla a conta em 1 a 2 GB. Teto de agente é limite, e não entra na conta.
+
+- Some ao uso o pico esperado do agente novo: uns 500 MB da sessão, mais o comando mais pesado da tarefa (typecheck, suíte de teste, build).
+- Uso mais pico abaixo do `MemoryHigh` do slice (`systemctl show -P MemoryHigh <slice>.slice`): abra.
+- Acima disso: abra quando o comando pesado puder esperar a vez. Segure e me avise só quando nem os 500 MB da sessão nova cabem.
 EOF
 ```
 
@@ -256,6 +262,7 @@ def start(argv):
             "orchestrator": ORCHESTRATOR,
             "started": time.strftime("%Y-%m-%dT%H:%M:%S")}
     (STATE / f"{name}.json").write_text(json.dumps(spec, indent=2))
+    mark = transcript_mark(HOME / ".claude" / "projects", spec["session"])
 
     # Um servidor tmux por agente: com um servidor só, o segundo agente nasceria no scope do primeiro.
     # O tmux nasce sem XDG_RUNTIME_DIR: com ele, o tmux muda o painel para fora do scope.
@@ -270,33 +277,60 @@ def start(argv):
                     "tmux", "-L", name, "new-session", "-d", "-s", name, f"{shell} -lic '{inner}'"],
                    check=True)
 
-    link = wait_up(name, path, STATE, lambda: stop([name]))
+    link = wait_up(name, path, STATE, lambda: stop([name]), HOME / ".claude" / "projects", spec, mark)
     pid = agent_pid(name)
-    print(f"{name}  pid {pid}  {cgroup(pid)}  teto {cfg['memory']}\n{link}")
+    spec["scope"] = cgroup(pid)
+    (STATE / f"{name}.json").write_text(json.dumps(spec, indent=2))
+    print(f"{name}  pid {pid}  {spec['scope']}  teto {cfg['memory']}\n{link}")
 
-def wait_up(name, path, state, kill):
-    """Espera a tela do bypass e devolve o link do Remote Control. Sai com erro se o agente não subir."""
-    for _ in range(60):
+def transcript(projects_dir, session):
+    # O worktree muda a pasta do transcript, por isso o glob.
+    found = list(projects_dir.glob(f"*/{session}.jsonl"))
+    return found[0] if found else None
+
+def transcript_mark(projects_dir, session):
+    """Quantas linhas o transcript tem antes do lançamento. No --resume, o que vem antes é da sessão velha."""
+    t = transcript(projects_dir, session)
+    return len(t.read_text().splitlines()) if t else 0
+
+def task_delivered(projects_dir, spec, mark):
+    """Devolve o link do Remote Control quando a tarefa já entrou como prompt, ou None.
+
+    O link sai do bridge_status do transcript: na tela, a própria tarefa pode trazer o link de outra sessão."""
+    t = transcript(projects_dir, spec["session"])
+    if not t:
+        return None
+    link, head = None, spec["task"].strip()[:200]
+    for line in t.read_text().splitlines()[mark:]:
+        try:
+            d = json.loads(line)
+        except ValueError:
+            continue
+        if d.get("subtype") == "bridge_status" and d.get("url"):
+            link = d["url"]
+        c = (d.get("message") or {}).get("content")
+        if d.get("type") == "user" and not d.get("isMeta") and isinstance(c, str) and head in c:
+            return link or "?"
+    return None
+
+def wait_up(name, path, state, kill, projects_dir, spec, mark):
+    """Espera a tarefa entrar como primeiro prompt e devolve o link do Remote Control.
+
+    Volta só depois disso: o claude envia o prompt da linha de comando depois dos hooks de SessionStart,
+    e uma mensagem que chega antes passa na frente da tarefa. O agente responde a ela achando que não
+    recebeu tarefa nenhuma."""
+    for _ in range(120):
         if tmux(name, "has-session").returncode != 0:
             (state / f"{name}.json").unlink(missing_ok=True)
             die(f"{name} saiu na subida; veja o erro com: agent _run {name}")
-        screen = pane(name)
-        if "trust this folder" in screen:
+        if "trust this folder" in pane(name):
             kill()
             die(f"{path} não está marcada como confiável; abra o claude nela uma vez e aceite")
-        if "bypass permissions on" in screen:
-            break
+        link = task_delivered(projects_dir, spec, mark)
+        if link:
+            return link
         time.sleep(1)
-    else:
-        die(f"{name} não subiu em 60 s; veja com: tmux -L {name} attach")
-
-    link = "?"
-    for _ in range(20):
-        link = next((w for w in pane(name).split() if w.startswith("https://claude.ai/code/session_")), "?")
-        if link != "?":
-            break
-        time.sleep(1)
-    return link
+    die(f"{name} subiu, mas a tarefa não entrou em 120 s; veja com: tmux -L {name} attach")
 
 def run(name):
     host = os.environ.get("AGENT_HOST")
@@ -342,7 +376,7 @@ def list_():
             else:
                 f.unlink()
                 continue
-            rows.append((spec["name"], spec["project"], "-", mem, spec["started"]))
+            rows.append((spec["name"], spec["project"], spec.get("worktree") or "-", mem, spec["started"]))
             continue
         pid = agent_pid(spec["name"])
         if not pid:
@@ -372,15 +406,22 @@ def result(argv):
     print(last_answer(HOME / ".claude" / "projects", spec))
 
 def last_answer(projects_dir, spec):
-    found = list(projects_dir.glob(f"*/{spec['session']}.jsonl"))
-    if not found:
+    t = transcript(projects_dir, spec["session"])
+    if not t:
         die(f"{spec['name']} ainda não tem transcript")
-    last = None
-    for line in found[0].read_text().splitlines():
-        msg = json.loads(line).get("message") or {}
-        if msg.get("role") == "assistant" and isinstance(msg.get("content"), list):
+    last, pending = None, False
+    for line in t.read_text().splitlines():
+        d = json.loads(line)
+        msg = d.get("message") or {}
+        if d.get("type") == "user" and isinstance(msg.get("content"), str):
+            pending = True
+        # O "No response requested." do --resume é sintético: o claude o escreve no lugar do turno cortado.
+        if msg.get("role") == "assistant" and msg.get("model") != "<synthetic>" and isinstance(msg.get("content"), list):
             text = "".join(b.get("text", "") for b in msg["content"] if b.get("type") == "text")
-            last = text if text.strip() else last
+            if text.strip():
+                last, pending = text, False
+    if pending:
+        return f"{spec['name']} ainda não respondeu o último prompt" + (f"; a resposta anterior:\n{last}" if last else "")
     return last or f"{spec['name']} ainda não respondeu"
 
 def complete_tasks(name):
@@ -408,12 +449,13 @@ def stop(argv):
     name = argv[0] if len(argv) == 1 else die("uso: agent stop [--keep-tasks] <nome>")
     spec_file = STATE / f"{name}.json"
     remote = json.loads(spec_file.read_text()) if spec_file.exists() else {}
-    out, pid = "", None
+    out, pid, scope = "", None, None
     if remote.get("host"):
         out = host_call(remote["host"], "stop", name, raw=True)
         memory_sync(remote, back=True)
     else:
         pid = agent_pid(name)
+        scope = remote.get("scope") or cgroup(pid)
         tmux(name, "kill-server")
     for _ in range(30):
         if not pid or not Path(f"/proc/{pid}").exists():
@@ -428,7 +470,35 @@ def stop(argv):
                                 "path": spec["path"], "host": spec.get("host"), "stopped": time.strftime("%Y-%m-%dT%H:%M:%S")}) + "\n")
         spec_file.unlink()
     done = [] if keep else complete_tasks(name)
-    print(out + f"{name} encerrado" + (f"; tarefas concluídas: {' '.join(done)}" if done else ""))
+    left = kill_scope(scope) if scope else ""
+    print(out + f"{name} encerrado" + left + (f"; tarefas concluídas: {' '.join(done)}" if done else ""))
+
+def kill_scope(scope):
+    """Encerra o que o agente deixou no scope dele: servidor de dev, http.server, túnel ssh -f.
+
+    Fechar o tmux só derruba o claude. O que ele subiu com setsid, nohup ou em background sai da árvore
+    de processos, mas continua no cgroup do scope, e o scope vive enquanto houver processo nele. Por
+    isso nada de pkill -f com texto da tarefa: ele casa com a linha de comando de outros agentes."""
+    if not re.fullmatch(rf"/{re.escape(SLICE)}/run-[a-z0-9]+\.scope", scope):
+        return ""
+    procs = Path(f"/sys/fs/cgroup{scope}/cgroup.procs")
+    unit = scope.rsplit("/", 1)[1]
+    try:
+        n = len(procs.read_text().split())
+    except FileNotFoundError:
+        return ""
+    if not n:
+        return ""
+    for sig, wait in (("TERM", 10), ("KILL", 5)):
+        subprocess.run(["sudo", "-n", "systemctl", "kill", f"--signal={sig}", unit], capture_output=True)
+        for _ in range(wait):
+            try:
+                if not procs.read_text().split():
+                    return f"; {n} processos que sobraram encerrados"
+            except FileNotFoundError:
+                return f"; {n} processos que sobraram encerrados"
+            time.sleep(1)
+    die(f"{unit} segue com processos depois do SIGKILL; veja {procs}")
 
 # --- Agentes no computador (agent start --host). O guia explica em #pc. ------------------------------
 # O servidor fala com o computador pelo túnel SSH reverso que você abre, e roda lá este mesmo arquivo,
@@ -695,10 +765,11 @@ def pc(argv):
     elif sub == "start":
         name = args[0]
         spec = json.loads((PC_STATE / f"{name}.json").read_text())
+        mark = transcript_mark(PC_CONFIG / "projects", spec["session"])
         subprocess.run(["tmux", "-L", name, "new-session", "-d", "-s", name, "-c", spec["path"],
                         "-e", f"CLAUDE_CONFIG_DIR={PC_CONFIG}", "-e", f"PATH={PC_PATH}", "-e", "AGENT_HOST=" + spec["host"],
                         f"exec python3 {shlex.quote(os.path.realpath(__file__))} _run {name}"], check=True, env=pc_env())
-        link = wait_up(name, spec["path"], PC_STATE, lambda: pc(["stop", name]))
+        link = wait_up(name, spec["path"], PC_STATE, lambda: pc(["stop", name]), PC_CONFIG / "projects", spec, mark)
         print(json.dumps({"pid": agent_pid(name), "path": spec["path"], "link": link}))
     elif sub == "list":
         print(json.dumps({s["name"]: {"rss": pc_tree_rss(agent_pid(s["name"]))} for s in alive}))
@@ -758,7 +829,11 @@ chmod 755 ~/.local/bin/agent
 - Um servidor tmux por agente, com `tmux -L <nome>`. Com um servidor compartilhado, o segundo agente nasce dentro do scope do primeiro e herda o teto dele. 
 - O `XDG_RUNTIME_DIR` vai só para o `claude`, nunca para o tmux. Sem ele, o socket de mensagens cai em `/tmp` e o orquestrador não acha o agente. Com ele no tmux, o painel sai do scope e do teto. 
 - O comando marca a pasta do projeto como confiável antes de abrir. Sem isso, o agente trava na tela "trust this folder". 
-- O `setpriv --init-groups` abre o agente com todos os grupos do usuário. Com o `--uid` do `systemd-run`, ele nasceria só com o grupo principal mais o `root`, e o `docker` falharia por falta de permissão.  
+- O `setpriv --init-groups` abre o agente com todos os grupos do usuário. Com o `--uid` do `systemd-run`, ele nasceria só com o grupo principal mais o `root`, e o `docker` falharia por falta de permissão. 
+- O `agent start` volta só depois que a tarefa entrou no transcript, em até 120 s. O `claude` manda o prompt da linha de comando depois dos hooks de `SessionStart`, uns 10 s após abrir, e um `SendMessage` que chega antes passa na frente: o agente responde que não recebeu tarefa nenhuma. 
+- O link do app sai do transcript, nunca da tela. Uma tarefa que cita o link de outra sessão faria o comando devolver o link errado. 
+- O `agent stop` encerra o scope inteiro, e não só o tmux. O que o agente subiu com `setsid`, `nohup` ou `ssh -f`, como um servidor de dev ou um túnel, sai da árvore de processos e segue no scope, segurando memória. O stop manda TERM e depois KILL ao scope, só quando o caminho é `/<slice>.slice/run-*.scope`. Nunca encerre agente com `pkill -f` e um pedaço da tarefa: o padrão casa com a linha de comando de outros agentes. 
+- O `agent result` ignora o "No response requested.", a resposta falsa que o `--resume` grava no lugar do turno cortado, e avisa quando o último prompt ainda está sem resposta.  
 
 ## O serviço 
 O script sempre retoma a última conversa, e o laço sobe o orquestrador de novo se ele sair: 
@@ -827,7 +902,8 @@ sudo loginctl enable-linger $USER
 sudo systemctl daemon-reload && sudo systemctl enable --now <orquestrador>
 ```
 
-## A entrada de reserva 
+## A entrada de reserva (opcional) 
+O instalador não monta esta peça. Com os scripts em `~/always-on`, copie o script com `install -m 755 ~/always-on/bin/orchestrator-spawn ~/.local/bin/` e crie o serviço abaixo. O `sessions-restart` e a regra do `needrestart` já cuidam dele. 
 Quando a sessão do orquestrador cai, você abre outra pelo app, sem SSH e sem passar pelo recover. Um segundo serviço roda o Remote Control no modo servidor na pasta do orquestrador. No app, ele aparece como mais um lugar para abrir sessão nova, ao lado do recover, e a sessão aberta ali lê o `CLAUDE.md` da pasta e já nasce orquestrador. 
 
 - Sobe sem sessão pré-criada, com `--no-create-session-in-dir`. Parado, o serviço ocupa uns 70 MB. Uma sessão ociosa ali gastaria de 200 a 500 MB do slice. 
@@ -999,14 +1075,74 @@ O ai-memory (https://github.com/akitaonrails/ai-memory), do Fábio Akita, dá ao
 - O MCP `ai-memory` em toda sessão. O agente busca com `memory_query`, e com `global=true` busca em todos os projetos.  
 
 Sem os hooks de captura
-O ai-memory também captura sozinho o que a sessão faz, por hooks. Num teste com senha falsa, a senha digitada num prompt foi gravada crua no banco, porque o filtro dele só reconhece formatos como `sk-` e `ghp_`. O instalador deixa esses hooks de fora e grava no servidor um padrão que apaga senha dita em frase, como "a senha do wifi é X". Senha vai para o cofre (txt/cofre.txt). 
+O ai-memory também captura sozinho o que a sessão faz, por hooks. Num teste com senha falsa, a senha digitada num prompt foi gravada crua no banco, porque o filtro dele só reconhece formatos como `sk-` e `ghp_`. O `ai-memory-sync install` deixa esses hooks de fora e grava no servidor um padrão que apaga senha dita em frase, como "a senha do wifi é X". Senha vai para o cofre (txt/cofre.txt). 
+O instalador não monta esta peça. Com os scripts em `~/always-on`, instale o ai-memory, o serviço, o espelho e o MCP: 
+
+bash, na máquina
+```
+install -m 755 ~/always-on/bin/ai-memory-sync ~/.local/bin/
+python3 ~/.local/bin/ai-memory-sync install
+sudo tee /etc/systemd/system/ai-memory.service > /dev/null <<EOF
+[Unit]
+Description=Servidor do ai-memory, MCP e API em 127.0.0.1:49374
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=$USER
+MemoryHigh=768M
+MemoryMax=1G
+Environment=HOME=$HOME
+Environment=RUST_LOG=warn
+ExecStart=$HOME/.local/bin/ai-memory serve --transport http
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo tee /etc/systemd/system/ai-memory-sync.service > /dev/null <<EOF
+[Unit]
+Description=Espelha a memória do Claude Code no ai-memory
+After=ai-memory.service
+Requires=ai-memory.service
+
+[Service]
+Type=oneshot
+User=$USER
+Environment=HOME=$HOME
+Environment=RUST_LOG=warn
+ExecStart=/usr/bin/python3 -I $HOME/.local/bin/ai-memory-sync
+EOF
+sudo tee /etc/systemd/system/ai-memory-sync.timer > /dev/null <<'EOF'
+[Unit]
+Description=Espelha a memória no ai-memory a cada 10 minutos
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=10min
+
+[Install]
+WantedBy=timers.target
+EOF
+sudo systemctl daemon-reload
+sudo systemctl enable --now ai-memory.service ai-memory-sync.timer
+claude mcp add -s user ai-memory -e RUST_LOG=warn -- ~/.local/bin/ai-memory mcp-bridge --server-url http://127.0.0.1:49374/mcp
+```
 
 ## Falar com os agentes 
 
 - O nome do agente no `agent start` é o nome dele no `ListAgents` e no app. O orquestrador manda continuação com `SendMessage` e pede `notify_when_idle` para saber quando ele termina. 
 - Você também fala direto com o agente, pela sessão dele no app. 
 - Arquivar a sessão no app não encerra o processo, e a RAM fica presa. Encerre com `agent stop`. 
-- Agente encerrado volta na mesma conversa com `agent start <projeto> --name <nome> --resume <id>`. O `agent stop` grava o id em `~/.local/state/agents/stopped.jsonl`.  
+- Agente encerrado volta na mesma conversa com `agent start <projeto> --name <nome> --resume <id>`. O `agent stop` grava o id em `~/.local/state/agents/stopped.jsonl`. 
+- Agente parado que só espera uma resposta sua sai na hora com `agent stop --keep-tasks <nome>`, e a tarefa dele segue aberta. Uma sessão parada segura de 200 a 500 MB do slice, e o teto dela pode barrar o próximo agente. Quando você responde, ele volta pelo `--resume` com a sua resposta como prompt.  
+
+- Agente pergunta, e para 
+- agent stop --keep-tasks, a RAM volta 
+- Você responde, horas depois 
+- agent start --resume, mesma conversa  
 
 ## Provar 
 
