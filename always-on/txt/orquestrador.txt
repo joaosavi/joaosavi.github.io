@@ -19,7 +19,7 @@ O instalador (txt/instalador.txt) faz esta página com um comando. Ela fica para
 
 | Forma | Como | Quem usa |
 | --- | --- | --- | 
-| Modo servidor | `claude remote-control` espera, e abre uma sessão nova cada vez que você pede pelo app | O recover, a sessão de socorro, e a entrada de reserva do orquestrador | 
+| Modo servidor | `claude remote-control` espera, e abre uma sessão nova cada vez que você pede pelo app | A entrada de reserva do orquestrador | 
 | Sessão de terminal ligada ao app | `claude --remote-control <nome>` num tmux (https://github.com/tmux/tmux). A sessão aparece pronta no app, com a pasta, o teto e a tarefa com que nasceu | O orquestrador e os agentes |  
 Se o app não conseguir abrir uma sessão, use a segunda forma: entre pelo SSH, abra um tmux e rode `claude --remote-control <nome>` na pasta. 
 
@@ -904,7 +904,7 @@ sudo systemctl daemon-reload && sudo systemctl enable --now <orquestrador>
 
 ## A entrada de reserva (opcional) 
 O instalador não monta esta peça. Com os scripts em `~/always-on`, copie o script com `install -m 755 ~/always-on/bin/orchestrator-spawn ~/.local/bin/` e crie o serviço abaixo. O `sessions-restart` e a regra do `needrestart` já cuidam dele. 
-Quando a sessão do orquestrador cai, você abre outra pelo app, sem SSH e sem passar pelo recover. Um segundo serviço roda o Remote Control no modo servidor na pasta do orquestrador. No app, ele aparece como mais um lugar para abrir sessão nova, ao lado do recover, e a sessão aberta ali lê o `CLAUDE.md` da pasta e já nasce orquestrador. 
+Quando a sessão do orquestrador cai, você abre outra pelo app, sem SSH. Um segundo serviço roda o Remote Control no modo servidor na pasta do orquestrador. No app, ele aparece como mais um lugar para abrir sessão nova, e a sessão aberta ali lê o `CLAUDE.md` da pasta e já nasce orquestrador. 
 
 - Sobe sem sessão pré-criada, com `--no-create-session-in-dir`. Parado, o serviço ocupa uns 70 MB. Uma sessão ociosa ali gastaria de 200 a 500 MB do slice. 
 - Plugin que só pode rodar numa sessão, como o do Telegram, liga pela linha de comando do `orchestrator-rc`, e não pelo `.claude/settings.json` da pasta. Configuração da pasta vale para toda sessão aberta pela reserva. 
@@ -968,6 +968,29 @@ sudo systemctl daemon-reload && sudo systemctl enable --now <orquestrador>-spawn
 Sessão da reserva em modo auto
 Hoje o app troca o bypass por auto nas sessões abertas pelo modo servidor (issue #87826 (https://github.com/anthropics/claude-code/issues/87826)). O classificador do modo auto pode barrar o `agent start`, e a sessão da reserva pede aprovação. Quando o issue fechar, ela passa a rodar em bypass sem mudança no serviço. O orquestrador principal e os agentes sobem pelo terminal e mantêm o bypass. 
 Confira com `tmux -L <orquestrador>-spawn capture-pane -p | tail -8`: a tela mostra `Ready` e `Capacity: 0/2`. No app, em sessão nova, o ambiente aparece como `<máquina>:<orquestrador>:<sufixo>`. O sufixo muda a cada reinício do serviço, e o ambiente antigo sai da lista. 
+
+## O vigia do Remote Control 
+O instalador monta esta peça. A ponte é a ligação da sessão do orquestrador com o app pelo Remote Control. Depois de um corte curto de rede, ela se refaz sozinha. Quando o Claude Code esgota as tentativas de renovar o login, a sessão fica em `OAuth token unavailable`, não tenta de novo e some do app. Só um reinício do serviço a traz de volta, e sem o vigia esse reinício pede SSH. 
+O `rc-watch` roda de minuto em minuto pelo `rc-watch.timer` e pergunta ao servidor do Remote Control se a ponte do orquestrador está conectada. 
+
+- Cinco rodadas seguidas fora reiniciam o `<orquestrador>.service`, e o orquestrador volta na mesma conversa pelo `--continue`. Um corte de rede de 4 minutos voltou sozinho uns 30 segundos depois da rede, e o reinício corta o turno em curso. 
+- Conta como fora: o servidor diz que a ponte está desconectada, a sessão está sem ponte, o socket de mensagens, o arquivo por onde os agentes falam com o orquestrador, sumiu, ou o serviço está sem sessão do orquestrador. 
+- Rodada sem resposta da API, por rede fora ou credencial ausente, fica sem veredito e não conta, porque reiniciar não conserta rede. 
+- O `apiKeyHelper` é a configuração que entrega uma chave da API ao Claude Code. No settings da pasta do orquestrador, ele tira a sessão da assinatura e desliga o Remote Control. O vigia tira a chave, guarda a cópia do arquivo em `~/.local/state/rc-watch` e reinicia na primeira rodada. 
+- No máximo 3 reinícios em 6 horas. Passou disso, é laço: o vigia para de reiniciar e avisa você uma vez.  
+O aviso sai pelo comando de `ALERT` no `config.env`, com o texto no último argumento. Com o envio pelo WhatsApp de Como ligar o Telegram e o WhatsApp à máquina (txt/canais-ligar.txt), `ALERT=send` basta. Vazio, o aviso fica só no journal. O serviço roda no `system.slice`, fora do teto dos agentes, e reinicia mesmo com o slice cheio. 
+
+bash, na máquina
+```
+# conectado, ou a falha
+rc-watch status
+# as últimas rodadas
+journalctl -u rc-watch -n 50
+# reinicia agora e solta a trava
+rc-watch restart "motivo"
+```
+
+Quando o vigia parou no limite ou o orquestrador não volta, abra pelo app a entrada de reserva, se você a montou: ela abre um orquestrador novo na mesma pasta, sem SSH. Sem ela, entre por SSH e rode `rc-watch restart`. 
 
 ## A lista de pedidos 
 O orquestrador recebe muitos pedidos, e o resumo da compactação, quando a conversa enche, pode perder um. A lista de tarefas nativa (https://code.claude.com/docs/en/interactive-mode#task-list) do Claude Code guarda cada pedido num arquivo, em `~/.claude/tasks/<orquestrador>/`, fora da conversa. Nos modelos novos ela vem desligada, e as duas variáveis dos serviços acima a ligam: a primeira traz as ferramentas `TaskCreate`, `TaskList` e `TaskUpdate`, e a segunda dá à lista o nome do orquestrador, a mesma no serviço principal e na entrada de reserva. 

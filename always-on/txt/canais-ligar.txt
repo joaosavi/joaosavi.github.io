@@ -3,7 +3,7 @@ O WhatsApp (https://www.whatsapp.com/) vira uma caixa de entrada de arquivos e m
 
 ## WhatsApp 
 O wacli (https://github.com/openclaw/wacli) liga um número descartável à máquina como aparelho vinculado do WhatsApp. Você encaminha mensagem, áudio e arquivo para esse número, e um serviço grava cada mensagem num `.md` numa pasta da máquina, com a mídia ao lado. O serviço só grava as mensagens dos números da lista e ignora o resto. O agente, a sessão do Claude Code que faz o trabalho, lê dessa pasta quando você pedir. Uma API de Whisper (https://github.com/openai/whisper) pode transcrever os áudios. 
-Para mandar de volta, um comando pequeno chama o `wacli send` só para os números da lista. O destino é um rótulo, como pessoal ou trabalho, e o comando recusa número digitado. Sem rótulo, a mensagem vai ao seu número pessoal, e o que você mandou pelo número de trabalho volta por ele. Com o `wacli sync --follow` do serviço de pé, o `wacli send` entrega pela conexão dele, sem abrir uma segunda sessão. Com arquivo, o texto vira legenda, e áudio leva o texto numa segunda mensagem, porque o WhatsApp não põe legenda em áudio. O serviço nunca responde sozinho ao que chega, então ninguém conversa com o Claude pelo WhatsApp. 
+Para mandar de volta, um comando pequeno chama o `wacli send` só para os números da lista. O destino é um rótulo, como pessoal ou trabalho, e o comando recusa número digitado. Sem rótulo, a mensagem vai ao seu número pessoal, e o que você mandou pelo número de trabalho volta por ele. Com o `wacli sync --follow` do serviço de pé, o `wacli send` entrega pela conexão dele, sem abrir uma segunda sessão. Com arquivo, o texto vira legenda, e áudio leva o texto numa segunda mensagem, porque o WhatsApp não põe legenda em áudio. O serviço nunca responde sozinho ao que chega. 
 
 bash, na máquina
 ```
@@ -23,6 +23,9 @@ O comando pequeno embrulha essas duas linhas. Ele aceita só `--to <rótulo>` e 
 O limite do rótulo
 O agente roda com o mesmo usuário do serviço e ainda alcança o `wacli send --to` direto. Para fechar essa porta, rode o serviço num usuário próprio do sistema. 
 Escolha um canal de entrega e escreva no `CLAUDE.md` global, o arquivo de instruções que toda sessão lê ao começar: arquivo, print e aviso para você saem pelo WhatsApp, e pelo Telegram só quando você pedir. Com os dois valendo, o mesmo aviso chega duas vezes. 
+
+## Resposta ao orquestrador (opcional) 
+Para responder do celular a uma pergunta do orquestrador sem abrir o app, o serviço pode levar cada mensagem dos seus números à sessão viva dele, pelo socket de mensagens entre sessões (https://code.claude.com/docs/en/cross-session-messaging) do Claude Code. Quando você responde citando uma mensagem que o agente mandou, ela vai junto, e o orquestrador sabe a que pergunta você respondeu. Mensagem sem citação vai marcada como tal, e mensagem encaminhada vai marcada como texto de outra pessoa. Número fora da lista nunca chega à sessão. Com a sessão fora do ar, a mensagem fica só gravada na pasta. Escreva no `CLAUDE.md` do orquestrador o que ele pode decidir sozinho com uma resposta dessas e o que confirma pelo app. 
 
 ## Grupo com marcação (opcional) 
 Você põe o número do agente num grupo do WhatsApp, e quem marca o número, com `@`, recebe uma resposta no grupo. Serve para tirar dúvida de um projeto com outras pessoas, sem abrir o app. Por padrão, o serviço não lê grupo nenhum. 

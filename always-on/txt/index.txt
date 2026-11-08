@@ -21,7 +21,7 @@ Cada linha é um mini-guia. Baixe com: curl -s https://joaosavi.github.io/always
 - ambiente: Como instalar as ferramentas e levar suas configs
 - logins: Como fazer login no Claude e no GitHub
 - codigo: Como organizar pastas, repos e segredos
-- memoria: Como pôr teto de memória e o agente de recover
+- memoria: Como pôr teto de memória nos agentes
 - orquestrador: Como montar o orquestrador e os agentes
 - mods: Como instalar o Cockpit e o que ele faz
 - manter: Como deixar a máquina se cuidar sozinha

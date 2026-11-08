@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Reinicia o orquestrador e o recover quando ficam com biblioteca do sistema apagada, e retoma as sessões.
+"""Reinicia o orquestrador e a entrada de reserva quando ficam com biblioteca do sistema apagada, e retoma as sessões.
 
 Roda pelo sessions-restart.timer, depois do unattended-upgrade. O needrestart deixa os dois serviços
 de fora (/etc/needrestart/conf.d/always-on.conf), porque o reinício dele derruba a sessão no meio do
 turno. Aqui o reinício vem com a volta: o orquestrador volta na mesma conversa pelo --continue, e
-cada sessão aberta do recover volta pelo id na mesma pasta. A que estava no meio de um turno recebe
+cada sessão aberta pela entrada de reserva volta pelo id na mesma pasta. A que estava no meio de um turno recebe
 a mensagem para seguir.
   sessions-restart            reinicia o que estiver com biblioteca apagada
   sessions-restart --dry-run  só lista
@@ -37,7 +37,7 @@ def setting(key):
 
 
 ORCHESTRATOR = setting("AGENT_ORCHESTRATOR")
-SERVICES = [s for s in (ORCHESTRATOR, f"{ORCHESTRATOR}-spawn" if ORCHESTRATOR else "", "recover-rc") if s]
+SERVICES = [s for s in (ORCHESTRATOR, f"{ORCHESTRATOR}-spawn" if ORCHESTRATOR else "") if s]
 # O orquestrador volta sozinho na mesma conversa pelo orchestrator-rc; retomar aqui abriria uma segunda.
 RETURNS_ALONE = {ORCHESTRATOR}
 READY_TIMEOUT = 120
@@ -192,8 +192,8 @@ def restart(service, dry_run):
         log(f"  {s.get('name')}: {s['sessionId']} {s.get('status')}")
     if dry_run:
         return
-    # O tmux de cada serviço tem o nome dele sem o -rc: o do orquestrador é o nome dele, o do recover é recover.
-    # O da entrada de reserva é <orquestrador>-spawn.
+    # O tmux de cada serviço tem o nome dele: o do orquestrador é o nome dele, o da entrada de reserva é
+    # <orquestrador>-spawn.
     socket = service.removesuffix("-rc")
     subprocess.run(["sudo", "-n", "systemctl", "restart", f"{service}.service"], check=True)
     if not wait(lambda: tmux(socket, "has-session").returncode == 0, 60):

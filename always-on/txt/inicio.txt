@@ -23,7 +23,7 @@ Espaço dos agentes, com limite de memória (txt/memoria.txt)
 Orquestrador, recebe o pedido, abre e encerra agentes (txt/orquestrador.txt) 
 Agente do site, trabalha num projeto 
 Agente da API, trabalha em outro   
-Recover, sessão que responde se a máquina travar (txt/memoria.txt) Travas de segurança, o Cockpit, pacote de mods (txt/mods.txt) Cofre, gerenciador de senhas, usadas pelo nome (txt/cofre.txt) Navegador, o seu Chrome ou o da VPS (txt/navegador.txt)    
+Vigia do Remote Control, devolve o orquestrador ao app (txt/orquestrador.txt) Travas de segurança, o Cockpit, pacote de mods (txt/mods.txt) Cofre, gerenciador de senhas, usadas pelo nome (txt/cofre.txt) Navegador, o seu Chrome ou o da VPS (txt/navegador.txt)    
 
 ## O que muda para você 
 
@@ -73,7 +73,7 @@ Para conferir se a conta pode usar o Remote Control, rode `claude remote-control
 - Como instalar as ferramentas e levar suas configs (txt/ambiente.txt)
 - Como fazer login no Claude e no GitHub (txt/logins.txt)
 - Como organizar pastas, repos e segredos (txt/codigo.txt)
-- Como pôr teto de memória e o agente de recover (txt/memoria.txt)
+- Como pôr teto de memória nos agentes (txt/memoria.txt)
 - Como montar o orquestrador e os agentes (txt/orquestrador.txt)
 - Como instalar o Cockpit e o que ele faz (txt/mods.txt)
 - Como deixar a máquina se cuidar sozinha (txt/manter.txt)

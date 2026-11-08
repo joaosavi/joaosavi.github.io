@@ -9,7 +9,7 @@ claude plugin marketplace add joaosavi/cockpit
 claude plugin install cockpit@cockpit
 ```
 
-Reinicie o Claude Code e rode `/cockpit:setup` numa sessão de terminal. Ele faz quatro perguntas, com prévia, e grava a status line, a linha do spinner e o momento de compactar a conversa. As sessões que já rodam pegam os mods com `/reload-plugins`. O orquestrador, a sessão que distribui as tarefas, e o recover, a sessão de socorro, pegam com `sudo systemctl restart <orquestrador> recover-rc`, mais `<orquestrador>-spawn` se você montou a entrada de reserva. 
+Reinicie o Claude Code e rode `/cockpit:setup` numa sessão de terminal. Ele faz quatro perguntas, com prévia, e grava a status line, a linha do spinner e o momento de compactar a conversa. As sessões que já rodam pegam os mods com `/reload-plugins`. O orquestrador, a sessão que distribui as tarefas, pega com `sudo systemctl restart <orquestrador>`, mais `<orquestrador>-spawn` se você montou a entrada de reserva. 
 
 ## Guardas 
 Barram o erro antes de ele acontecer. 
@@ -83,7 +83,7 @@ Slice=<slice>.slice
 MemoryHigh=1G
 MemoryMax=1536M
 Environment=PANEL_PORT=7777
-Environment=PANEL_GROUPS=<slice>.slice,recover.slice
+Environment=PANEL_GROUPS=<slice>.slice
 Environment=PANEL_TASK_LIST=<orquestrador>
 Environment=PANEL_TASK_OWNER=eu
 Environment=PANEL_CLAUDE=$HOME/.local/bin/claude

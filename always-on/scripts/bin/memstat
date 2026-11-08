@@ -1,6 +1,6 @@
 #!/bin/sh
 # Mostra quanto cada grupo de memória usa, os limites dele e a pressão de memória da máquina.
-# Lista os slices com teto, como o dos agentes e o recover.slice, e o system.slice.
+# Lista os slices com teto, como o dos agentes, e o system.slice.
 mb() { case "$1" in max) echo "sem teto" ;; *) echo "$(( $1 / 1048576 )) MB" ;; esac; }
 for p in /sys/fs/cgroup/*.slice; do
     cg=${p##*/}

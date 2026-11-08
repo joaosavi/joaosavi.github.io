@@ -1,5 +1,5 @@
 # Algo quebrou? A saída está aqui  
-Procure pelo sintoma na primeira coluna. Quase todos estes problemas aconteceram na nossa montagem. Na tabela, o orquestrador é a sessão do Claude Code (https://claude.com/product/claude-code) que distribui as tarefas, o agente é a sessão que trabalha numa tarefa, o recover é a sessão de socorro, e o Cockpit (https://github.com/joaosavi/cockpit) é o pacote de mods que barra erros comuns. 
+Procure pelo sintoma na primeira coluna. Quase todos estes problemas aconteceram na nossa montagem. Na tabela, o orquestrador é a sessão do Claude Code (https://claude.com/product/claude-code) que distribui as tarefas, o agente é a sessão que trabalha numa tarefa, e o Cockpit (https://github.com/joaosavi/cockpit) é o pacote de mods que barra erros comuns. 
 
 | Sintoma | Causa | Conserto |
 | --- | --- | --- | 
@@ -14,11 +14,12 @@ Procure pelo sintoma na primeira coluna. Quase todos estes problemas aconteceram
 | A RAM continua ocupada depois de arquivar a sessão no app | Arquivar não encerra o processo | `agent stop <nome>` | 
 | A sessão nova está em outro branch e sem os `.env` | `--spawn worktree` abre a sessão num worktree, uma cópia de trabalho separada do repo, que nasce do branch padrão do remoto, só com arquivos versionados | `--spawn same-dir`, ou `.worktreeinclude` mais `worktree.baseRef: "head"` | 
 | O servidor sumiu e não voltou | Ele sai depois de uns 10 minutos sem rede | O laço do script do serviço | 
-| O app parou de abrir sessão, e o painel mostra `Login expired` | O login do Claude na máquina venceu. Sessão que dura mais que o login para de andar até um login novo | `claude auth login` num tmux, e depois `sudo systemctl restart <orquestrador> <orquestrador>-spawn recover-rc` | 
+| O app parou de abrir sessão, e o painel mostra `Login expired` | O login do Claude na máquina venceu. Sessão que dura mais que o login para de andar até um login novo | `claude auth login` num tmux, e depois `sudo systemctl restart <orquestrador> <orquestrador>-spawn` | 
+| O orquestrador some do app e não volta depois que a rede volta | A sessão esgotou as tentativas de renovar o login e ficou em `OAuth token unavailable`, sem tentar de novo | O `rc-watch` reinicia o serviço depois de 5 minutos fora. Se ele parou no limite de 3 reinícios em 6 horas, abra a entrada de reserva pelo app, ou rode `rc-watch restart` por SSH | 
 | A sessão de uma máquina cai quando a outra renova o login | As duas dividem o mesmo `.credentials.json` | Login próprio em cada máquina | 
 | Um MCP de banco não conecta | O banco de desenvolvimento ficou parado depois do reboot | `docker update --restart unless-stopped` no container do banco | 
 | Um teste que sobe banco estoura 5s | Máquina de 2 núcleos com a suíte inteira em paralelo | Limite de 30s nos testes que sobem container | 
-| O SSH leva de 20 a 77 segundos para entrar, e as sessões do app param de responder | A máquina chegou ao limite de memória sem swap. O kernel descarta o cache de disco, e todo processo espera o disco | Swap e o teto das sessões, em Como pôr teto de memória e o agente de recover (txt/memoria.txt). Na hora, abra a sessão `recover` e mate o comando pesado | 
+| O SSH leva de 20 a 77 segundos para entrar, e as sessões do app param de responder | A máquina chegou ao limite de memória sem swap. O kernel descarta o cache de disco, e todo processo espera o disco | Swap e o teto das sessões, em Como pôr teto de memória nos agentes (txt/memoria.txt). Na hora, entre por SSH e mate o comando pesado | 
 | Um build ou uma suíte de testes morre com `Killed` ou exit 137 | O grupo das sessões bateu no teto, e o kernel matou o maior processo | Menos paralelismo, ou um teto maior para o projeto no `projects.json`. O `memory-guard` do Cockpit faz isso sozinho | 
 | Todas as sessões caem juntas quando um comando morre por falta de memória | Sem `OOMPolicy=continue`, o systemd (https://systemd.io/) para o serviço inteiro quando o kernel mata um processo dele | `OOMPolicy=continue` na unit, e `sudo systemctl daemon-reload` | 
 | A sessão parou com `You've hit your session limit` e continua parada depois do horário de volta | Ninguém escreveu nela depois que o limite voltou | O `usage-limit` do Cockpit retoma sozinho. Sem ele, mande uma mensagem pela sessão no app | 

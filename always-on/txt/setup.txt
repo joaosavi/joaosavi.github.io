@@ -52,9 +52,9 @@ ETAPA 1 DE 6: APRESENTAR
 3. Mostre o padrão como lista numerada, cada item com uma frase do que é, e peça "ok" ou comentários por item:
    1. VPS grátis na Oracle: 2 núcleos ARM e 12 GB de memória, sem mensalidade.
    2. Orquestrador: a sessão que eu vejo no app. Ele recebe os pedidos e abre um agente por tarefa.
-   3. Teto de memória e recover: cada agente tem um limite, para um projeto pesado não travar os outros, e o recover é uma sessão reserva que responde mesmo com a máquina cheia.
+   3. Teto de memória: cada agente tem um limite, para um projeto pesado não travar os outros, e o orquestrador segue respondendo com a máquina cheia.
    4. Cockpit: um pacote de travas que esconde senha que aparece na tela, segura comando que vai estourar a memória e pausa antes do limite de uso do plano.
-   5. Manutenção automática: a máquina volta sozinha depois de atualizar o sistema e encerra agente esquecido.
+   5. Manutenção automática: a máquina volta sozinha depois de atualizar o sistema, encerra agente esquecido, e um vigia reinicia o orquestrador quando ele some do app.
    6. Telegram: o orquestrador me avisa e me manda arquivo. Não é chat.
    7. WhatsApp: eu encaminho PDF e áudio para um número do agente, e eles chegam na máquina. Pelo mesmo número, o agente me manda arquivo e aviso. Não é chat.
    8. Cofre de senhas: o agente usa as minhas senhas pelo nome, sem o valor aparecer na conversa.
@@ -81,7 +81,7 @@ Siga estes mini-guias, nesta ordem, um por vez. Antes de cada um, diga em uma ou
 - ambiente: só as ferramentas do roteiro. Leve do meu computador só o que somar ao trabalho: as skills e os agents de ~/.claude, os plugins e os servidores MCP que não estão no .mcp.json dos repos. Mostre a lista do que achou e leve o que eu não recusar.
 - logins: o Claude e o GitHub, com as respostas de B e C.
 - codigo: as pastas de E, cada uma com um CLAUDE.md curto do contexto dela, os repos de D e os arquivos ignorados que cada repo precisa, um por um, com a minha confirmação de cada arquivo.
-- memoria, orquestrador e manter: rode o instalador, que monta os três de uma vez. Baixe txt/instalador.txt e siga: get.sh, ORCHESTRATOR com o nome de A no config.env, install.sh --check para me mostrar o que ele vai escrever, install.sh, e install.sh --check sem nenhum "falta". Depois, instale o Cockpit pelo txt/mods.txt. Antes, explique em uma linha cada peça, com txt/memoria.txt, txt/orquestrador.txt, txt/mods.txt e txt/manter.txt. O teto do slice é a memória total menos 512 MB do recover e 1 GB do sistema e do Docker, e numa VPS de 12 GB dá uns 10,5 GB; só aumente SYSTEM_MB se um repo meu sobe container pesado. Depois, preencha o projects.json com os repos de D, cada um com o teto do comando mais pesado dele mais uns 500 MB. Dos mods, explique em uma linha os três que mais pesam: secret-guard, memory-guard e usage-limit. Se o instalador falhar num passo, monte esse passo à mão pelo mini-guia dele e me conte o erro.
+- memoria, orquestrador e manter: rode o instalador, que monta os três de uma vez. Baixe txt/instalador.txt e siga: get.sh, ORCHESTRATOR com o nome de A no config.env, install.sh --check para me mostrar o que ele vai escrever, install.sh, e install.sh --check sem nenhum "falta". Depois, instale o Cockpit pelo txt/mods.txt. Antes, explique em uma linha cada peça, com txt/memoria.txt, txt/orquestrador.txt, txt/mods.txt e txt/manter.txt. O teto do slice é a memória total menos 1 GB do sistema e do Docker, e numa VPS de 12 GB dá uns 11 GB; só aumente SYSTEM_MB se um repo meu sobe container pesado. Depois, preencha o projects.json com os repos de D, cada um com o teto do comando mais pesado dele mais uns 500 MB. Dos mods, explique em uma linha os três que mais pesam: secret-guard, memory-guard e usage-limit. Se o instalador falhar num passo, monte esse passo à mão pelo mini-guia dele e me conte o erro.
 - provar: a lista inteira de provas, com o reboot depois da minha confirmação.
 
 ETAPA 5 DE 6: CANAIS E FERRAMENTAS
@@ -98,7 +98,7 @@ Tudo aqui é instalado. O que precisa de uma conta minha fica instalado e espera
 
 ETAPA 6 DE 6: ENTREGAR
 1. Peça que eu abra o app do Claude, escolha o orquestrador e mande uma tarefa de teste num repo meu. Acompanhe até ele abrir o agente, o agente responder, o aviso chegar no Telegram ou no WhatsApp e o agente ser encerrado.
-2. Feche com um resumo curto: como pedir uma tarefa, como ver os agentes (agent list), como abrir o recover quando a máquina travar, como abrir um orquestrador novo pela entrada de reserva quando a sessão dele cair, como baixar um arquivo da VPS, como renovar o login quando ele vencer, e o que ficou pendente, como uma conta que eu disse que entrego depois.
+2. Feche com um resumo curto: como pedir uma tarefa, como ver os agentes (agent list), que o rc-watch reinicia o orquestrador sozinho quando ele some do app, como abrir um orquestrador novo pela entrada de reserva quando o vigia não bastar, como baixar um arquivo da VPS, como renovar o login quando ele vencer, e o que ficou pendente, como uma conta que eu disse que entrego depois.
 
 Comece pela etapa 1.
 ```

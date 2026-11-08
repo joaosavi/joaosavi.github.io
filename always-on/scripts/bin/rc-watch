@@ -1,0 +1,247 @@
+#!/usr/bin/env python3
+"""Vigia do Remote Control: devolve o orquestrador ao app sem SSH.
+
+  rc-watch                  uma rodada, pelo rc-watch.timer, de minuto em minuto
+  rc-watch status           mostra o veredito, sem agir
+  rc-watch restart [MOTIVO] reinicia o orquestrador agora e zera a trava do limite
+
+A ponte do Remote Control se refaz sozinha depois de um corte curto de rede. Ela não se refaz quando
+a cadeia de renovação do token se esgota: a sessão fica em "OAuth token unavailable", sem nova
+tentativa, e só um reinício a traz de volta. O vigia pergunta ao servidor do Remote Control se a ponte
+do orquestrador está conectada e, depois de FAILURES rodadas seguidas fora, reinicia o serviço dele,
+que volta na mesma conversa pelo --continue do orchestrator-rc.
+
+Conta como fora: o servidor diz que a ponte está desconectada, a sessão não tem bridgeSessionId, o
+socket de mensagens sumiu, ou não há sessão do orquestrador no serviço. Um apiKeyHelper no settings da
+pasta do orquestrador tira a sessão da assinatura e desliga o Remote Control: o vigia tira a chave e
+reinicia na primeira rodada. Sem resposta da API (rede fora, credencial ausente), a rodada fica sem
+veredito e não conta, porque reiniciar não conserta rede.
+"""
+
+import json
+import os
+import shlex
+import subprocess
+import sys
+import time
+import urllib.error
+import urllib.request
+from pathlib import Path
+
+HOME = Path.home()
+
+
+def setting(key, default=""):
+    """O valor do ambiente ou de ~/.config/always-on/env, o mesmo arquivo que o comando agent lê."""
+    if os.environ.get(key):
+        return os.environ[key]
+    try:
+        for line in (HOME / ".config" / "always-on" / "env").read_text().splitlines():
+            k, _, v = line.partition("=")
+            if k.strip() == key:
+                # O arquivo também é lido pelo sh, e um valor com espaço vem entre aspas.
+                words = shlex.split(v)
+                return words[0] if words else ""
+    except OSError:
+        pass
+    return default
+
+
+ORCHESTRATOR = setting("AGENT_ORCHESTRATOR")
+UNIT = f"{ORCHESTRATOR}.service"
+FOLDER = HOME / ORCHESTRATOR
+SETTINGS = [FOLDER / ".claude" / "settings.local.json", FOLDER / ".claude" / "settings.json"]
+SESSIONS = Path(setting("RC_WATCH_SESSIONS", str(HOME / ".claude" / "sessions")))
+CREDS = Path(setting("RC_WATCH_CREDS", str(HOME / ".claude" / ".credentials.json")))
+STATE = Path(setting("RC_WATCH_STATE", str(HOME / ".local" / "state" / "rc-watch"))) / "state.json"
+API = setting("RC_WATCH_API", "https://api.anthropic.com")
+# O comando de aviso do guia, como o envio do WhatsApp, com o texto no último argumento. Vazio, o
+# aviso fica só no journal do timer.
+ALERT = setting("AGENT_ALERT")
+# 5 rodadas de 1 minuto: um corte de rede de 4 minutos voltou sozinho uns 30 s depois da rede, e o
+# reinício corta o turno em curso.
+FAILURES = int(setting("RC_WATCH_FAILURES", "5"))
+# Mais reinícios que isso na janela é laço: o vigia para de reiniciar e avisa você uma vez.
+MAX_RESTARTS = int(setting("RC_WATCH_MAX_RESTARTS", "3"))
+WINDOW = int(setting("RC_WATCH_WINDOW", str(6 * 3600)))
+DRY = setting("RC_WATCH_DRY") == "1"
+NO_VERDICT = "sem veredito"
+
+
+def log(msg):
+    print(msg, flush=True)
+
+
+def load(path, default):
+    try:
+        return json.loads(Path(path).read_text())
+    except (OSError, ValueError):
+        return default
+
+
+def save(path, data):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text(json.dumps(data, indent=1))
+    os.replace(tmp, path)
+
+
+def unit_pids():
+    group = subprocess.run(["systemctl", "show", "-P", "ControlGroup", UNIT],
+                           capture_output=True, text=True).stdout.strip()
+    # Serviço parado volta sem grupo, e /sys/fs/cgroup/cgroup.procs seria a raiz.
+    if not group:
+        return set()
+    try:
+        return {int(p) for p in Path(f"/sys/fs/cgroup{group}/cgroup.procs").read_text().split()}
+    except (OSError, ValueError):
+        return set()
+
+
+def orchestrator_session():
+    """O ~/.claude/sessions/<pid>.json do claude do orquestrador, achado pelo pid dentro do serviço."""
+    pids = unit_pids()
+    for f in SESSIONS.glob("*.json"):
+        s = load(f, None)
+        if isinstance(s, dict) and s.get("pid") in pids and s.get("name") == ORCHESTRATOR:
+            return s
+    return None
+
+
+def connection(bridge):
+    """'connected', 'disconnected' ou None quando a API não deu resposta."""
+    try:
+        token = json.loads(CREDS.read_text())["claudeAiOauth"]["accessToken"]
+    except (OSError, ValueError, KeyError, TypeError):
+        log(f"sem credencial em {CREDS}")
+        return None
+    req = urllib.request.Request(f"{API}/v1/sessions/{bridge}?beta=true", headers={
+        "Authorization": f"Bearer {token}",
+        "anthropic-version": "2023-06-01",
+        "anthropic-beta": "ccr-byoc-2025-07-29",
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return json.load(r).get("connection_status") or None
+    except (urllib.error.URLError, OSError, ValueError) as e:
+        log(f"a API não respondeu para {bridge}: {e}")
+        return None
+
+
+def key_helper_files():
+    return [p for p in SETTINGS if "apiKeyHelper" in load(p, {})]
+
+
+def verdict():
+    """(causa, detalhe). Causa None é ponte conectada."""
+    if not ORCHESTRATOR:
+        return NO_VERDICT, "AGENT_ORCHESTRATOR vazio em ~/.config/always-on/env"
+    if subprocess.run(["systemctl", "is-active", "--quiet", UNIT]).returncode != 0:
+        return NO_VERDICT, f"{UNIT} parado: quem o sobe é o systemd"
+    if key_helper_files():
+        return "apikeyhelper", "apiKeyHelper no settings da pasta tira a sessão da assinatura"
+    s = orchestrator_session()
+    if not s:
+        return "sem-sessao", f"nenhuma sessão {ORCHESTRATOR} viva em {UNIT}"
+    sock = s.get("messagingSocketPath")
+    if sock and not Path(sock).exists():
+        return "socket", f"o socket {sock} sumiu, e os agentes não alcançam o orquestrador"
+    if not s.get("bridgeSessionId"):
+        return "sem-ponte", "a sessão está sem ponte do Remote Control"
+    status = connection(s["bridgeSessionId"])
+    if status is None:
+        return NO_VERDICT, "a API do Remote Control não respondeu"
+    if status != "connected":
+        return "desconectada", f"o servidor diz {status} para a ponte {s['bridgeSessionId']}"
+    return None, s["bridgeSessionId"]
+
+
+def remove_key_helper():
+    for p in key_helper_files():
+        data = load(p, {})
+        if DRY:
+            log(f"[dry] tiraria apiKeyHelper de {p}")
+            continue
+        # A cópia inteira fica no estado do vigia, e o arquivo segue com o resto das chaves.
+        backup = STATE.parent / f"{p.name}.{int(time.time())}"
+        backup.parent.mkdir(parents=True, exist_ok=True)
+        backup.write_text(p.read_text())
+        data.pop("apiKeyHelper", None)
+        save(p, data)
+        log(f"apiKeyHelper tirado de {p}; a cópia está em {backup}")
+
+
+def alert(text):
+    if not ALERT:
+        log(f"aviso (sem AGENT_ALERT): {text}")
+        return
+    cmd = shlex.split(ALERT) + [text]
+    if DRY:
+        log("[dry] " + shlex.join(cmd))
+        return
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    if r.returncode != 0:
+        log(f"o aviso falhou: {r.stderr.strip()[:300]}")
+
+
+def restart(state, reason, manual=False):
+    recent = [t for t in state.get("restarts", []) if time.time() - t < WINDOW]
+    if len(recent) >= MAX_RESTARTS and not manual:
+        if not state.get("locked"):
+            state["locked"] = True
+            alert(f"{ORCHESTRATOR} fora do app: {len(recent)} reinícios em {WINDOW // 3600} h e o vigia parou. "
+                  f"Falha: {reason}. Abra a entrada de reserva {ORCHESTRATOR} no app, ou rode rc-watch restart.")
+        log(f"limite de {MAX_RESTARTS} reinícios em {WINDOW // 3600} h; sem reinício")
+        return False
+    remove_key_helper()
+    log(f"reiniciando {UNIT}: {reason}")
+    if not DRY:
+        subprocess.run(["sudo", "-n", "systemctl", "restart", UNIT], check=False)
+    state["restarts"] = recent + [time.time()]
+    state["failures"] = 0
+    if manual:
+        state["locked"] = False
+    alert(f"O rc-watch reiniciou o {UNIT}: {reason}. O turno em curso foi cortado.")
+    return True
+
+
+def round_(state):
+    cause, detail = verdict()
+    if cause is None:
+        if state.get("failures"):
+            log(f"{ORCHESTRATOR} de volta ao Remote Control depois de {state['failures']} rodada(s) fora")
+        state.update(failures=0, cause=None, locked=False)
+        return
+    if cause == NO_VERDICT:
+        log(f"{NO_VERDICT}: {detail}")
+        return
+    # A causa pode trocar no meio do episódio, como sem ponte e depois desconectada: todas somam.
+    state["failures"] = state.get("failures", 0) + 1
+    state["cause"] = cause
+    log(f"{ORCHESTRATOR} fora ({state['failures']}/{FAILURES}): {detail}")
+    # O apiKeyHelper não sai sozinho: conserta na primeira rodada.
+    if state["failures"] >= FAILURES or cause == "apikeyhelper":
+        restart(state, f"{detail}, {state['failures']} rodada(s) seguidas")
+
+
+def main(argv):
+    state = load(STATE, {})
+    if argv[:1] == ["status"]:
+        cause, detail = verdict()
+        recent = len([t for t in state.get("restarts", []) if time.time() - t < WINDOW])
+        print(f"{ORCHESTRATOR}: {cause or 'conectado'} ({detail}); rodadas fora {state.get('failures', 0)}; "
+              f"reinícios em {WINDOW // 3600} h {recent}")
+        return 0
+    if argv[:1] == ["restart"]:
+        restart(state, " ".join(argv[1:]) or "pedido manual", manual=True)
+    elif argv:
+        print(__doc__, file=sys.stderr)
+        return 2
+    else:
+        round_(state)
+    save(STATE, state)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Monta o essencial do Claude Code Always-On numa VPS Ubuntu: swap, o slice dos agentes, o recover,
-# o orquestrador, o comando agent e os timers que mantêm a máquina sozinha. O guia:
+# Monta o essencial do Claude Code Always-On numa VPS Ubuntu: swap, o slice dos agentes, o orquestrador,
+# o vigia do Remote Control, o comando agent e os timers que mantêm a máquina sozinha. O guia:
 # https://joaosavi.github.io/always-on/
 #
 #   ./install.sh          instala. Pode rodar de novo: o que já está certo fica como está
@@ -13,11 +13,10 @@
 #
 #   Com sudo, em /etc/systemd/system:
 #     <slice>.slice              teto de memória dos agentes somados
-#     recover.slice              256 MB reservados e teto de 512 MB para o recover
 #     <orq>.service              o orquestrador, num tmux, ligado no boot
-#     recover-rc.service         o recover, num tmux, ligado no boot
 #     sessions-restart.service e .timer   todo dia às 7h40
 #     sessions-idle.service e .timer      de hora em hora
+#     rc-watch.service e .timer           de minuto em minuto
 #   Com sudo, fora do systemd:
 #     /swapfile e uma linha no /etc/fstab, só se a máquina não tem swap e SWAP_GB > 0 (nunca num container)
 #     /etc/needrestart/conf.d/always-on.conf, só se o needrestart existe
@@ -26,16 +25,16 @@
 #     cada pacote pede, como o grupo _ssh em /etc/group, o /etc/shells e o estado do dpkg
 #     systemctl daemon-reload, enable e start das units acima
 #   Como o seu usuário:
-#     ~/.local/bin: agent, orchestrator-rc, orchestrator-context, recover-rc, memstat,
+#     ~/.local/bin: agent, orchestrator-rc, orchestrator-context, rc-watch, memstat,
 #                   sessions-restart, sessions-idle
 #     ~/.local/bin/claude e ~/.local/share/claude, pelo instalador oficial, só se o claude falta
 #     ~/.claude/backups, a cópia que o próprio Claude Code faz do ~/.claude.json
-#     ~/.config/always-on/env               o nome do orquestrador e o slice, que os comandos leem
+#     ~/.config/always-on/env               o nome do orquestrador, o slice e o comando de aviso,
+#                                           que os comandos leem
 #     ~/.config/always-on/pc/               o que o agent start --host leva ao seu computador
 #     ~/<orq>/CLAUDE.md, projects.json e .claude/settings.json   criados uma vez, depois são seus
-#     ~/recover/CLAUDE.md                                         criado uma vez
 #     ~/.claude.json e ~/.claude/settings.json   só as chaves das telas de primeira vez e da
-#                                                confiança nas pastas ~/<orq> e ~/recover
+#                                                confiança na pasta ~/<orq>
 #
 # Rede: o apt, e o curl do instalador oficial do Claude Code (https://claude.ai/install.sh) quando o
 # claude falta. Nenhuma porta é aberta, e nada escuta na rede.
@@ -50,6 +49,7 @@ ORCHESTRATOR=${ORCHESTRATOR:-$USER}
 SLICE=${SLICE:-agents}
 SWAP_GB=${SWAP_GB:-8}
 SYSTEM_MB=${SYSTEM_MB:-1024}
+ALERT=${ALERT:-}
 CHECK=0
 case "${1:-}" in
     --check) CHECK=1 ;;
@@ -106,7 +106,6 @@ put_once() {
 step "Pré-requisitos"
 [ "$(id -u)" != 0 ] || die "rode como o usuário das sessões, não como root"
 echo "$ORCHESTRATOR" | grep -Eq '^[a-z][a-z0-9-]*$' || die "ORCHESTRATOR=$ORCHESTRATOR: use letras minúsculas, números e hífen"
-[ "$ORCHESTRATOR" != recover ] || die "o nome recover já é do agente de recover"
 sudo -n true 2>/dev/null || die "o usuário $USER precisa de sudo sem senha (veja Como fazer a config inicial da VPS)"
 [ -d /run/systemd/system ] || die "esta máquina não roda o systemd"
 ok "usuário $USER com sudo sem senha"
@@ -150,10 +149,10 @@ else
     done_ "swap de ${SWAP_GB} GB em /swapfile"
 fi
 
-step "Slices de memória"
+step "Slice de memória"
 total_mb=$(awk '/MemTotal/ {print int($2/1024)}' /proc/meminfo)
 swap_mb=$(awk '/SwapTotal/ {print int($2/1024)}' /proc/meminfo)
-max_mb=$((total_mb - 512 - SYSTEM_MB))
+max_mb=$((total_mb - SYSTEM_MB))
 high_mb=$((max_mb - 512))
 [ "$high_mb" -gt 512 ] || die "a máquina tem $total_mb MB, pouco para o slice dos agentes"
 echo "  memória $total_mb MB: agentes até $max_mb MB, lentos acima de $high_mb MB"
@@ -166,18 +165,9 @@ MemoryHigh=${high_mb}M
 MemoryMax=${max_mb}M
 MemorySwapMax=$((swap_mb / 2))M
 EOF
-put "$UNITS/recover.slice" root 644 <<'EOF'
-[Unit]
-Description=Memória reservada do agente de recover
-
-[Slice]
-MemoryMin=256M
-MemoryMax=512M
-CPUWeight=1000
-EOF
 
 step "Comandos em $BIN"
-for f in agent orchestrator-rc orchestrator-context recover-rc memstat sessions-restart sessions-idle; do
+for f in agent orchestrator-rc orchestrator-context rc-watch memstat sessions-restart sessions-idle; do
     put "$BIN/$f" user 755 <"$HERE/bin/$f"
 done
 
@@ -185,10 +175,11 @@ done
 put "$HOME/.config/always-on/pc/install.sh" user 755 <"$HERE/pc/install.sh"
 put "$HOME/.config/always-on/pc/CLAUDE.md" user 644 <"$HERE/pc/CLAUDE.md"
 
-step "Pastas do orquestrador e do recover"
+step "Pasta do orquestrador"
 put "$HOME/.config/always-on/env" user 644 <<EOF
 AGENT_ORCHESTRATOR=$ORCHESTRATOR
 AGENT_SLICE=$SLICE.slice
+AGENT_ALERT=$(printf %q "$ALERT")
 EOF
 sed -e "s/<orquestrador>/$ORCHESTRATOR/g" -e "s/<slice>/$SLICE/g" "$HERE/templates/orchestrator.md" |
     put_once "$HOME/$ORCHESTRATOR/CLAUDE.md"
@@ -206,13 +197,11 @@ put_once "$HOME/$ORCHESTRATOR/.claude/settings.json" <<EOF
   }
 }
 EOF
-sed -e "s/<orquestrador>/$ORCHESTRATOR/g" -e "s/<slice>/$SLICE/g" "$HERE/templates/recover.md" |
-    put_once "$HOME/recover/CLAUDE.md"
 
 step "Telas de primeira vez do Claude Code"
 # A escolha de tema, a confiança na pasta, o aviso do Remote Control e o do bypass travariam o
 # serviço na subida, esperando uma tecla que ninguém aperta.
-if python3 - "$CHECK" "$HOME/$ORCHESTRATOR" "$HOME/recover" <<'EOF'
+if python3 - "$CHECK" "$HOME/$ORCHESTRATOR" <<'EOF'
 import json, os, sys
 from pathlib import Path
 check, folders = sys.argv[1] == "1", sys.argv[2:]
@@ -290,34 +279,13 @@ RestartSec=10
 [Install]
 WantedBy=multi-user.target
 EOF
-put "$UNITS/recover-rc.service" root 644 <<EOF
-[Unit]
-Description=Remote Control do Claude Code para o agente de recover
-After=network-online.target user-runtime-dir@$(id -u).service
-Wants=network-online.target user-runtime-dir@$(id -u).service
-
-[Service]
-Type=forking
-User=$USER
-Slice=recover.slice
-OOMPolicy=continue
-OOMScoreAdjust=-900
-ExecStart=/usr/bin/tmux -L recover new-session -d -s recover "$LOGIN_SHELL -lic $BIN/recover-rc"
-ExecStop=/usr/bin/tmux -L recover kill-server
-Restart=on-failure
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-EOF
 put "$UNITS/sessions-restart.service" root 644 <<EOF
 [Unit]
-Description=Reinicia o orquestrador e o recover com biblioteca apagada, e retoma as sessões
+Description=Reinicia o orquestrador com biblioteca apagada, e retoma as sessões
 
 [Service]
 Type=oneshot
 User=$USER
-Slice=recover.slice
 MemoryMax=256M
 Environment=PATH=$BIN:/usr/local/bin:/usr/bin:/bin
 Environment=TERM=xterm-256color
@@ -337,7 +305,7 @@ WantedBy=timers.target
 EOF
 put "$UNITS/sessions-idle.service" root 644 <<EOF
 [Unit]
-Description=Encerra o agente e a sessão do recover parados há mais de 48 horas
+Description=Encerra o agente parado há mais de 48 horas
 
 [Service]
 Type=oneshot
@@ -357,19 +325,46 @@ RandomizedDelaySec=5min
 [Install]
 WantedBy=timers.target
 EOF
+put "$UNITS/rc-watch.service" root 644 <<EOF
+[Unit]
+Description=Vigia do Remote Control: reinicia o orquestrador quando ele fica fora do app
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=$USER
+# Fora do slice dos agentes: com ele no teto, o vigia ainda roda e reinicia.
+Slice=system.slice
+MemoryMax=128M
+TimeoutStartSec=3min
+Environment=PATH=$BIN:/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/python3 $BIN/rc-watch
+EOF
+put "$UNITS/rc-watch.timer" root 644 <<'EOF'
+[Unit]
+Description=Pergunta ao Remote Control, de minuto em minuto, se o orquestrador está no app
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+AccuracySec=10s
+
+[Install]
+WantedBy=timers.target
+EOF
 if [ -d /etc/needrestart/conf.d ]; then
     # O needrestart reinicia todo serviço com biblioteca trocada e derrubaria a sessão no meio do
     # turno. Quem reinicia é o sessions-restart, que retoma as sessões depois. A entrada de reserva,
     # passo opcional do guia, já entra na regra.
     put /etc/needrestart/conf.d/always-on.conf root 644 <<EOF
-\$nrconf{override_rc}{qr(^($ORCHESTRATOR|$ORCHESTRATOR-spawn|recover-rc)\\.service\$)} = 0;
+\$nrconf{override_rc}{qr(^($ORCHESTRATOR|$ORCHESTRATOR-spawn)\\.service\$)} = 0;
 EOF
 fi
 
 if [ "$CHECK" = 0 ] && [ "$CHANGED" = 1 ]; then
     sudo systemctl daemon-reload
 fi
-for t in sessions-restart.timer sessions-idle.timer; do
+for t in sessions-restart.timer sessions-idle.timer rc-watch.timer; do
     if systemctl is-enabled -q "$t" 2>/dev/null; then ok "$t ligado"
     elif [ "$CHECK" = 1 ]; then missing "$t desligado"
     else sudo systemctl enable -q --now "$t" && done_ "$t ligado"
@@ -377,7 +372,7 @@ for t in sessions-restart.timer sessions-idle.timer; do
 done
 logged_in=0
 [ -f "$HOME/.claude/.credentials.json" ] && logged_in=1
-for s in "$ORCHESTRATOR" recover-rc; do
+for s in "$ORCHESTRATOR"; do
     if systemctl is-active -q "$s"; then
         ok "$s rodando"
     elif [ "$CHECK" = 1 ]; then
@@ -395,4 +390,4 @@ if [ "$MISSING" -gt 0 ]; then
     echo "Faltam $MISSING itens."
     exit 1
 fi
-echo "Tudo certo. No app do Claude, a sessão $ORCHESTRATOR aparece pronta, e o recover abre pelo botão de nova sessão."
+echo "Tudo certo. No app do Claude, a sessão $ORCHESTRATOR aparece pronta, e o rc-watch a devolve ao app quando ela cai."

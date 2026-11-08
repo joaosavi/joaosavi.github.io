@@ -17,7 +17,7 @@ Uma VPS é um servidor virtual alugado, ligado 24 horas, onde o Claude Code (htt
 O Claude Code também roda na nuvem da Anthropic, sem VPS. Lá ele não alcança serviço privado, não roda em bypass e some quando a sessão fica parada, então este guia não cobre esse caminho. 
 
 ## Tamanho da máquina 
-Medimos numa máquina com 2 núcleos e 7 GB de memória, num projeto Next.js (https://nextjs.org/) com Postgres (https://www.postgresql.org/) em Docker (https://www.docker.com/). A suíte inteira de testes de tela levou 32 minutos, e cada sessão parada do Claude Code ocupou de 200 a 500 MB. Com menos de 4 GB, o build de um app web e o navegador dos testes disputam memória. A conta do teto das sessões está em Como pôr teto de memória e o agente de recover (txt/memoria.txt). 
+Medimos numa máquina com 2 núcleos e 7 GB de memória, num projeto Next.js (https://nextjs.org/) com Postgres (https://www.postgresql.org/) em Docker (https://www.docker.com/). A suíte inteira de testes de tela levou 32 minutos, e cada sessão parada do Claude Code ocupou de 200 a 500 MB. Com menos de 4 GB, o build de um app web e o navegador dos testes disputam memória. A conta do teto das sessões está em Como pôr teto de memória nos agentes (txt/memoria.txt). 
 
 Troque os nomes de exemplo
 Os comandos usam três nomes de exemplo. Troque `voce` pelo seu usuário, `agente` pelo nome da máquina e `projeto` pela pasta do repo na máquina. Escolha os três antes de começar, porque eles se repetem em várias páginas. 
