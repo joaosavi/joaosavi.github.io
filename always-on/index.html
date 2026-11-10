@@ -3322,6 +3322,10 @@ cat ~/.ssh/id_ed25519.pub</pre></div></li>
     <li>No computador, autorize essa chave só para quem chega pelo túnel. Troque <code>CHAVE_DA_VPS</code> pela linha que o <code>cat</code> mostrou:
       <div class="code"><div class="code-head"><span>bash, no seu computador</span><button class="copy">Copiar</button></div><pre>echo 'from="127.0.0.1,::1" CHAVE_DA_VPS' &gt;&gt; ~/.ssh/authorized_keys</pre></div></li>
     <li>Na VPS, prenda a chave do seu computador ao túnel. No <code>~/.ssh/authorized_keys</code>, ponha na frente da linha dela: <code>restrict,port-forwarding,permitlisten="localhost:2222",permitopen="127.0.0.1:7777"</code>. O <code>permitlisten</code> deixa o computador abrir a porta 2222 na VPS, e o <code>permitopen</code> deixa a mesma chave abrir o <a href="#mods">painel do Cockpit</a>. Nenhum outro uso da chave passa.</li>
+    <li>Na VPS, faça o <code>sshd</code> derrubar a sessão que parou de responder. Sem isso, quando o computador dorme ou perde a rede, a sessão morta segura a porta 2222, e o próximo túnel falha com <code>remote port forwarding failed for listen port 2222</code>. Com 30 s e 3 perguntas sem resposta, a porta solta em uns 2 minutos. O prefixo <code>10</code> põe o arquivo antes dos outros da pasta, porque no <code>sshd</code> vale o primeiro valor lido, e o <code>reload</code> não derruba as sessões abertas. A última linha mostra <code>clientaliveinterval 30</code>:
+      <div class="code"><div class="code-head"><span>bash, na VPS</span><button class="copy">Copiar</button></div><pre>printf 'ClientAliveInterval 30\nClientAliveCountMax 3\n' | sudo tee /etc/ssh/sshd_config.d/10-keepalive.conf
+sudo sshd -t &amp;&amp; sudo systemctl reload ssh
+sudo sshd -T | grep clientalive</pre></div></li>
     <li>No computador, abra o túnel:
       <div class="code"><div class="code-head"><span>bash, no seu computador</span><button class="copy">Copiar</button></div><pre>ssh -N -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -R 2222:localhost:22 &lt;usuario&gt;@&lt;ip&gt;</pre></div></li>
   </ol>
